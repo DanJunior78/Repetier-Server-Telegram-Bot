@@ -21,6 +21,27 @@ Python >= 3.8
 - pip install opencv-python
 - pip install python-telegram-bot
 
+# How to get started:
+
+Configuration File (JSON): Repetier-Server_Telegram_Bot_Vx.json
+
+Requiered data:
+
+"CFG_VERSION": "V03", --> do not change!!!
+"LANGUAGE": "en", --> Possible to change to your language, otherwise it will be used the system setting or if not availble, it will keep program in english.
+"MY_REPETIER_SERVER_API_KEY": "", --> Your Repetier-Server API Key
+"RepetierServerIP": "", --> Fill in your Repetier-Server IP adress, e.g. "192.168.100.44"
+"RepetierServerIP2": "", --> For future use, not required 
+"RepetierServerPort": "3344", -->  
+"MY_TELEGRAM_ID": , -->  Your telgram ID
+"MY_TELEGRAM_TOKEN": "", --> Your botfather token 
+"LOGFILENAME": "", --> usually all logs go to ./log folder
+"LOGFILENAMEWS": "", --> usually all logs go to ./log folder 
+"PNGFILEFOLDER": "", --> usually all pics/videos go to ./pic folder
+"GIFFILEFOLDER": "", --> usually all pics/videos go to ./pic folder 
+"VIDFILEFOLDER": "", --> usually all pics/videos go to ./pic folder 
+"data": [] --> Do not change!!!
+
 # Available Languages:
 
 German, English, Spanish
