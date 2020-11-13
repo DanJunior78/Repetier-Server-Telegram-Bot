@@ -1,4 +1,4 @@
-# Repetier-Server-Telegram-Bot (Beta)
+# Repetier-Server-Telegram-Bot (Beta) - Python
 Telegram Bot connecting your Repetier Server and your Telegram bot account.
 
 It updates every 2 seconds your bot and you´ll have latest information about your prints and printer status.
