@@ -11,7 +11,14 @@ Following requierements:
 
 Python >= 3.8 
 
-# Library dependencies (installable via pip):
+# Images/Pictures
+
+![Main View](/00_Pictures/Main_View.JPG)
+![Printer Detail](/00_Pictures/Printer_Detail_View.JPG)
+![External Commands](/00_Pictures/ExtCommands.JPG)
+![Webcam](/00_Pictures/Webcam_Items.JPG)
+
+# Library dependencies (install via pip):
 
 - pip install arrow
 - pip install websocket_client
