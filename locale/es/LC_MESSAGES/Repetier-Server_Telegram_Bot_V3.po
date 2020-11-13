@@ -1,0 +1,825 @@
+# Repetier-Server_Telegram_Bot.
+# Copyright (C) 2020 Repetier Server Bot
+# Daniel Glock <daniel.g.aus.g@gmail.com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Repetier-Server_Telegram_Bot_V3\n"
+"POT-Creation-Date: 2020-11-12 23:46+0100\n"
+"PO-Revision-Date: 2020-11-13 12:26+0100\n"
+"Last-Translator: Daniel Glock <daniel.g.aus.g@gmail.com>\n"
+"Language-Team: es <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CP1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 2.4.2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: D:\temp\python\test4.py:111
+msgid "Sprachedateipfad: %s"
+msgstr "Ruta del archivo de idioma: %s"
+
+#: D:\temp\python\test4.py:116
+msgid "Sprache OS: %s/%s"
+msgstr "Idioma OS: %s/%s"
+
+#: D:\temp\python\test4.py:123
+msgid "Sprache auf Ausweichsprache englisch umgestellt"
+msgstr "Idioma cambiado al idioma alternativo Inglés"
+
+#: D:\temp\python\test4.py:125
+msgid "Sprache auf \"%s\" umgestellt"
+msgstr "Se ha cambiado el idioma a \"%s\""
+
+#: D:\temp\python\test4.py:128
+msgid "Sprachedateiinfo: %s"
+msgstr "Información del archivo de idioma: %s"
+
+#: D:\temp\python\test4.py:143
+msgid "Logger: %s wurde im Debug Modus(%s) aktiviert. Level: %s"
+msgstr "Registrador: %s se ha activado en modo de depuración (%s). Nivel: %s"
+
+#: D:\temp\python\test4.py:157
+msgid "Konfigurationsdatei nicht gefunden - impConfig - : %s"
+msgstr "Archivo de configuración no encontrado - impConfig - : %s"
+
+#: D:\temp\python\test4.py:161
+msgid "Konfigurationsversion stimmt überein: %s"
+msgstr "Coincidencias de la versión de configuración: %s"
+
+#: D:\temp\python\test4.py:163
+msgid "Konfigurationsdatei Versionskonflikt: %s, anstatt: %s"
+msgstr "Conflicto de versión del archivo de configuración: %s en lugar de: %s"
+
+#: D:\temp\python\test4.py:165
+msgid "Konfigurationsdatei enthält Element CFG_VERSION nicht"
+msgstr "El archivo de configuración no contiene elementos CFG_VERSION"
+
+#: D:\temp\python\test4.py:169
+msgid "Sprache Repetier Server: %s"
+msgstr "Idioma Repetier Server: %s"
+
+#: D:\temp\python\test4.py:171
+msgid "Konfigurationsdatei enthält Element LANGUAGE nicht"
+msgstr "El archivo de configuración no contiene el elemento LANGUAGE"
+
+#: D:\temp\python\test4.py:177
+msgid "API Key Repetier Server: %s"
+msgstr "Llave API Repetier Server: %s"
+
+#: D:\temp\python\test4.py:179
+msgid "Konfigurationsdatei enthält Element MY_REPETIER_SERVER_API_KEY nicht"
+msgstr ""
+"El archivo de configuración no contiene elementos MY_REPETIER_SERVER_API_KEY"
+
+#: D:\temp\python\test4.py:183
+msgid "Repetier Server IP: %s"
+msgstr "Repetier Server IP: %s"
+
+#: D:\temp\python\test4.py:185
+msgid "Konfigurationsdatei enthält Element RepetierServerIP nicht"
+msgstr "El archivo de configuración no contiene el elemento RepetierServerIP"
+
+#: D:\temp\python\test4.py:189
+msgid "Repetier Server IP2: %s"
+msgstr "Repetier Server IP2: %s"
+
+#: D:\temp\python\test4.py:191
+msgid "Konfigurationsdatei enthält Element RepetierServerIP2 nicht"
+msgstr "El archivo de configuración no contiene el elemento RepetierServerIP2"
+
+#: D:\temp\python\test4.py:195
+msgid "Repetier Server Port: %s"
+msgstr "Repetier Server Port: %s"
+
+#: D:\temp\python\test4.py:197
+msgid "Konfigurationsdatei enthält Element RepetierServerPort nicht"
+msgstr "El archivo de configuración no contiene el elemento RepetierServerPort"
+
+#: D:\temp\python\test4.py:201
+msgid "Telegram Token: %s"
+msgstr "Telegram Token: %s"
+
+#: D:\temp\python\test4.py:203
+msgid "Konfigurationsdatei enthält Element MY_TELEGRAM_TOKEN nicht"
+msgstr "El archivo de configuración no contiene elementos MY_TELEGRAM_TOKEN"
+
+#: D:\temp\python\test4.py:207
+msgid "Administrator Telegram ID: %s"
+msgstr "Administrador Telegram ID: %s"
+
+#: D:\temp\python\test4.py:209
+msgid "Konfigurationsdatei enthält Element MY_TELEGRAM_ID nicht"
+msgstr "El archivo de configuración no contiene elementos MY_TELEGRAM_ID"
+
+#: D:\temp\python\test4.py:213
+msgid "LogFileName: %s"
+msgstr "LogFileName: %s"
+
+#: D:\temp\python\test4.py:215
+msgid "Konfigurationsdatei enthält Element LOGFILENAME nicht"
+msgstr "El archivo de configuración no contiene el elemento LOGFILENAME"
+
+#: D:\temp\python\test4.py:222
+msgid "LogFileNameWS: %s"
+msgstr "LogFileNameWS: %s"
+
+#: D:\temp\python\test4.py:224
+msgid "Konfigurationsdatei enthält Element LOGFILENAMEWS nicht"
+msgstr "El archivo de configuración no contiene el elemento LOGFILENAMEWS"
+
+#: D:\temp\python\test4.py:231
+msgid "PNGFileFolder: %s"
+msgstr "PNGFileFolder: %s"
+
+#: D:\temp\python\test4.py:233
+msgid "Konfigurationsdatei enthält Element PNGFILEFOLDER nicht"
+msgstr "El archivo de configuración no contiene el elemento PNGFILEFOLDER"
+
+#: D:\temp\python\test4.py:240
+msgid "GIFFileFolder: %s"
+msgstr "GIFFileFolder: %s"
+
+#: D:\temp\python\test4.py:242 D:\temp\python\test4.py:251
+msgid "Konfigurationsdatei enthält Element GIFFILEFOLDER nicht"
+msgstr "El archivo de configuración no contiene elemento GIFFILEFOLDER"
+
+#: D:\temp\python\test4.py:249
+msgid "VIDFileFolder: %s"
+msgstr "VIDFileFolder: %s"
+
+#: D:\temp\python\test4.py:260 D:\temp\python\test4.py:1232
+msgid "Konfigurationsdatei konnte nicht beschrieben werden"
+msgstr "No se pudo escribir el archivo de configuración"
+
+#: D:\temp\python\test4.py:262
+msgid "Konfigurationsdatei erfolgreich eingelesen: %s"
+msgstr "Archivo de configuración leído correctamente: %s"
+
+#: D:\temp\python\test4.py:376
+msgid ""
+"BOT Fehler!!! Versuch es noch einmal.\n"
+" %s"
+msgstr ""
+"Error BOT!!! Vuelve a intentarlo.\n"
+" %s"
+
+#: D:\temp\python\test4.py:379
+msgid "Bot Bad Request \"%s\""
+msgstr "Bot Bad Request \"%s\""
+
+#: D:\temp\python\test4.py:381
+msgid "Bot TimedOut \"%s\""
+msgstr "Bot TimedOut \"%s\""
+
+#: D:\temp\python\test4.py:383
+msgid "Bot Error \"%s\""
+msgstr "Error del bot \"%s\""
+
+#: D:\temp\python\test4.py:413 D:\temp\python\test4.py:423
+msgid "Ende"
+msgstr "Salir"
+
+#: D:\temp\python\test4.py:422
+msgid "Zurück"
+msgstr "Atrás"
+
+#: D:\temp\python\test4.py:438
+msgid "ExtCommands"
+msgstr "ExtCommands"
+
+#: D:\temp\python\test4.py:441
+msgid "Webcam %s"
+msgstr "Webcam %s"
+
+#: D:\temp\python\test4.py:462
+msgid "OK"
+msgstr "OK"
+
+#: D:\temp\python\test4.py:486
+msgid "Befehl fehlgeschlagen"
+msgstr "Error de comando"
+
+#: D:\temp\python\test4.py:490
+msgid "Befehl ausgeführt"
+msgstr "Comando ejecutado"
+
+#: D:\temp\python\test4.py:504
+msgid "Sende Video Kamera %s"
+msgstr "Enviar vídeo de cámara %s"
+
+#: D:\temp\python\test4.py:506
+msgid "Sende Gif Kamera %s"
+msgstr "Enviar Gif de cámara %s"
+
+#: D:\temp\python\test4.py:507
+msgid "Sende Png Kamera %s"
+msgstr "Enviar Png de cámara %s"
+
+#: D:\temp\python\test4.py:545
+msgid "updatePrinterMsgReplayMarkup: Drucker %s löscht MessageID: %s"
+msgstr "updatePrinterMsgReplayMarkup: La %s de impresora elimina MessageID: %s"
+
+#: D:\temp\python\test4.py:570
+msgid "Bot antwortet auf unbekannten client: %s / %s: %s, %s"
+msgstr "Bot responde al cliente desconocido: %s / %s: %s, %s"
+
+#: D:\temp\python\test4.py:575
+msgid "Unbefugter Zugriff durch Nutzer %s, %s %s"
+msgstr "Acceso no autorizado por parte de los usuarios %s, %s %s"
+
+#: D:\temp\python\test4.py:581
+msgid "Kein Zugriff!"
+msgstr "¡Sin acceso!"
+
+#: D:\temp\python\test4.py:674
+msgid "Bot beendet Konversation: %s (%s): %s, %s"
+msgstr "Bot termina la conversación: %s (%s): %s, %s"
+
+#: D:\temp\python\test4.py:682
+msgid "Ich nix versteh %s, %s."
+msgstr "No entiendo, hablas basco, o que? %s, %s."
+
+#: D:\temp\python\test4.py:688
+msgid "Bot kennt Antwort nicht: %s"
+msgstr "Bot no sabe la respuesta: %s"
+
+#: D:\temp\python\test4.py:695
+msgid "Du warst zu langsam, %s. Jetzt darfst nochmal drücken!!!"
+msgstr "Fuiste demasiado lento, %s. Ahora puedes presionar de nuevo!!!"
+
+#: D:\temp\python\test4.py:702
+msgid "Konversations-Timeout"
+msgstr "Conversación timeout"
+
+#: D:\temp\python\test4.py:736
+msgid "Antwort öffnen des Websocket: %s, Unerwarteter Fehler: %s"
+msgstr "Respuesta abrir el websocket: %s, Error inesperado: %s"
+
+#: D:\temp\python\test4.py:745
+msgid "Antwort auf: %s, Websocket Rückmeldung: %s : Unerwarteter Fehler: %s"
+msgstr "Respuesta a: %s, Websocket Feedback: %s : Error inesperado: %s"
+
+#: D:\temp\python\test4.py:749
+msgid "Über Websocket gesendet: %s"
+msgstr "Enviado a través de Websocket: %s"
+
+#: D:\temp\python\test4.py:755
+msgid "Unerwarteter Fehler bei Antwort des Websocket: %s"
+msgstr "Error inesperado de respuesta del websocket: %s"
+
+#: D:\temp\python\test4.py:758
+msgid "Vom Websocket erhalten: %s"
+msgstr "Respuesta websocket: %s"
+
+#: D:\temp\python\test4.py:763
+msgid "JSON: %s : Unerwarteter Fehler: %s"
+msgstr "JSON: %s : Error inesperado: %s"
+
+#: D:\temp\python\test4.py:767
+msgid "Server Meldung nicht die angeforderten: %s : Kein nutzbarer Inhalt"
+msgstr ""
+"Mensaje del servidor no el solicitado: %s : No hay contenido utilizable"
+
+#: D:\temp\python\test4.py:795 D:\temp\python\test4.py:816
+#: D:\temp\python\test4.py:913
+msgid "Thread initialisiert: %s"
+msgstr "Thread inicializado: %s"
+
+#: D:\temp\python\test4.py:800 D:\temp\python\test4.py:821
+#: D:\temp\python\test4.py:894 D:\temp\python\test4.py:918
+msgid "Thread %s beendet: Ident: %s / ID: %s"
+msgstr "%s terminado del subproceso: Ident: %s / ID: %s"
+
+#: D:\temp\python\test4.py:847
+msgid ""
+"Thread (keine ID vorhanden) initialisiert für MessageID: %s mit er Laufzeit: "
+"%ss"
+msgstr ""
+"Subproceso (sin ID disponible) inicializado para MessageID: %s con él "
+"runtime: %ss"
+
+#: D:\temp\python\test4.py:851
+msgid ""
+"Thread initialisiert für Drucker: %s und MessageID: %s mit er Laufzeit: %ss"
+msgstr ""
+"Subproceso inicializado para impresora: %s y MessageID: %s con él runtime: "
+"%ss"
+
+#: D:\temp\python\test4.py:853
+msgid "Thread initialisiert für MessageID: %s mit er Laufzeit: %ss"
+msgstr "Subproceso inicializado para MessageID: %s con él Runtime: %ss"
+
+#: D:\temp\python\test4.py:858
+msgid "Thread Nachricht löschen für MessageID %s beendet: Ident: %s / ID: %s"
+msgstr ""
+"Eliminar mensaje de subproceso para MessageID %s terminado: Ident: %s / ID: "
+"%s"
+
+#: D:\temp\python\test4.py:869
+msgid ""
+"Konnte in delMessage Methode keine telegramDelMsg senden auf messageID: %s"
+msgstr ""
+"No se pudo enviar telegramDelMsg en el método delMessage en messageID: %s"
+
+#: D:\temp\python\test4.py:870
+msgid "MessageID %s von der chatID %s wurde gelöscht"
+msgstr "MessageID %s se ha eliminado de chatID %s"
+
+#: D:\temp\python\test4.py:889
+msgid "Drucker Thread initialisiert: %s"
+msgstr "Thread de impresora inicializada: %s"
+
+#: D:\temp\python\test4.py:961
+msgid "Threads %s gestartet"
+msgstr "Threads %s iniciado"
+
+#: D:\temp\python\test4.py:970
+msgid "Threads %s beendet"
+msgstr "Termina subproceso %s"
+
+#: D:\temp\python\test4.py:1027 D:\temp\python\test4.py:1037
+msgid "Kann Thread nicht aus Liste msgActiveThreads löschen. Drucker: %s"
+msgstr ""
+"No se puede eliminar el subproceso de la lista msgActiveThreads. Impresora: "
+"%s"
+
+#: D:\temp\python\test4.py:1028 D:\temp\python\test4.py:1038
+msgid "Thread %s beendet"
+msgstr "Thread %s terminado"
+
+#: D:\temp\python\test4.py:1078
+msgid "Handler %s hinzugefügt"
+msgstr "Agregado handler %s"
+
+#: D:\temp\python\test4.py:1120
+msgid "Keine Server Rückmeldung in Methode checkForMsgThreads"
+msgstr "No hay respuesta del servidor en el método checkForMsgThreads"
+
+#: D:\temp\python\test4.py:1130
+msgid "Beende in Methode checkServerConfigChange Thread: %s"
+msgstr "Para thread en methodo checkServerConfigChange: %s"
+
+#: D:\temp\python\test4.py:1150
+msgid "Bot Teilnehmer in checkBotToServerConfig hinzugefügt: %s"
+msgstr "Se han añadido los participantes del bot en checkBotToServerConfig: %s"
+
+#: D:\temp\python\test4.py:1167 D:\temp\python\test4.py:1178
+#: D:\temp\python\test4.py:1195 D:\temp\python\test4.py:1211
+msgid "Teilnehmer in botData hinzugefügt: %s"
+msgstr "Participantes en botData añadido: %s"
+
+#: D:\temp\python\test4.py:1173
+msgid "Konfigurationsdatei in botData enthält keine Telegram Datenablage"
+msgstr ""
+"El archivo de configuración de botData no contiene almacenamiento de datos "
+"de Telegram"
+
+#: D:\temp\python\test4.py:1214
+msgid "Bot Data angelegt"
+msgstr "Datos bot creados"
+
+#: D:\temp\python\test4.py:1216
+msgid "Bot Data Initialisierung fehlgeschlagen"
+msgstr "Error en la inicialización de bots"
+
+#: D:\temp\python\test4.py:1223
+msgid "Konfigurationsdatei nicht gefunden in botData: %s"
+msgstr "Archivo de configuración no encontrado en botData: %s"
+
+#: D:\temp\python\test4.py:1238
+msgid "checkMsgID: Drucker %s fordert neue MessageID für MessageID an: %s"
+msgstr "checkMsgID: impresora %s solicita nuevo MessageID para MessageID: %s"
+
+#: D:\temp\python\test4.py:1287 D:\temp\python\test4.py:1374
+#: D:\temp\python\test4.py:1393 D:\temp\python\test4.py:1404
+msgid "Update: %s um %s"
+msgstr "Actualización: %s en %s"
+
+#: D:\temp\python\test4.py:1289
+msgid "Einsatzbereit"
+msgstr "Disponible"
+
+#: D:\temp\python\test4.py:1291
+msgid "Ausgeschaltet"
+msgstr "Apagado"
+
+#: D:\temp\python\test4.py:1301
+msgid "Konnte keepBasicPrinterInfo keine Bot Nachricht senden an %s"
+msgstr "No se pudo mantenerBasicPrinterInfo enviar un mensaje de bot a %s"
+
+#: D:\temp\python\test4.py:1302
+msgid "keepBasicPrinterInfo: Drucker %s erzeugt neue MessageID: %s"
+msgstr "keepBasicPrinterInfo: la %s de impresora crea un nuevo MessageID: %s"
+
+#: D:\temp\python\test4.py:1307
+msgid ""
+"Konnte keepBasicPrinterInfo keinen telegramEditMsg senden an %s auf "
+"messageID: %s"
+msgstr ""
+"No he podido keepBasicPrinterInfo enviar telegramEditMsg a %s en messageID: "
+"%s"
+
+#: D:\temp\python\test4.py:1344
+msgid "Printer %s not found in method getPrinterSetting!"
+msgstr "¡La impresora no %s encuentra en el método getPrinterSetting!"
+
+#: D:\temp\python\test4.py:1350
+msgid "Response to open threading websocket: %s, Unexpected Error: %s"
+msgstr "Respuesta a open threading websocket: %s, Unexpected Error: %s"
+
+#: D:\temp\python\test4.py:1354 D:\temp\python\test4.py:2130
+msgid "Websocket established to: %s"
+msgstr "Websocket establecido para: %s"
+
+#: D:\temp\python\test4.py:1375
+msgid "Druck der Datei"
+msgstr "Impresión del archivo"
+
+#: D:\temp\python\test4.py:1377
+msgid "ist bei %.1f"
+msgstr "está en %.1f"
+
+#: D:\temp\python\test4.py:1378
+msgid "Layer: %s/%s bei Z: %.3fmm"
+msgstr "Capa: %s/%s en Z: %.3fmm"
+
+#: D:\temp\python\test4.py:1379
+msgid "Fertigstellung %s"
+msgstr "Finaliza %s"
+
+#: D:\temp\python\test4.py:1380
+msgid "Druck wurde %s begonnen"
+msgstr "La impresión comenzó %s"
+
+#: D:\temp\python\test4.py:1381
+msgid "Vorraussichtliches Ende: %s"
+msgstr "Impresion termina: %s"
+
+#: D:\temp\python\test4.py:1382
+msgid "Drucker Status:"
+msgstr "Estado de la impresora:"
+
+#: D:\temp\python\test4.py:1383
+msgid "Druckgeschwindigkeit: %s%% Fluss: %s%%"
+msgstr "Velocidad de impresión: %s%% Fluido: %s%%"
+
+#: D:\temp\python\test4.py:1394 D:\temp\python\test4.py:1408
+msgid "Aufheizvorgang:"
+msgstr "Proceso de calentamiento:"
+
+#: D:\temp\python\test4.py:1418
+msgid "Konnte msgPrinter keine Bot Nachricht senden an %s"
+msgstr "No pude enviar en msgPrinter un mensaje de bot a %s"
+
+#: D:\temp\python\test4.py:1419
+msgid "msgPrinter: Drucker %s erzeugt neue MessageID: %d"
+msgstr "msgPrinter: Printer %s crea un nuevo MessageID: %d"
+
+#: D:\temp\python\test4.py:1424
+msgid "Konnte msgPrinter keinen telegramEditMsg senden an %s auf messageID: %s"
+msgstr "Podría msgPrinter no enviar telegramEditMsg a %s en messageID: %s"
+
+#: D:\temp\python\test4.py:1427
+msgid "Konnte msgPrinter nicht ausführen. Keine Daten vom Server für %s"
+msgstr "No se pudo ejecutar msgPrinter. No hay datos del servidor para %s"
+
+#: D:\temp\python\test4.py:1438
+msgid "Lüfter %d: %.0f%%"
+msgstr "Ventilador %d: %.0f%%"
+
+#: D:\temp\python\test4.py:1440
+msgid "Lüfter %d: Aus"
+msgstr "Ventilador %d: apagado"
+
+#: D:\temp\python\test4.py:1451 D:\temp\python\test4.py:1453
+msgid "Chamber %d: %.1f °C/ %.1f °C\n"
+msgstr "Cámara %d: %.1f °C/ %.1f °C\n"
+
+#: D:\temp\python\test4.py:1465 D:\temp\python\test4.py:1467
+msgid "Heatbed %d: %.1f °C/ %.1f °C\n"
+msgstr "Heatbed %d: %.1f °C/ %.1f °C\n"
+
+#: D:\temp\python\test4.py:1479 D:\temp\python\test4.py:1481
+msgid "Extruder %d: %.1f °C/ %.1f °C\n"
+msgstr "Extrusor %d: %.1f °C/ %.1f °C\n"
+
+#: D:\temp\python\test4.py:1492
+msgid "Anfragefehler getPrinterConfig in buildPng für Drucker: %s"
+msgstr "Error de solicitud getPrinterConfig en buildPng para impresora: %s"
+
+#: D:\temp\python\test4.py:1498
+msgid "Png Erstellung startet für %s"
+msgstr "La creación de Png comienza para %s"
+
+#: D:\temp\python\test4.py:1500
+msgid "Lösche %s"
+msgstr "Eliminar %s"
+
+#: D:\temp\python\test4.py:1506 D:\temp\python\test4.py:1591
+msgid "Png Erstellung beendet für %s"
+msgstr "Creación Png terminada para %s"
+
+#: D:\temp\python\test4.py:1511 D:\temp\python\test4.py:1617
+#: D:\temp\python\test4.py:1702
+msgid "/%s druckt \"%s\" bei %.1f%%"
+msgstr "/%s imprime \"%s\" al %.1f%%"
+
+#: D:\temp\python\test4.py:1514 D:\temp\python\test4.py:1620
+#: D:\temp\python\test4.py:1705
+msgid "/%s - eingeschaltet"
+msgstr "/%s - encendido"
+
+#: D:\temp\python\test4.py:1516 D:\temp\python\test4.py:1622
+#: D:\temp\python\test4.py:1707
+msgid "/%s - ausgeschaltet"
+msgstr "/%s - apagado"
+
+#: D:\temp\python\test4.py:1517
+msgid "Png Caption Erstellung beendet für %s"
+msgstr "Fecha png Creación terminada para %s"
+
+#: D:\temp\python\test4.py:1522 D:\temp\python\test4.py:1713
+msgid "Sendefehler telegramSendPic in buildGif für Drucker: %s"
+msgstr "Enviar telegramas de errorSendPic en buildGif para impresora: %s"
+
+#: D:\temp\python\test4.py:1523
+msgid "Png versendet für %s"
+msgstr "Png enviado para %s"
+
+#: D:\temp\python\test4.py:1537 D:\temp\python\test4.py:1642
+msgid "Anfragefehler getWebcamStaticUrl in get_image für Drucker: %s"
+msgstr ""
+"Error de solicitud getWebcamStaticUrl en get_image para la impresora: %s"
+
+#: D:\temp\python\test4.py:1544
+msgid "Anfragefehler requests in get_image für Drucker: %s"
+msgstr "Solicitar solicitudes de error en get_image para impresora: %s"
+
+#: D:\temp\python\test4.py:1561
+msgid ""
+"Verzeichnis/Datei konnte nicht in get_image für Drucker erstellt werden: %s"
+msgstr "No se puede crear directorio/archivo en get_image para impresora: %s"
+
+#: D:\temp\python\test4.py:1570
+msgid "Anfragefehler getPrinterConfig in buildGif für Drucker: %s"
+msgstr "Error de solicitud getPrinterConfig en buildGif para impresora: %s"
+
+#: D:\temp\python\test4.py:1581
+msgid "Gif Erstellung startet für %s"
+msgstr "La creación de gifs comienza para %s"
+
+#: D:\temp\python\test4.py:1601
+msgid "Erstellungsfehler imageio.mimsave in buildGif für Drucker: %s"
+msgstr "Error de creación imageio.mimsave en buildGif para impresora: %s"
+
+#: D:\temp\python\test4.py:1609
+msgid "TypeError bei gifsicle in buildGif: %s"
+msgstr "TypeError en gifsicle en buildGif: %s"
+
+#: D:\temp\python\test4.py:1611
+msgid "Optimierungsfehler optimize von gifsicle in buildGif für Drucker: %s"
+msgstr "Error de optimización por gifsicle en buildGif para impresora: %s"
+
+#: D:\temp\python\test4.py:1612
+msgid "Gif Erstellung beendet für %s"
+msgstr "Creación de GIF terminada para %s"
+
+#: D:\temp\python\test4.py:1623
+msgid "Gif Caption Erstellung beendet für %s"
+msgstr "Creación de subtítulos Gif terminada para %s"
+
+#: D:\temp\python\test4.py:1628
+msgid "Sendefehler telegramSendAnimation in buildGif für Drucker: %s"
+msgstr "Enviar error telegramSendAnimation en buildGif para impresora: %s"
+
+#: D:\temp\python\test4.py:1629
+msgid "Gif versendet für %s"
+msgstr "Gif enviado para %s"
+
+#: D:\temp\python\test4.py:1650
+msgid "Anfragefehler requests in get_gif für Drucker: %s"
+msgstr "Solicitar solicitudes de error en get_gif para impresora: %s"
+
+#: D:\temp\python\test4.py:1682
+msgid "Anfragefehler getPrinterConfig in buildVid für Drucker: %s"
+msgstr "Error de solicitud getPrinterConfig en buildVid para impresora: %s"
+
+#: D:\temp\python\test4.py:1688
+msgid "Vid Erstellung startet für %s"
+msgstr "La creación de Vid comienza por %s"
+
+#: D:\temp\python\test4.py:1690
+msgid "removing %s"
+msgstr "eliminar %s"
+
+#: D:\temp\python\test4.py:1696
+msgid "Vid Erstellung beendet für %s"
+msgstr "Creación de Vid terminada para %s"
+
+#: D:\temp\python\test4.py:1708
+msgid "Vid Caption Erstellung beendet für %s"
+msgstr "Creación de subtítulos en vid terminada para %s"
+
+#: D:\temp\python\test4.py:1714
+msgid "Vid versendet für %s"
+msgstr "Vid enviado por %s"
+
+#: D:\temp\python\test4.py:1728
+msgid "Anfragefehler getWebcamDynamicUrl in get_Vid für Drucker: %s"
+msgstr ""
+"Error de solicitud getWebcamDynamicUrl en get_Vid para la impresora: %s"
+
+#: D:\temp\python\test4.py:1758
+msgid "Stream konnte nicht in get_Vid für Drucker gelesen werden: %s"
+msgstr "No se puede leer la secuencia en get_Vid para impresoras: %s"
+
+#: D:\temp\python\test4.py:1773
+msgid "Antwort: %s - Unerwarteter Fehler: %s"
+msgstr "Respuesta: %s - Error inesperado: %s"
+
+#: D:\temp\python\test4.py:1776
+msgid "Thread Send aktiv"
+msgstr "Thread enviar activo"
+
+#: D:\temp\python\test4.py:1784
+msgid "Antwort unerwarteter Fehler: %s"
+msgstr "Respuesta de errores inesperados: %s"
+
+#: D:\temp\python\test4.py:1788
+msgid "Thread Rec aktiv"
+msgstr "Rosca Rec activa"
+
+#: D:\temp\python\test4.py:1795
+msgid "Thread lock gestartet"
+msgstr "Thread lock iniciado"
+
+#: D:\temp\python\test4.py:1800
+msgid "Thread lock freigegeben"
+msgstr "Thread lock liberado"
+
+#: D:\temp\python\test4.py:1817
+msgid "Event - JSON laden fehlgeschlagen: %s"
+msgstr "Evento - Error de carga JSON: %s"
+
+#: D:\temp\python\test4.py:1822
+msgid "Event - Struktur data nicht erreichbar: %s"
+msgstr "Evento - Datos de estructura inalcanzables: %s"
+
+#: D:\temp\python\test4.py:1829
+msgid "Event - Loggen nicht möglich: %s"
+msgstr "Evento - El registro no es posible: %s"
+
+#: D:\temp\python\test4.py:1843
+msgid " ist aktiviert "
+msgstr " esta activado "
+
+#: D:\temp\python\test4.py:1845
+msgid "und eingeschaltet"
+msgstr "y esta encendió"
+
+#: D:\temp\python\test4.py:1849
+msgid " Druckt: "
+msgstr " Imprime: "
+
+#: D:\temp\python\test4.py:1851
+msgid "und ausgeschaltet."
+msgstr "y esta apagó."
+
+#: D:\temp\python\test4.py:1853
+msgid " ist deaktiviert."
+msgstr " está inhabilitado."
+
+#: D:\temp\python\test4.py:1887 D:\temp\python\test4.py:1938
+msgid "Drucker hinzugefügt: %s"
+msgstr "Impresora agregada: %s"
+
+#: D:\temp\python\test4.py:1889
+msgid " hinzugefügt"
+msgstr " Añadido"
+
+#: D:\temp\python\test4.py:1926
+msgid "Unbekannt"
+msgstr "Desconocido"
+
+#: D:\temp\python\test4.py:1940
+msgid "%s hinzugefügt"
+msgstr "%s añadido"
+
+#: D:\temp\python\test4.py:1967
+msgid "Druckauftrag %s wurde geändert"
+msgstr "Se ha cambiado el %s del trabajo de impresión"
+
+#: D:\temp\python\test4.py:1977
+msgid "%s hat nach %s den Druck beendet."
+msgstr "%s ha terminado la impresión después de %s."
+
+#: D:\temp\python\test4.py:1990
+msgid "Druck von %s wurde nach %s abgebrochen"
+msgstr "La impresión de %s fue abortada después de %s"
+
+#: D:\temp\python\test4.py:2001
+msgid ""
+"%s hat um %s den Druck %s gestartet und wird vorraussichtlich am %s fertig "
+"sein."
+msgstr "%s comenzó la impresión %s a %s y se espera que esté listo para el %s."
+
+#: D:\temp\python\test4.py:2012
+msgid "Druckerwarteschlange %s wurde geändert"
+msgstr "Se ha cambiado la %s de la cola de lista de imprimir"
+
+#: D:\temp\python\test4.py:2025
+msgid "Drucker Einstellung %s Fluss: %d%% Druckgeschwindigkeit: %d%%"
+msgstr "Ajuste de la impresora %s flujo: velocidad de impresión del %d%%: %d%%"
+
+#: D:\temp\python\test4.py:2075
+msgid "Druckauftrag für %s wird bearbeitet"
+msgstr "Se está editando el trabajo de impresión para %s"
+
+#: D:\temp\python\test4.py:2085
+msgid "Druckauftragsbearbeitung für %s wurde fertiggestellt"
+msgstr "Se ha completado el procesamiento de trabajos de impresión para %s"
+
+#: D:\temp\python\test4.py:2097
+msgid "Drucker %s hat %s versendet"
+msgstr "La %s de impresoras ha enviado %s"
+
+#: D:\temp\python\test4.py:2106
+msgid "Order Storage Runtime: %ssek."
+msgstr "Ordene Storage Runtime: %ssec."
+
+#: D:\temp\python\test4.py:2109
+msgid ""
+"Threads Alive:\n"
+"wsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, wsThreadRestart: "
+"%s, Restarts Websocket/Send/Receive: %d, Restarts Order Data: %d"
+msgstr ""
+"Threads Alive:\n"
+"wsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, wsThreadRestart: "
+"%s, Restarts Websocket/Send/Receive: %d, Restarts Order Data: %d"
+
+#: D:\temp\python\test4.py:2119
+msgid "wsThreadSend und wsThreadRec restart Zähler zurückgesetzt"
+msgstr "wsThreadSend y wsThreadRec reinicio del contador restablecer"
+
+#: D:\temp\python\test4.py:2131
+msgid "wsThreadSend und wsThreadRec nachgestartet. Zähler: %d"
+msgstr "wsThreadSend y wsThreadRec. Contador: %d"
+
+#: D:\temp\python\test4.py:2135
+msgid "wsThreadOrderData restart Zähler zurückgesetzt"
+msgstr "wsThreadOrderData reinicio del contador restablecer"
+
+#: D:\temp\python\test4.py:2140
+msgid "wsThreadOrderData nachgestartet. Zähler: %s"
+msgstr "wsThreadOrderData. Contador: %s"
+
+#: D:\temp\python\test4.py:2141
+msgid "Auflistung aller aktiven Threads. Zähler: %d"
+msgstr "Colección de todos los subprocesos activos. Contador: %d"
+
+#: D:\temp\python\test4.py:2144
+msgid "Thread: %s"
+msgstr "Thread: %s"
+
+#: D:\temp\python\test4.py:2158
+msgid "########### Repetier-Server Bot ###########"
+msgstr "########### Bot de Servidor Repetier ###########"
+
+#: D:\temp\python\test4.py:2159
+msgid "Software Version: %s"
+msgstr "Versión de software: %s"
+
+#: D:\temp\python\test4.py:2160
+msgid "Thread Name: %s"
+msgstr "Nombre del thread: %s"
+
+#: D:\temp\python\test4.py:2161
+msgid "########### Geräte and Python Information ###########"
+msgstr "########### Información de dispositivos y Python ###########"
+
+#: D:\temp\python\test4.py:2162
+msgid "Python Version: %s"
+msgstr "Versión de Python: %s"
+
+#: D:\temp\python\test4.py:2163
+msgid "OS: %s"
+msgstr "OS: %s"
+
+#: D:\temp\python\test4.py:2164
+msgid "OS Version: %s"
+msgstr "Versión del sistema operativo: %s"
+
+#: D:\temp\python\test4.py:2166
+msgid "Active User: %s"
+msgstr "Usuario activo: %s"
+
+#: D:\temp\python\test4.py:2196
+msgid "Python Programm wurde beendet. Aktive Threads: %d/ %s"
+msgstr "El programa Python se ha detenido. Threads activos: %d/%s"
+
+#: D:\temp\python\test4.py:2199
+msgid "Bot geht Offline"
+msgstr "Bot se desconecto"
