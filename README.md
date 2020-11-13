@@ -11,6 +11,10 @@ Following requierements:
 
 Python >= 3.8 
 
+_If you want to support me with a fresh coffee, don´t hesitate to donate, if you think, it´s worthing, what i'm doing_
+[Push here :love_letter:](https://paypal.me/DanielGlock78)
+
+
 # Images/Pictures
 
 ![Main View](/00_Pictures/Main_View.JPG)
