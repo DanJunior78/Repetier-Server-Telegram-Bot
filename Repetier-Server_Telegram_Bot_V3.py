@@ -46,7 +46,7 @@ from telegram.error import (TelegramError,
 
 SW_VERSION = "0.3"
 CFG_VERSION = "V03"
-EX_DEBUG = True
+EX_DEBUG = False
 
 LANGUAGE = "de"
 
