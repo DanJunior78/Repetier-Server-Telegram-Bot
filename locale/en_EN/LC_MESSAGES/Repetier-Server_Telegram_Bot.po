@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Repetier-Server_Telegram_Bot_V3\n"
+"Project-Id-Version: Repetier-Server_Telegram_Bot\n"
 "POT-Creation-Date: 2020-11-12 23:46+0100\n"
-"PO-Revision-Date: 2020-11-12 23:49+0100\n"
+"PO-Revision-Date: 2020-11-13 16:34+0100\n"
 "Last-Translator: Daniel Glock <daniel.g.aus.g@gmail.com>\n"
 "Language-Team: en <LL@li.org>\n"
 "Language: en\n"
