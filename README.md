@@ -24,9 +24,12 @@ _If you want to support me with a fresh coffee and if you think it´s worthing w
 
 New in V04:
 
+![Quick Command and Settings](/00_Pictures/QuickCommandsAndSettings_V04.JPG)
+![Quick Command and Settings](/00_Pictures/QuickCommands_V04.JPG)
 ![Settings](/00_Pictures/Settings_V04.JPG)
 ![Settings_Temperature](/00_Pictures/Settings3_V04.JPG)
 ![Settings_ExtCommand](/00_Pictures/Settings2_V04.JPG)
+
 
 # Library dependencies (install via pip):
 
