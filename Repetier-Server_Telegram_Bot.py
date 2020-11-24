@@ -1,3 +1,23 @@
+######################################################################################################################
+# Repetier-Server_Telegram_Bot
+# Copyright (c) 2020 Repetier-Server_Telegram_Bot [https://github.com/DanJunior78/Repetier-Server-Telegram-Bot]
+# Owner: Daniel Glock, Germany Twitter: @Daniel_Glock
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+######################################################################################################################
+
 import __main__ as main
 import gettext
 presLan = gettext
@@ -44,8 +64,8 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "0.3"
-CFG_VERSION = "V03"
+SW_VERSION = "0.4"
+CFG_VERSION = "V04"
 EX_DEBUG = False
 
 LANGUAGE = "de"
@@ -308,14 +328,14 @@ def telegramChatAction(action, chat_id=CHATID, token=MY_TELEGRAM_TOKEN):
                         #                    .UPLOAD_PHOTO
                         #                    .UPLOAD_VIDEO
                         #                    .UPLOAD_VIDEO_NOTE
-def isfloat(str):
+def isFloat(str):
     try: 
         float(str)
     except ValueError: 
         return False
     return True
 
-def isint(str):
+def isInt(str):
     try: 
         int(str)
     except ValueError: 
@@ -423,6 +443,15 @@ def getKeyboard(userKeyb = [], back = ""):
                footer_buttons=stdKeyb)
     return reply_markup
 
+def getMsgKeyboard(userKeyb = []):
+    stdKeyb = []
+
+    stdKeyb.append(InlineKeyboardButton(_("Ende"), callback_data='End'))
+    reply_markup = build_menu(userKeyb,
+               4,
+               footer_buttons=stdKeyb)
+    return reply_markup
+
 def checkStartKeys(slug):
     slug = slug[1:]    
     key = []
@@ -436,6 +465,9 @@ def checkStartKeys(slug):
     items2 = msg2['data']
     for webcam in range(0,len(items2['webcams'])):
         key.append(InlineKeyboardButton(_('Webcam %s') % str(webcam + 1), callback_data='Webcam %s' % str(webcam + 1)))
+    if len(items2['quickCommands']) > 0:
+        key.append(InlineKeyboardButton(_('Schnellbefehle'), callback_data='QuickCommands'))
+    key.append(InlineKeyboardButton(_('Einstellungen'), callback_data='Settings'))
     return key
 
 def getExtCommands():
@@ -468,6 +500,158 @@ def getExtCommandsConfirmText(command):
         if item['id'] == command:            
             return item['confirm']
         
+def getWebcamConfig(slug, update):
+    slug = slug[1:]  
+    queryData = update.callback_query.data
+    key = []
+    msg2 = printerData("getPrinterConfig", slug)
+    if msg2 == "Error":
+        return key
+    items2 = msg2['data']
+    x = int(queryData.split()[1]) - 1
+    if items2['webcams'][x]['dynamicUrl'] != "":
+        key.append(InlineKeyboardButton(_('Sende Video Kamera %s') % str(x + 1), callback_data='Sende Video %s' % str(x + 1))) # 'Sende Video %s' % str(webcam + 1)
+    if items2['webcams'][x]['staticUrl'] != "": 
+        key.append(InlineKeyboardButton(_('Sende Gif Kamera %s') % str(x + 1), callback_data='Sende Gif %s' % str(x + 1)))
+        key.append(InlineKeyboardButton(_('Sende Png Kamera %s') % str(x + 1), callback_data='Sende Png %s' % str(x + 1)))
+    return key
+
+def getQuickCommandsButton(slug):
+    slug = slug[1:]  
+    key = []
+    msg2 = printerData("getPrinterConfig", slug)
+    if msg2 == "Error":
+        loggerWS.error(_("Anfragefehler getPrinterConfig in getQuickCommandsButton für Drucker: %s") % str(slug))
+        return key
+    quickCom = msg2['data']['quickCommands']
+    for item in quickCom:    
+        key.append(InlineKeyboardButton(item['name'], callback_data=item['name']))
+    return key
+
+def getSettingsButton(slug):
+    global botThreads
+    slug = slug[1:]
+    key = []
+    for printers in botThreads.botRequests:
+        if printers['printer'] == slug:
+            key.append(InlineKeyboardButton(_("Extruder abgekühlt: %s°C") % printers['extrCoolTemp'], callback_data='Extruder Temp Limit %s' % printers['extrCoolTemp']))
+            if printers['extrCoolTempExtComm'] != None:
+                msg = printerData("listExternalCommands")
+                if msg != "Error":
+                    items = msg['data']
+                    for item in items:
+                        if item['id'] == printers['extrCoolTempExtComm']:
+                            key.append(InlineKeyboardButton(_("ExtCom: %s") % item['name'], callback_data='ExtCommand Temp Limit %d' % item['id']))
+            else:
+                key.append(InlineKeyboardButton(_("ExtCom bei temp. limit inaktiv"), callback_data='ExtCommand Temp Limit None'))
+    return key
+
+def getExtComAndDisableButton():
+    key = getExtCommands()
+    key.append(InlineKeyboardButton(_("ExtCom deaktivieren"), callback_data='ExtCommand Temp Limit Disable'))
+    return key
+
+def getQuickCommandsText(slug):
+    slug = slug[1:]  
+    msg2 = printerData("getPrinterConfig", slug)
+    if msg2 == "Error":
+        loggerWS.error(_("Anfragefehler getPrinterConfig in getQuickCommandsButton für Drucker: %s") % str(slug))
+        return key
+    quickCom = msg2['data']['quickCommands']
+    message = _("Schnellbefehle") + ":\n"
+    for item in quickCom:    
+        message += "*%s*:\n _%s_" % (item['name'], item['command']) + "\n"
+    return message
+
+def sendQuickCommand(slug, text):
+    slug = slug[1:]
+    msg2 = printerData("getPrinterConfig", slug)
+    if msg2 == "Error":
+        loggerWS.error(_("Anfragefehler getPrinterConfig in sendQuickCommand für Drucker: %s") % str(slug))
+        timeDelThread(bot = True, 
+                    feedbackMsg = telegramSendMsg(_("Schnellbefehl bearbeiten fehlgeschlagen"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
+                    botRequests = botThreads.botRequests)
+        return
+    quickCom = msg2['data']['quickCommands']
+    for item in quickCom:    
+        if item['name'] == text:
+            packOrder = {}
+            packOrder['name'] = item['name']
+            msgFeedback = printerData("sendQuickCommand", slug, packOrder)
+            if msgFeedback == "Error" or msgFeedback['data']['ok'] != True:
+                timeDelThread(bot = True, 
+                              feedbackMsg = telegramSendMsg(_("Schnellbefehl senden fehlgeschlagen"),
+                                                            reply_markup=None, 
+                                                            chat_id=CHATID, 
+                                                            token=MY_TELEGRAM_TOKEN),
+                              botRequests = botThreads.botRequests)
+            else:
+                timeDelThread(bot = True, 
+                              feedbackMsg = telegramSendMsg(_("Schnellbefehl gesendet"),
+                                                            reply_markup=None, 
+                                                            chat_id=CHATID, 
+                                                            token=MY_TELEGRAM_TOKEN),
+                              botRequests = botThreads.botRequests)
+        
+def getExtrSetLimitText(slug):
+    global botThreads
+    slug = slug[1:]
+    for printers in botThreads.botRequests:
+        if printers['printer'] == slug:
+            message =  _("Bitte neuen Extruder Abkühlwert eingeben. Aktueller Wert: %d°C") % printers['extrCoolTemp']
+            return message
+
+def getPrinExtCommText(slug):
+    global botThreads
+    slug = slug[1:]
+    for printers in botThreads.botRequests:
+        if printers['printer'] == slug:
+            if printers['extrCoolTempExtComm'] == None:
+                message = _("ExtCom bei temp. limit inaktiv. Wähle einen Befehl aus oder gebe ein Buchstabe ein um die Funktion abzuwählen")
+            else:
+                msg = printerData("listExternalCommands")
+                if msg == "Error":
+                    message = _("Konnte keine Verbindung zum Server aufbauen.")
+                else:
+                    item = msg['data'][printers['extrCoolTempExtComm']]                    
+                    message = _("ExtCom Aktiv: %s") % item['name']
+            return message
+
+def setExtrSetLimit(slug, text):
+    global botThreads
+    if isInt(text):
+        slug = slug[1:]
+        for printers in botThreads.botRequests:
+            if printers['printer'] == slug:
+                printers['extrCoolTemp'] = int(text)
+        if botThreads.saveConfigFile():
+            timeDelThread(bot = True, 
+                            feedbackMsg = telegramSendMsg(_("Konfiguration gespeichert"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
+                            botRequests = botThreads.botRequests)
+        else:
+            timeDelThread(bot = True, 
+                        feedbackMsg = telegramSendMsg(_("Konfiguration speichern fehlgeschlagen"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
+                        botRequests = botThreads.botRequests)
+
+def setPrinExtComm(slug, text):
+    global botThreads
+    slug = slug[1:]
+    print(text)
+    for printers in botThreads.botRequests:
+        if printers['printer'] == slug:
+            if isInt(text):
+                printers['extrCoolTempExtComm'] = int(text)
+            else:
+                printers['extrCoolTempExtComm'] = None
+            if botThreads.saveConfigFile():
+                timeDelThread(bot = True, 
+                                feedbackMsg = telegramSendMsg(_("Konfiguration gespeichert"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
+                                botRequests = botThreads.botRequests)
+            else:
+                timeDelThread(bot = True, 
+                            feedbackMsg = telegramSendMsg(_("Konfiguration speichern fehlgeschlagen"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
+                            botRequests = botThreads.botRequests)
+
 def sendExtCommand(updateMsgTxt):
     key = []
     msg = printerData("listExternalCommands")
@@ -488,30 +672,42 @@ def sendExtCommand(updateMsgTxt):
                             botRequests = botThreads.botRequests)
     return key
 
-def getWebcamConfig(slug, update):
-    slug = slug[1:]  
-    queryData = update.callback_query.data
-    key = []
-    msg2 = printerData("getPrinterConfig", slug)
-    if msg2 == "Error":
-        return key
-    items2 = msg2['data']
-    x = int(queryData.split()[1]) - 1
-    if items2['webcams'][x]['dynamicUrl'] != "":
-        key.append(InlineKeyboardButton(_('Sende Video Kamera %s') % str(x + 1), callback_data='Sende Video %s' % str(x + 1))) # 'Sende Video %s' % str(webcam + 1)
-    if items2['webcams'][x]['staticUrl'] != "": 
-        key.append(InlineKeyboardButton(_('Sende Gif Kamera %s') % str(x + 1), callback_data='Sende Gif %s' % str(x + 1)))
-        key.append(InlineKeyboardButton(_('Sende Png Kamera %s') % str(x + 1), callback_data='Sende Png %s' % str(x + 1)))
-    return key
+def sendDelMessage(id): # removeMessage
+    packOrder = {}
+    packOrder['id'] = id
+    msgFeedback = printerData("removeMessage", data=packOrder)
+    if msgFeedback == "Error":
+        timeDelThread(bot = True, 
+                        feedbackMsg = telegramSendMsg(_("Nachricht nicht gelöscht"),
+                                                    reply_markup=None, 
+                                                    chat_id=CHATID, 
+                                                    token=MY_TELEGRAM_TOKEN),
+                        botRequests = botThreads.botRequests)
+    else:
+        timeDelThread(bot = True, 
+                        feedbackMsg = telegramSendMsg(_("Nachricht gelöscht"),
+                                                    reply_markup=None, 
+                                                    chat_id=CHATID, 
+                                                    token=MY_TELEGRAM_TOKEN),
+                        botRequests = botThreads.botRequests)
 
-def saveAdditionalMessage(slug, msgReply): 
+def saveAdditionalMessage(slug, msgReply, orgMessageID = None): 
     slug = slug[1:]
     for IDs in botThreads.msgIDs:
         if IDs['slug'] == slug:
             AddMsg = {}
             AddMsg['messageID'] = msgReply['message_id']
             AddMsg['chatID'] = msgReply['chat']['id']
+            if orgMessageID != None:
+                AddMsg['orgMessageID'] = orgMessageID         
             IDs['additional_message'].append(AddMsg)
+
+def getAdditionalMessageMessageID(slug): 
+    slug = slug[1:]
+    for IDs in botThreads.msgIDs:
+        if IDs['slug'] == slug:
+            for msgs in IDs['additional_message']:
+                return msgs['orgMessageID']
 
 def removeAdditionalMessage(slug,context):
     slug = slug[1:]
@@ -543,7 +739,17 @@ def updatePrinterMsgReplayMarkup(slug, msgReply, reNewMsg = False):
                 telegramDelMsg(printerData['messageID'], chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
                 printerData['RequestNewMessageID'] = True
                 printerData['expanded'] = True
-                
+
+def updateServerMsgReplayMarkup(expand = True):
+    for activeThread in botThreads.serverActiveThreads:
+        if activeThread.name == "Server_Messages":
+            if expand:
+                activeThread.extMsg = True
+            else:
+                activeThread.extMsg = False
+            activeThread.requestNewMessageID = True
+            logger.info(_("updateServerMsgReplayMarkup: große Anzeige: %s") % (expand))
+                                
 def printerAddTracking(slug, context):
     context.user_data['slug'] = slug    
 
@@ -562,6 +768,41 @@ def removeAllPrinterMsgReplayMarkup():
         printerData['reply_markup'] = None
         printerData['expanded'] = False
 
+def removeServerMsgReplayMarkup():
+    for activeThread in botThreads.serverActiveThreads:
+        if activeThread.name == "Server_Messages":
+            activeThread.extMsg = False
+            activeThread.requestNewMessageID = True
+            logger.debug(_("removeServerMsgReplayMarkup: minimiere Anzeige"))
+
+def mainServerMenu(update, context):
+    if not checkUserIDValid(update,chatID=CHATID):
+        logger.critical(_("Bot antwortet auf unbekannten client: %s / %s: %s, %s") % (update.effective_chat.username, 
+                                                                                      update.effective_chat.id, 
+                                                                                      update.effective_chat.last_name, 
+                                                                                      update.effective_chat.first_name)
+                        )
+        msgTelegram = _("Unbefugter Zugriff (ID: %s) durch Nutzer %s, %s %s") % (update.effective_chat.id,
+                                                                                 update.effective_chat.username, 
+                                                                                 update.effective_chat.first_name, 
+                                                                                 update.effective_chat.last_name
+                                                                                 )
+        telegramSendMsg(msgTelegram,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+    
+        update.message.reply_text(_('Kein Zugriff!'))
+        return ConversationHandler.END
+    timeDelThread(messageID = update.message.message_id, delayTimeSelect = 1)
+    text = update.message.text
+    logger.info(_("mainServerMenu starte telegram Konversation: %s / messageID: %s") % (text, update.message.message_id))
+    updateServerMsgReplayMarkup(expand = True)
+    
+    return ONE 
+
+def delServerMessage(update, context):
+    queryMessageData = update.callback_query.data
+    sendDelMessage(queryMessageData)
+    return ONE
+
 def mainMenu(update, context):
     if not checkUserIDValid(update,chatID=CHATID):
         logger.critical(_("Bot antwortet auf unbekannten client: %s / %s: %s, %s") % (update.effective_chat.username, 
@@ -569,16 +810,18 @@ def mainMenu(update, context):
                                                                                       update.effective_chat.last_name, 
                                                                                       update.effective_chat.first_name)
                         )
-        msgTelegram = _("Unbefugter Zugriff durch Nutzer %s, %s %s") % (update.effective_chat.username, 
-                                                                        update.effective_chat.first_name, 
-                                                                        update.effective_chat.last_name
-                                                                        )
+        msgTelegram = _("Unbefugter Zugriff (ID: %s) durch Nutzer %s, %s %s") % (update.effective_chat.id,
+                                                                                 update.effective_chat.username, 
+                                                                                 update.effective_chat.first_name, 
+                                                                                 update.effective_chat.last_name
+                                                                                )
         telegramSendMsg(msgTelegram,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
     
         update.message.reply_text(_('Kein Zugriff!'))
         return ConversationHandler.END
     timeDelThread(messageID = update.message.message_id, delayTimeSelect = 1)
     text = update.message.text
+    logger.info(_("mainMenu starte telegram Konversation: %s / messageID: %s") % (text, update.message.message_id))
     printerAddTracking(text, context)
     updatePrinterMsgReplayMarkup(
                             text,
@@ -665,9 +908,107 @@ def webcamSendPng(update, context):
     removeAllAdditionalMessage(context)
     return ConversationHandler.END
 
+def quickCommands(update, context):
+    queryMessageData = update.callback_query.message
+    updatePrinterMsgReplayMarkup(
+                            printerGetTracking(context),
+                            context.bot.edit_message_reply_markup(chat_id=queryMessageData.chat.id,
+                            message_id=queryMessageData.message_id, 
+                            reply_markup=None))  
+    saveAdditionalMessage(  printerGetTracking(context),
+                            context.bot.send_message(
+                            chat_id=queryMessageData.chat.id,
+                            text=getQuickCommandsText(printerGetTracking(context)),
+                            parse_mode=telegram.ParseMode.MARKDOWN,
+                            reply_markup=getKeyboard(getQuickCommandsButton(printerGetTracking(context)))))
+    return EIGHT
+
+def prinQuickCommand(update, context):
+    queryData = update.callback_query.data
+    sendQuickCommand(printerGetTracking(context),queryData)
+    removeAllPrinterMsgReplayMarkup()
+    removeAllAdditionalMessage(context)
+    return ConversationHandler.END
+
+def settings(update, context):
+    queryMessageData = update.callback_query.message
+    updatePrinterMsgReplayMarkup(
+                            printerGetTracking(context),
+                            context.bot.edit_message_reply_markup(chat_id=queryMessageData.chat.id,
+                            message_id=queryMessageData.message_id, 
+                            reply_markup=getKeyboard(getSettingsButton(printerGetTracking(context)))))
+    return FIVE
+
+def settingsBack(update,context):
+    queryMessageData = update.callback_query.message
+    updatePrinterMsgReplayMarkup(
+                            printerGetTracking(context),
+                            context.bot.edit_message_reply_markup(chat_id=queryMessageData.chat.id,
+                            message_id=queryMessageData.message_id, 
+                            reply_markup=getKeyboard(getSettingsButton(printerGetTracking(context)))))    
+    removeAllAdditionalMessage(context)
+    return FIVE
+
+def extrSetLimit(update, context):
+    queryMessageData = update.callback_query.message
+    updatePrinterMsgReplayMarkup(
+                            printerGetTracking(context),
+                            context.bot.edit_message_reply_markup(chat_id=queryMessageData.chat.id,
+                            message_id=queryMessageData.message_id, 
+                            reply_markup=None))  
+    saveAdditionalMessage(
+                            printerGetTracking(context),
+                            context.bot.send_message(
+                            chat_id=queryMessageData.chat.id,
+                            text=getExtrSetLimitText(printerGetTracking(context)),
+                            reply_markup=getKeyboard()),
+                            queryMessageData.message_id)
+    return SIX
+
+def extrSetLimitValue(update, context):
+    messageData = update.message
+    context.bot.deleteMessage(chat_id=messageData.chat.id, message_id=messageData.message_id)
+    setExtrSetLimit(printerGetTracking(context),messageData.text)
+    updatePrinterMsgReplayMarkup(
+                            printerGetTracking(context),
+                            context.bot.edit_message_reply_markup(chat_id=messageData.chat.id,
+                            message_id=getAdditionalMessageMessageID(printerGetTracking(context)), 
+                            reply_markup=getKeyboard(getSettingsButton(printerGetTracking(context)))))
+    removeAllAdditionalMessage(context)
+    return FIVE
+
+def prinExtCommOff(update, context):
+    queryMessageData = update.callback_query.message
+    updatePrinterMsgReplayMarkup(
+                            printerGetTracking(context),
+                            context.bot.edit_message_reply_markup(chat_id=queryMessageData.chat.id,
+                            message_id=queryMessageData.message_id, 
+                            reply_markup=None))  
+    saveAdditionalMessage(
+                            printerGetTracking(context),
+                            context.bot.send_message(
+                            chat_id=queryMessageData.chat.id,
+                            text=getPrinExtCommText(printerGetTracking(context)),
+                            reply_markup=getKeyboard(getExtComAndDisableButton())),
+                            queryMessageData.message_id)
+    return SEVEN
+
+def prinExtCommOffItem(update, context):
+    queryMessage = update.callback_query.message
+    queryData = update.callback_query.data
+    setPrinExtComm(printerGetTracking(context),queryData)
+    updatePrinterMsgReplayMarkup(
+                            printerGetTracking(context),
+                            context.bot.edit_message_reply_markup(chat_id=queryMessage.chat.id,
+                            message_id=getAdditionalMessageMessageID(printerGetTracking(context)), 
+                            reply_markup=getKeyboard(getSettingsButton(printerGetTracking(context)))))
+    removeAllAdditionalMessage(context)
+    return FIVE
+
 def exitBot(update, context):
     removeAllPrinterMsgReplayMarkup()
     removeAllAdditionalMessage(context)
+    removeServerMsgReplayMarkup()
     logger.debug(_("Bot beendet Konversation: %s (%s): %s, %s") 
                  % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
     return ConversationHandler.END
@@ -675,6 +1016,7 @@ def exitBot(update, context):
 def unknownCommand(update, context):  
     removeAllPrinterMsgReplayMarkup()
     removeAllAdditionalMessage(context)
+    removeServerMsgReplayMarkup()
     timeDelThread(bot = True,
                   feedbackMsg = telegramSendMsg(_("Ich nix versteh %s, %s.") % (update.message.text, update.effective_chat.first_name),
                                                 reply_markup=None, 
@@ -697,6 +1039,19 @@ def botTimeout(update, context):
                   delayTimeSelect = 10,
                   botRequests = botThreads.botRequests)
     logger.info(_("Konversations-Timeout"))
+    return ConversationHandler.END
+
+def botMessagesTimeout(update, context):   
+    removeServerMsgReplayMarkup()
+    timeDelThread(bot = True,
+                  feedbackMsg = telegramSendMsg(_("Du warst zu langsam, %s. Jetzt darfst nochmal drücken!!!") 
+                                                % update.effective_chat.first_name,
+                                                  reply_markup=None, 
+                                                  chat_id=CHATID, 
+                                                  token=MY_TELEGRAM_TOKEN), 
+                  delayTimeSelect = 10,
+                  botRequests = botThreads.botRequests)
+    logger.info(_("Konversations-Timeout-Messages"))
     return ConversationHandler.END
 
 def resetMsgs(update, context):
@@ -871,13 +1226,14 @@ class timeDelThread(threading.Thread):
         return bot.deleteMessage(chat_id=chat_id, message_id=message_id)
 
 class msgThread(threading.Thread):
-    def __init__(self, execute, name, *args, **kwargs):
+    def __init__(self, execute, name, function, *args, **kwargs):
         threading.Thread.__init__(self)
         self.daemon = False
         self.stopped = threading.Event()
         self.interval = interval=timedelta(seconds=2)
         self.execute = execute
         self.name = name
+        self.function = function
         self.args = args
         self.kwargs = kwargs
 
@@ -916,6 +1272,63 @@ class vidGifThread(threading.Thread):
         
     def run(self):
         self.execute(self.queryData, self.slug, self.chatID, *self.args, **self.kwargs)
+
+class actionThread(threading.Thread):
+    def __init__(self, interval, execute, name, slug, thrFunction, *args, **kwargs):
+        threading.Thread.__init__(self)
+        self.daemon = False
+        self.stopped = threading.Event()
+        self.interval = timedelta(seconds=interval)
+        self.execute = execute
+        self.name = name
+        self.slug = slug
+        self.function = thrFunction
+        self.args = args
+        self.kwargs = kwargs
+        loggerWS.info(_("Action thread initialisiert: %s / %s") % (self.name, self.function))
+        
+    def stop(self):
+        self.stopped.set()
+        self.join()        
+        loggerWS.info(_("Action thread %s / %s beendet: Ident: %s / ID: %s") % (self.getName(),self.function, self.ident, self.native_id))
+        
+    def run(self):
+        while not self.stopped.wait(self.interval.total_seconds()):
+            if self.execute(self.slug, *self.args, **self.kwargs): # Requires return value
+                self.stopped.set()
+
+class serverMsgThread(threading.Thread):
+    def __init__(self, interval, execute, name, function, *args, **kwargs):
+        threading.Thread.__init__(self)
+        self.daemon = False
+        self.stopped = threading.Event()
+        self.interval = timedelta(seconds=interval)
+        self.execute = execute
+        self.name = name
+        self.function = function
+        self.messageID = 0
+        self.chatID = 0
+        self.reply_markup = None
+        self.extMsg = False
+        self.requestNewMessageID = False
+        self.updateTime = arrow.now()
+        self.args = args
+        self.kwargs = kwargs
+        loggerWS.info(_("Server thread initialisiert: %s / %s") % (self.name, self.function))
+        
+    def stop(self):
+        timeDelThread(messageID=self.messageID,chatID=self.chatID,printer="Server",delayTimeSelect=0)
+        self.stopped.set()
+        try:
+            self.join() 
+        except:
+            loggerWS.error(_("Konnte Thread %s nicht in Join setzen, Unexpected Error: %s") % (self.name, sys.exc_info()[0]))
+        loggerWS.info(_("Server thread %s / %s beendet: Ident: %s / ID: %s") % (self.getName(),self.function, self.ident, self.native_id))
+        
+    def run(self):
+        while not self.stopped.wait(self.interval.total_seconds()):
+            if self.execute(self.extMsg, *self.args, **self.kwargs): # Requires return value
+                self.stopped.set()
                                 
 class wsThreadHdl(wsThread):
     def __init__(self, telegramDispatcher, *args, **kwargs):
@@ -923,21 +1336,23 @@ class wsThreadHdl(wsThread):
         self.botHandlers = []
         self.webserver = "ws://" + RepetierServerIP + ":" + RepetierServerPort + "/socket/?lang=de&&apikey=" + MY_REPETIER_SERVER_API_KEY
         self.websocket = None
+        self.MessCnt = 10000
+        self.MessCntHandler = []
         self.restartWsSR = 0
         self.restartOD = 0
         self.blockMultiJobsChangedMsg = 0
         self.blockprinterListChangedMsg = 0
-        self.intervalSend = timedelta(seconds=5)
+        self.intervalSend = timedelta(seconds=1)
         self.intervalRec = timedelta(seconds=0)
         self.intervalOrder = timedelta(seconds=2)
         self.intervalRestart = timedelta(seconds=30)
         self.sendCommand = self.encCommand()
-        self.orderDataStorage = []
         self.botRequests = []
-        self.msgActiveThreads = []
-        self.msgIDs = []
-        self.actGifs = []
-        self.actVids = []
+        self.printerActiveThreads = []  ## "message"
+        self.serverActiveThreads = []
+        self.msgIDs = []                
+        self.printerDataStorage = []
+        self.messageDataStorage = []
         self.threadLock = threading.Lock()
         self.wsThreadSend = wsThread(interval=self.intervalSend, execute=self.ThreadSend, name="Repetier-Server-Send")
         self.wsThreadRec = wsThread(interval=self.intervalRec, execute=self.ThreadRec, name="Repetier-Server-Receive")
@@ -949,7 +1364,7 @@ class wsThreadHdl(wsThread):
             return 'Error'
         self.wsThreadSend.websocket = self.websocket
         self.wsThreadRec.websocket = self.websocket
-        self.botData()        
+        self.botData()
         self.wsThreadSend.start()
         self.wsThreadRec.start()
         self.wsThreadOrderData.start()
@@ -958,7 +1373,8 @@ class wsThreadHdl(wsThread):
         loggerWS.info(_("Threads %s gestartet") % self.getNames())
 
     def stop(self):
-        self.stopMsgThreads()
+        self.stopPrinterThreads()
+        self.stopServerThreads()
         self.wsThreadRestart.stop()
         self.wsThreadSend.stop()
         self.wsThreadRec.stop()
@@ -967,15 +1383,38 @@ class wsThreadHdl(wsThread):
         loggerWS.info(_("Threads %s beendet") % self.getNames())
         return None
 
-    def stopMsgThreads(self):
-        for threads in self.msgActiveThreads:
+    def stopPrinterThreads(self):
+        for threads in self.printerActiveThreads:
             threads.stop()
-        
+
+    def stopServerThreads(self):
+        for threads in self.serverActiveThreads:
+            threads.stop()
+            
     def startMsgThread(self, name):
         x = msgThread(execute=self.msgPrinter,
-                          name=name)
+                          name=name,
+                          function="message")
         x.start()
-        self.msgActiveThreads.append(x)
+        self.printerActiveThreads.append(x)
+        
+    def startActionThread(self, name, slug, execute, thrFunction, interval):
+        x = actionThread(interval=interval,
+                         execute=execute,
+                         name=name,
+                         slug=slug,
+                         thrFunction=thrFunction)
+        x.start()
+        self.printerActiveThreads.append(x)
+
+    def startMsgServerThread(self, name, execute, function, interval):
+        x = serverMsgThread(interval=interval,
+                            execute=execute,
+                            name=name,
+                            function=function)
+        x.start()
+        self.serverActiveThreads.append(x)
+        self.addMsgHandler()
 
     def startPngThread(self, name, queryData, slug, chatID):
         x = vidGifThread(execute=self.buildPng, 
@@ -1001,37 +1440,37 @@ class wsThreadHdl(wsThread):
                       name=name)
         x.start()
         
-    def checkMsgThreadAvail(self, name):
-        for threads in self.msgActiveThreads:
-            if threads.name == name:
+    def checkPrinterThreadAvail(self, name, function):
+        for threads in self.printerActiveThreads:
+            if threads.name == name and threads.function == function:
                 return True
         return False
 
-    def getPrinterMsgThread(self, name):
+    def getPrinterThread(self, name, function):
         printerThreads = []
-        for threads in self.msgActiveThreads:
-            if threads.name == name:
+        for threads in self.printerActiveThreads:
+            if threads.name == name and threads.function == function:
                 printerThreads.append(threads)
         return printerThreads
         
-    def stopByMsgThread(self, thread):
-        for threads in self.msgActiveThreads:
+    def stopByThread(self, thread):
+        for threads in self.printerActiveThreads:
             if  threads == thread:
                 threads.stop()
                 try:
-                    self.msgActiveThreads.remove(threads)
+                    self.printerActiveThreads.remove(threads)
                 except:
-                    loggerWS.error(_("Kann Thread nicht aus Liste msgActiveThreads löschen. Drucker: %s") % threads.name)
+                    loggerWS.error(_("Kann Thread nicht aus Liste printerActiveThreads löschen. Drucker: %s") % threads.name)
                 loggerWS.info(_("Thread %s beendet") % threads.name)
 
-    def stopSingleMsgThread(self, name):
-        for threads in self.msgActiveThreads:
-            if threads.name == name:
+    def stopSingleThread(self, name, function):
+        for threads in self.printerActiveThreads:
+            if threads.name == name and threads.function == function:
                 threads.stop()
                 try:
-                    self.msgActiveThreads.remove(threads)
+                    self.printerActiveThreads.remove(threads)
                 except:
-                    loggerWS.error(_("Kann Thread nicht aus Liste msgActiveThreads löschen. Drucker: %s") % name)
+                    loggerWS.error(_("Kann Thread nicht aus Liste printerActiveThreads löschen. Drucker: %s") % name)
                 loggerWS.info(_("Thread %s beendet") % self.getName())
 
     def delPrinterMsg(self):
@@ -1043,22 +1482,42 @@ class wsThreadHdl(wsThread):
         entry_points=[CommandHandler(item['slug'], mainMenu)
                       ],
         states={
-            ONE: [CallbackQueryHandler(exitBot, pattern="^End$"),
-                  CallbackQueryHandler(extCommands, pattern="^ExtCommands$"), # Start Ebene
-                  CallbackQueryHandler(webcams, pattern="Webcam*")],
+            ONE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Start Ebene
+                  CallbackQueryHandler(extCommands, pattern="^ExtCommands$"),
+                  CallbackQueryHandler(webcams, pattern="Webcam*"),
+                  CallbackQueryHandler(quickCommands, pattern="^QuickCommands"),
+                  CallbackQueryHandler(settings, pattern="Settings*")
+                  ],
             TWO: [CallbackQueryHandler(exitBot, pattern="^End$"), # ExtCommand Ebene
                   CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
                   CallbackQueryHandler(extCommandsChoosen)
                   ],
-            THREE: [CallbackQueryHandler(exitBot, pattern="^End$"), # ExtCommand Ebene
+            THREE: [CallbackQueryHandler(exitBot, pattern="^End$"), # ExtCommand Ebene bestätigen
                   CallbackQueryHandler(extCommands, pattern="^Back$"), 
                   CallbackQueryHandler(extCommandAction, pattern="^OK$")
                   ],
-            FOUR: [CallbackQueryHandler(exitBot, pattern="^End$"), # ExtCommand Ebene
+            FOUR: [CallbackQueryHandler(exitBot, pattern="^End$"), # Webcam Ebene
                   CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
                   CallbackQueryHandler(webcamSendVideo, pattern="Sende Video*"),
                   CallbackQueryHandler(webcamSendGif, pattern="Sende Gif*"),
                   CallbackQueryHandler(webcamSendPng, pattern="Sende Png*")
+                  ],
+            FIVE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings Ebene
+                  CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
+                  CallbackQueryHandler(extrSetLimit, pattern="Extruder Temp Limit*"),
+                  CallbackQueryHandler(prinExtCommOff, pattern="ExtCommand Temp Limit*")
+                  ],
+            SIX: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings Ebene extrSetLimit
+                  CallbackQueryHandler(settingsBack, pattern="^Back$"),
+                  MessageHandler(Filters.all, extrSetLimitValue)
+                  ],
+            SEVEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings Ebene prinExtCommOff
+                  CallbackQueryHandler(settingsBack, pattern="^Back$"),
+                  CallbackQueryHandler(prinExtCommOffItem)
+                  ],
+            EIGHT: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings Ebene prinExtCommOff
+                  CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                  CallbackQueryHandler(prinQuickCommand)
                   ],
             ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, botTimeout)], # ConversationHandler.TIMEOUT: [MessageHandler(Filters.text | Filters.command, timeout)]        
                 },
@@ -1080,13 +1539,43 @@ class wsThreadHdl(wsThread):
                 self.telegramDispatcher.remove_handler(handler['handler'])
                 self.botHandlers.remove(handler)
 
+    def addMsgHandler(self, msgType = "Message"):
+        conv_handler = ConversationHandler(
+        entry_points=[CommandHandler(_("Benachrichtigung"), mainServerMenu)
+                      ],
+        states={
+            ONE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Start Ebene
+                  CallbackQueryHandler(delServerMessage)
+                  ],
+            ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, botMessagesTimeout)], # ConversationHandler.TIMEOUT: [MessageHandler(Filters.text | Filters.command, timeout)]        
+                },
+        fallbacks=[MessageHandler(Filters.all, unknownCommand)],
+        allow_reentry=True,
+        conversation_timeout=60,
+        name="Repetier-Server-Bot-Messages"
+        )
+        toAdd = {}
+        toAdd['slug'] = msgType
+        toAdd['handler'] = conv_handler
+        self.telegramDispatcher.add_handler(conv_handler)
+        self.botHandlers.append(toAdd)
+        loggerWS.info(_("Handler %s hinzugefügt") % msgType)
+
+    def removeMsgHandler(self, msgType = "Message"): # remove_handler(handler)
+        for handler in self.botHandlers:
+            if handler['slug'] == msgType:
+                self.telegramDispatcher.remove_handler(handler['handler'])
+                self.botHandlers.remove(handler)
+                loggerWS.info(_("Handler %s entfernt") % msgType)
 
     def getNewPrinter(self, slug = "ugly printer", name = "nasty printer", telegramHistory = False, 
-                      telegramDelMessTime = 60):
+                      extrCoolTemp = 30, extrCoolTempExtComm = None):
         printerBuffer = {}
         printerBuffer['printer'] = slug
         printerBuffer['name'] = name        
         printerBuffer['telegramHistory'] = telegramHistory
+        printerBuffer['extrCoolTemp'] = extrCoolTemp
+        printerBuffer['extrCoolTempExtComm'] = extrCoolTempExtComm
         return printerBuffer
 
     def updPrinterDataInThread(self, data = {}):
@@ -1095,29 +1584,29 @@ class wsThreadHdl(wsThread):
                 printers['telegramHistory'] = data['telegramHistory'] 
                 
     def checkForMsgThreads(self):
-        msg = printerData("listPrinter") 
+        msg = self.getPrinterDataStorage("listPrinter") 
         if msg != "Error":
             items = msg['data']
             self.checkServerConfigChange(items)
             self.checkBotToServerConfig(items)
             for item in items:
                 if item['job'] == "none":
-                    printThrdList = self.getPrinterMsgThread(item['name'])
+                    printThrdList = self.getPrinterThread(item['name'], "message")
                     for printer in printThrdList:
                         self.renewMsgID(item['name'])
-                        self.stopByMsgThread(printer)
+                        self.stopByThread(printer)
                     self.keepBasicPrinterInfo(item)
                 else:
                     printSet = self.getPrinterSetting(item['name'])
-                    printThrdList = self.getPrinterMsgThread(item['name'])
-                    if not self.checkMsgThreadAvail(item['name']):
+                    printThrdList = self.getPrinterThread(item['name'], "message")
+                    if not self.checkPrinterThreadAvail(item['name'], "message"):
                         self.renewMsgID(item['name'])
                         self.startMsgThread(item['name'])
         else:
             logger.error(_("Keine Server Rückmeldung in Methode checkForMsgThreads")) 
             
     def checkServerConfigChange(self, items):
-        for thread in self.msgActiveThreads:
+        for thread in self.printerActiveThreads:
             unknownThread = True
             for item in items:
                 if item['name'] == thread.name:
@@ -1129,7 +1618,7 @@ class wsThreadHdl(wsThread):
                     if botItem['name'] == thread.name:
                         self.botRequests.remove(botItem)
                         self.removeHandler(botItem) # remove_handler(handler)
-                self.stopByMsgThread(thread)
+                self.stopByThread(thread)
 
     def checkBotToServerConfig(self, items):
         systemChange = False
@@ -1148,10 +1637,12 @@ class wsThreadHdl(wsThread):
         if systemChange:
             data = self.rConfigFile()
             data['data'] = self.botRequests
-            wConfigFile(data)
+            self.wConfigFile(data)
                 
     def botData(self):
+        self.getServerMessages(printerData("messages"))
         msg = printerData("listPrinter")
+        self.setPrinterDataStorage("listPrinter",msg['data'])
         if msg != "Error":
             items = msg['data']
             if self.botRequests == []:    
@@ -1176,6 +1667,7 @@ class wsThreadHdl(wsThread):
                         return
                 
                 for i in range(0,len(items)):
+                    printerBuffer = None
                     printerFound = False
                     pData = data['data']
                     for j in range(0,len(pData)):
@@ -1184,7 +1676,9 @@ class wsThreadHdl(wsThread):
                             rData = pData[i]
                             printerBuffer = self.getNewPrinter(rData['printer'], 
                                                                rData['name'], 
-                                                               rData['telegramHistory'])
+                                                               rData['telegramHistory'],
+                                                               rData['extrCoolTemp'],
+                                                               rData['extrCoolTempExtComm'])
                     if not printerFound:
                         printerBuffer = self.getNewPrinter(items[i]['slug'], items[i]['name'])
                     self.botRequests.append(printerBuffer)
@@ -1193,6 +1687,7 @@ class wsThreadHdl(wsThread):
                 data['data'] = self.botRequests
                 self.wConfigFile(data)
             else:
+                print("bau scheisse")
                 data = self.rConfigFile()
                 if data == "Error":
                     return
@@ -1227,6 +1722,15 @@ class wsThreadHdl(wsThread):
                 json.dump(data, outfile) 
         except:
                 logger.error(_("Konfigurationsdatei konnte nicht beschrieben werden"))
+
+    def saveConfigFile(self):
+        data = self.rConfigFile()
+        if data != "Error":
+            data['data'] = self.botRequests
+            self.wConfigFile(data)
+            return True
+        else:
+            return False
 
     def checkMsgID(self, name):
         for IDs in self.msgIDs:
@@ -1283,7 +1787,7 @@ class wsThreadHdl(wsThread):
         messageBuffer = "/" + str(item['slug']) + "\n"
         messageBuffer += _("Update: %s um %s") % (arrow.now().format('DD.MM.YYYY'), arrow.now().format('HH:mm:ss') + "\n") 
         if item['online'] == 1 and item['active'] == True:
-            messageBuffer += _("Einsatzbereit")
+            messageBuffer += self.getExtruderStatus(item['slug'])
         else:
             messageBuffer += _("Ausgeschaltet")
         self.threadLock.acquire()        
@@ -1339,6 +1843,75 @@ class wsThreadHdl(wsThread):
             if setting['printer'] == name:
                 return setting
         loggerWS.error(_("Printer %s not found in method getPrinterSetting!") % name)
+
+    def getExtruderStatus(self, slug):
+        messageBuffer = ""
+        msg2 = printerData("stateList")
+        if msg2 != "Error":
+            stateLists = msg2['data']
+            state = stateLists[slug]
+            extrAboveTempLimit = False
+            extrTempLimit = 30.0
+            extrHeating = False
+            for printers in self.botRequests:
+                if printers['printer'] == slug:
+                    extrTempLimit = printers['extrCoolTemp']
+            for i in range(0, len(state['extruder'])):
+                extruders = state['extruder'][i]
+                if extruders['tempRead'] >= extrTempLimit:
+                    if extruders['tempSet'] != 0:
+                        messageBuffer += _("Extruder %d: %.1f °C / %.1f °C") % (i+1, extruders['tempRead'], extruders['tempSet']) + "\n"
+                        extrHeating = True
+                    else:
+                        messageBuffer += _("Extruder %d: %.1f °C") % (i+1, extruders['tempRead']) + "\n"
+                    extrAboveTempLimit = True
+            if extrAboveTempLimit:
+                if extrHeating:
+                    if len(state['extruder']) > 1:
+                        messageBuffer += _("Extruder heizt/heizen auf")
+                    else:
+                        messageBuffer += _("Extruder heizt auf")
+                else:
+                    if len(state['extruder']) > 1:
+                        messageBuffer += _("Extruder kühlen ab")
+                    else:
+                        messageBuffer += _("Extruder kühlt ab")
+            else:
+                messageBuffer += _("Einsatzbereit")
+        else:
+            messageBuffer += _("unbekannt")
+        return messageBuffer
+
+    def getServerMessages(self, msg): #serverActiveThreads
+        if msg != "Error":
+            messages = msg['data']
+            self.threadLock.acquire()
+            self.messageDataStorage = [] 
+            for message in messages:
+                messageBuffer = {}
+                messageBuffer['id'] = message['id']
+                messageBuffer['date'] = message['date']
+                messageBuffer['msg'] = message['msg']
+                messageBuffer['slug'] = message['slug']
+                messageBuffer['pause'] = message['pause']
+                self.messageDataStorage.append(messageBuffer)
+            self.threadLock.release()
+            if len(self.messageDataStorage) != 0:
+                if len(self.getServerThread("Server_Messages","Server_Messages")) == 0:
+                    self.startMsgServerThread(name="Server_Messages",execute=self.servMsgAction,function="Server_Messages",interval=2)
+            else:
+                for thread in self.getServerThread("Server_Messages","Server_Messages"):
+                    thread.stop()                    
+            return True
+        else:
+            return False
+
+    def getServerThread(self, name, function):
+        serverThreads = []
+        for threads in self.serverActiveThreads:
+            if threads.name == name and threads.function == function:
+                serverThreads.append(threads)
+        return serverThreads
             
     def wsWebsocket(self):
         try:
@@ -1353,7 +1926,7 @@ class wsThreadHdl(wsThread):
         return self.websocket
 
     def msgPrinter(self, name, messageID, chatID):
-        msg = printerData("listPrinter")
+        msg = self.getPrinterDataStorage("listPrinter")
         msg2 = printerData("stateList")
         if msg != "Error" and msg2 != "Error":
             listPrinters = msg['data']
@@ -1483,7 +2056,7 @@ class wsThreadHdl(wsThread):
     def buildPng(self, cam, slug, chatID):
         cam = int(cam.split()[2])
         slug = slug[1:]
-        msg = printerData("listPrinter")
+        msg = self.getPrinterDataStorage("listPrinter")
         msg2 = printerData("getPrinterConfig", slug)
         if msg == "Error" or msg2 == "Error":
             loggerWS.error(_("Anfragefehler getPrinterConfig in buildPng für Drucker: %s") % str(name))
@@ -1524,10 +2097,6 @@ class wsThreadHdl(wsThread):
         
 
     def get_img(self, webcam, printer, pngDir):
-        """
-        Get image based on url.
-        :return: Image name if everything OK, False otherwise
-        """
         try:
             realUrlServer = self.getWebcamStaticUrl(webcam['staticUrl'])
         except:
@@ -1561,7 +2130,7 @@ class wsThreadHdl(wsThread):
     def buildGif(self, cam, slug, chatID):
         cam = int(cam.split()[2])
         slug = slug[1:]
-        msg = printerData("listPrinter")
+        msg = self.getPrinterDataStorage("listPrinter")
         msg2 = printerData("getPrinterConfig", slug)
         if msg == "Error" or msg2 == "Error":
             loggerWS.error(_("Anfragefehler getPrinterConfig in buildGif für Drucker: %s") % name)
@@ -1629,10 +2198,6 @@ class wsThreadHdl(wsThread):
         self.renewMsgIDs()
 
     def get_gif(self, webcam, printer, pngDir):
-        """
-        Get image based on url.
-        :return: Image name if everything OK, False otherwise
-        """
         try:
             realUrlServer = self.getWebcamStaticUrl(webcam['staticUrl'])
         except:
@@ -1668,12 +2233,9 @@ class wsThreadHdl(wsThread):
         return realUrlServer
     
     def buildVid(self, cam, slug, chatID):
-        # PNGFILEFOLDER = os.getcwd() + '\\pic\\png'
-        # GIFFILEFOLDER = os.getcwd() + '\\pic\\gif'
-        # VIDFILEFOLDER = os.getcwd() + '\\vid\\'
         cam = int(cam.split()[2])
         slug = slug[1:]
-        msg = printerData("listPrinter")
+        msg = self.getPrinterDataStorage("listPrinter")
         msg2 = printerData("getPrinterConfig", slug)
         if msg == "Error" or msg2 == "Error":
             loggerWS.error(_("Anfragefehler getPrinterConfig in buildVid für Drucker: %s") % name)
@@ -1766,6 +2328,8 @@ class wsThreadHdl(wsThread):
     def ThreadSend(self, ws): 
         try:
             result = ws.send(self.sendCommand)
+            result = ws.send(self.encCommand(action = "listPrinter", callback_id = self.messageCntHndl("listPrinter"), printer = "", data = {}))
+            result = ws.send(self.encCommand(action = "stateList", callback_id = self.messageCntHndl("stateList"), printer = "", data = {}))
         except:
             loggerWS.error(_("Antwort: %s - Unerwarteter Fehler: %s") % (RepetierServerIP, sys.exc_info()[0]))
             self.wsThreadSend.stop()        
@@ -1786,6 +2350,53 @@ class wsThreadHdl(wsThread):
         
         return resServ
 
+    def messageCntHndl(self, action):
+        self.MessCnt += 1    
+        if self.MessCnt >= 20000:
+            self.MessCnt = 10000
+        dataSet = {}
+        dataSet['callback_id'] = self.MessCnt
+        dataSet['action'] = action
+        self.MessCntHandler.append(dataSet)
+        return self.MessCnt
+
+    def getMessageCntAction(self, callback_id):
+        for cntAction in self.MessCntHandler:
+            if callback_id == cntAction['callback_id']:
+                action = cntAction['action']
+                self.MessCntHandler.remove(cntAction)
+        for cntCheck in self.MessCntHandler:
+            if self.MessCnt - cntCheck['callback_id'] == 100 or self.MessCnt - cntCheck['callback_id'] == -9900 :
+                loggerWS.debug(_("getMessageCntAction - CallbackID wurde gelöscht. Es wurde nicht zurückgemeldet: %s") % cntCheck)
+                self.MessCntHandler.remove(cntCheck)
+        return action
+
+    def setPrinterDataStorage(self, action, data):
+        dataSetAvailable = False
+        if len(data) >= 1:
+            for datas in data:
+                for newData in self.printerDataStorage:
+                    if newData['action'] == action:
+                        self.threadLock.acquire()
+                        newData['updTime'] = time.time()
+                        newData['data'] = data
+                        self.threadLock.release()
+                        dataSetAvailable = True
+                if not dataSetAvailable:
+                    newDataSet = {}
+                    newDataSet['updTime'] = time.time()
+                    newDataSet['action'] = action
+                    newDataSet['data'] = data
+                    self.threadLock.acquire()
+                    self.printerDataStorage.append(newDataSet)
+                    self.threadLock.release()
+
+    def getPrinterDataStorage(self, action):
+        for datas in self.printerDataStorage:
+            if datas['action'] == action:
+                return datas
+        return "Error"
+
     def ThreadHdlOrderData(self):
         startTime = arrow.now()
         self.threadLock.acquire()
@@ -1805,7 +2416,7 @@ class wsThreadHdl(wsThread):
             self.blockprinterListChangedMsg += 1
             if self.blockprinterListChangedMsg >= 2:
                 self.blockprinterListChangedMsg = 0  
-
+        #print(orderDataRaw)
         for j in range(len(orderDataRaw),0,-1):
             i = j - 1
             try:
@@ -1813,292 +2424,170 @@ class wsThreadHdl(wsThread):
             except:
                 loggerWS.error(_("Event - JSON laden fehlgeschlagen: %s") % dataSetCompl)
                 continue
-            try:
-                dataSet = dataSetCompl['data']
-            except:
-                loggerWS.error(_("Event - Struktur data nicht erreichbar: %s") % dataSetCompl)
-                continue
-            if len(dataSet) != 0:
-                for k in range(0,len(dataSet)):
-                    try:
-                        eventTyp = dataSet[k]['event']                    
-                    except:
-                        loggerWS.error(_("Event - Loggen nicht möglich: %s") % dataSetCompl)
-                        continue
-                    loggerWS.debug("Event: " + str(eventTyp))
-                    if eventTyp == "printerListChanged": 
-                    # Payload: List of printers like in listPrinters response. / Gets triggered when a printer was added, deleted or modified. 
-                    # {'data': [{'active': True, 'job': 'none', 'name': 'Anycubic Mega X', 'online': 0, 'pauseState': 0, 'paused': False, 'slug': 'Anycubic_Mega_X1'}, 
-                    # {'active': True, 'analysed': 1, 'done': 1.389607231300929, 'job': 'AI3M_smoking_ashtray1', 'jobid': 4, 'linesSend': 4057, 'name': 'Anycubic i3 Mega S', 
-                    # 'ofLayer': 129, 'online': 1, 'pauseState': 0, 'paused': False, 'printStart': 1603146356.477, 'printTime': 12354.11670494031, 'printedTimeComp': 1523.609069987379, 
-                    # 'slug': 'Anycubic_i3_Mega_S', 'start': 1603153556, 'totalLines': 291953}], 'event': 'printerListChanged'}
-                        if self.blockprinterListChangedMsg == 0:
-                            self.blockprinterListChangedMsg += 1
-                            messageBuffer = ""
-                            for x in range(0, len(dataSet[k]['data'])):
-                                if dataSet[k]['data'][x]['active']:
-                                    messageBuffer += dataSet[k]['data'][x]['name'] + _(" ist aktiviert ") 
-                                    if dataSet[k]['data'][x]['online'] != 0:
-                                        messageBuffer += _("und eingeschaltet")
-                                        if dataSet[k]['data'][x]['job'] == "none":
-                                            messageBuffer += "."
-                                        else:
-                                            messageBuffer += "." + _(" Druckt: ") + dataSet[k]['data'][x]['job']
-                                    else:
-                                        messageBuffer += _("und ausgeschaltet.")
-                                else:
-                                    messageBuffer += dataSet[k]['data'][x]['name'] + _(" ist deaktiviert.")                                         
-                                messageBuffer += "\n"
-                            timeDelThread(bot = True, 
-                                          feedbackMsg = telegramSendMsg(messageBuffer, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
-                                          botRequests = self.botRequests)
-                            
-                    elif eventTyp == "move":
-                    # Payload: {"x":1,"y":1,"z":0,"e":67.233,"de":0.023} / When moves are enabled (sendMoves action) you will get a event for every move the printer does. This can be used to provide a live preview of what the printer does.
-                        #telegramSendMsg("move" + str(dataSet[k]), ADMIN_IDS[0][0])
-                        print(str(dataSet[k]))
-                    elif eventTyp == "temp":
-                    # Payload: { "O": 0, "S": 0, "T": 24, "id": 1, "t": 1423671195610 } / New temperature entry. O = Output, S = Set temperature, T = Measued temperature, id = Extruder number, t = Timestamp
-                        if self.orderDataStorage == []:
-                            printerBuffer = {}
-                            tempBuffer = {}
-
-                            msg = printerData("listPrinter")
-                            if msg != "Error":
-                                for i in range(0,len(msg['data'])):
-                                    if dataSet[k]['printer']  == msg['data'][i]['slug']:
-                                        printerBuffer['name'] = msg['data'][i]['name']
-                            else:
-                                printerBuffer['name'] = "Unbekannt"
-                            printerBuffer['printer'] = dataSet[k]['printer']
-                            printerBuffer['data'] = {}
-                            printerBuffer['messages'] = []
-                            printerBuffer['data']['temp'] = []
-                            tempBuffer = dataSet[k]['data']
-                            if dataSet[k]['data']['id'] < 1000: # Chamber nummer nicht bekannt, die Auswertung fehlt
-                                tempBuffer['name'] = "Hotend E" + str(dataSet[k]['data']['id'])
-                            elif dataSet[k]['data']['id'] >= 1000:
-                                tempBuffer['name'] = "Heatbed " + str(dataSet[k]['data']['id']-999)
-                            printerBuffer['data']['temp'].append(tempBuffer)                            
-                            self.orderDataStorage.append(printerBuffer)
-                            loggerWS.info(_("Drucker hinzugefügt: %s") % printerBuffer['name'])
-                            timeDelThread(bot = True, 
-                                             feedbackMsg = telegramSendMsg(printerBuffer['name'] + _(" hinzugefügt"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
-                                             botRequests = self.botRequests)
-                        else:
-                            printerBuffer = {}
-                            printerBuffer['printer'] = dataSet[k]['printer']
-                            printerBuffer['data'] = {}
-                            printerBuffer['messages'] = []
-                            printerBuffer['data']['temp'] = []
-                            printerInList = False
-                            for printers in self.orderDataStorage:
-                                if printers['printer'] == dataSet[k]['printer']:
-                                    printerInList = True
-                                    tempInList = False
-                                    for temps in range(0,len(printers['data']['temp'])):
-                                        if printers['data']['temp'][temps]['id'] == dataSet[k]['data']['id']:
-                                            tempInList = True
-                                            name = printers['data']['temp'][temps]['name']
-                                            printers['data']['temp'][temps] = dataSet[k]['data']
-                                            printers['data']['temp'][temps]['name'] = name
-                                    if not tempInList:
-                                        tempBuffer = {}
-                                        tempBuffer = dataSet[k]['data']
-                                        if dataSet[k]['data']['id'] < 1000: # Chamber nummer nicht bekannt, die Auswertung fehlt
-                                            tempBuffer['name'] = "Hotend E" + str(dataSet[k]['data']['id'])
-                                        elif dataSet[k]['data']['id'] >= 1000:
-                                            tempBuffer['name'] = "Heatbed " + str(dataSet[k]['data']['id']-999)
-                                        printerBuffer['data']['temp'].append(tempBuffer)
-
-                            if not printerInList:
-                                printerBuffer = {}
-                                tempBuffer = {}
-                                msg = printerData("listPrinter")
-                                if msg != "Error":
-                                    for i in range(0,len(msg['data'])):
-                                        if dataSet[k]['printer']  == msg['data'][i]['slug']:
-                                            printerBuffer['name'] = msg['data'][i]['name']
-                                else:
-                                    printerBuffer['name'] = _("Unbekannt")
-                                printerBuffer['printer'] = dataSet[k]['printer']
-                                printerBuffer['data'] = {}
-                                printerBuffer['messages'] = []
-                                printerBuffer['data']['temp'] = []
-                                tempBuffer = dataSet[k]['data'] 
-                                if dataSet[k]['data']['id'] < 1000: # Chamber nummer nicht bekannt, die Auswertung fehlt
-                                    tempBuffer['name'] = "Hotend E" + str(dataSet[k]['data']['id'])
-                                elif dataSet[k]['data']['id'] >= 1000:
-                                    tempBuffer['name'] = "Heatbed " + str(dataSet[k]['data']['id']-999)
-                                printerBuffer['data']['temp'].append(tempBuffer)                            
-                                self.orderDataStorage.append(printerBuffer)
-                                loggerWS.info(_("Drucker hinzugefügt: %s") % printerBuffer['name'])
-                                timeDelThread(bot = True, 
-                                             feedbackMsg = telegramSendMsg(_("%s hinzugefügt") % printerBuffer['name'],reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
-                                             botRequests = self.botRequests)
-                                                        
-                    elif eventTyp == "messagesChanged":
-                    # Payload: None. / Gets triggered when a new message gets available. That way you do not need to poll for new messages, only once at the connection start.
-                    # {'data': {'date': '2020-10-18T21:29:42+02:00', 'id': 5, 'link': '/printer/msg/Anycubic_i3_Mega_S?a=jobfinsihed&id=5', 'msg': 'Print of AI3M_CHTop_100s on printer Anycubic i3 Mega S finished. Send 76664 lines. Printing time: 5:32:40', 'pause': False, 'slug': 'Anycubic_i3_Mega_S'}, 
-                    # 'event': 'messagesChanged', 'printer': 'Anycubic_i3_Mega_S'}
-                        msg = printerData("messages")
-                        if msg != "Error":
-                            for printers in self.orderDataStorage:
+            if dataSetCompl['callback_id'] == -1:
+                try:
+                    dataSet = dataSetCompl['data']
+                except:
+                    loggerWS.error(_("Event - Struktur data nicht erreichbar: %s") % dataSetCompl)
+                    continue
+                if len(dataSet) != 0:
+                    for k in range(0,len(dataSet)):
+                        try:
+                            eventTyp = dataSet[k]['event']                    
+                        except:
+                            loggerWS.error(_("Event - Loggen nicht möglich: %s") % dataSetCompl)
+                            continue
+                        loggerWS.debug("Event: " + str(eventTyp))
+                        if eventTyp == "jobFinished":
+                        # Payload: {start:unixTime,duration:seconds,end:unixTime,lines:linesOfJob} / Gets send after a normal job has finished. 
+                        # # {'duration': 5507, 'end': 5507, 'lines': 117373, 'start': 1603207724}, 'event': 'jobFinished', 'printer': 'Anycubic_Mega_X1'}
+                            self.getServerMessages(printerData("messages"))
+                            for printers in self.botRequests:
                                 if printers['printer'] == dataSet[k]['printer']: 
-                                    messageBuffer = ""
-                                    for messages in dataSet[k]['data']:
-                                        messageBuffer = messages['msg']
-                                        printers['messages'].append(messageBuffer)
+                                    present = arrow.now()
+                                    future = present.shift(seconds=dataSet[k]['data']['duration'])                                
+                                    messageBuffer = _("%s hat nach %s den Druck beendet.") % (printers['name'], future.humanize(present,locale='de', only_distance=True, granularity=["day","hour", "minute","second"]))
+                                    loggerWS.info(_("eventTyp: jobFinished: %s") % messageBuffer)
+                                    self.startActionThread(name=printers['name'], 
+                                                           slug=printers['printer'], 
+                                                           execute=self.coolDownAction, 
+                                                           thrFunction="coolDownAction", 
+                                                           interval=10)
+                                    timeDelThread(bot = True, 
+                                              feedbackMsg = telegramSendMsg(messageBuffer,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
+                                              botRequests = self.botRequests)
 
-                    elif eventTyp == "jobsChanged":
-                    # Payload: None. / Gets triggered if a printer has a change in it's stored g-file list. {'data': {'slug': 'Anycubic_i3_Mega_S'}, 'event': 'jobsChanged', 'printer': 'Anycubic_i3_Mega_S'}
-                        if self.blockMultiJobsChangedMsg == 0:
-                            self.blockMultiJobsChangedMsg += 1
+                        elif eventTyp == "messagesChanged":
+                            self.getServerMessages(printerData("messages"))
+                            timeDelThread(bot = True, 
+                                        feedbackMsg = telegramSendMsg(_("Neue Nachricht!"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
+                                        botRequests = self.botRequests)
+
+                        elif eventTyp == "jobKilled":
+                        # Payload: {start:unixTime,duration:seconds,end:unixTime,lines:linesOfJob} / Gets send after a normal job has been killed.
+                            msg = self.getPrinterDataStorage("listPrinter")
+                            for printers in self.botRequests:
+                                if printers['printer'] == dataSet[k]['printer']:
+                                    for x in range(0, len(msg['data'])):
+                                        if msg['data'][x]['slug'] == dataSet[k]['printer']:
+                                            present = arrow.now()
+                                            past = present.shift(seconds=dataSet[k]['data']['duration'])                                          
+                                            messageBuffer = _("Druck von %s wurde nach %s abgebrochen") % (printers['name'], past.humanize(present,locale='de', only_distance=True, granularity=["minute","second"])) 
+                                            loggerWS.info(_("eventTyp: jobKilled: %s") % messageBuffer)
+                                            timeDelThread(bot = True, 
+                                              feedbackMsg = telegramSendMsg(messageBuffer,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
+                                              botRequests = self.botRequests)
+                        
+                        elif eventTyp == "jobStarted":
+                        # Payload: {start:unixTime} / Gets send after a normal job has been started. {'data': {'start': 1603036621}, 'event': 'jobStarted', 'printer': 'Anycubic_i3_Mega_S'}
                             msg = printerData("listPrinter")
-                            for printers in self.orderDataStorage:
+                            for printers in self.botRequests:
                                 if printers['printer'] == dataSet[k]['printer']:
                                     for x in range(0, len(msg['data'])):
                                         if msg['data'][x]['slug'] == dataSet[k]['printer']: 
-                                            messageBuffer = _("Druckauftrag %s wurde geändert") % printers['name']                                     
-                                    printers['messages'].append(messageBuffer)
-
-                    elif eventTyp == "jobFinished":
-                    # Payload: {start:unixTime,duration:seconds,end:unixTime,lines:linesOfJob} / Gets send after a normal job has finished. 
-                    # # {'duration': 5507, 'end': 5507, 'lines': 117373, 'start': 1603207724}, 'event': 'jobFinished', 'printer': 'Anycubic_Mega_X1'}
-                        for printers in self.orderDataStorage:
-                            if printers['printer'] == dataSet[k]['printer']: 
-                                present = arrow.now()
-                                future = present.shift(seconds=dataSet[k]['data']['duration'])                                
-                                messageBuffer = _("%s hat nach %s den Druck beendet.") % (printers['name'], future.humanize(present,locale='de', only_distance=True, granularity=["day","hour", "minute","second"]))
-                                printers['messages'].append(messageBuffer)
-
-                    elif eventTyp == "jobKilled":
-                    # Payload: {start:unixTime,duration:seconds,end:unixTime,lines:linesOfJob} / Gets send after a normal job has been killed.
-                        msg = printerData("listPrinter")
-                        for printers in self.orderDataStorage:
-                            if printers['printer'] == dataSet[k]['printer']:
-                                for x in range(0, len(msg['data'])):
-                                    if msg['data'][x]['slug'] == dataSet[k]['printer']:
-                                        print(msg['data'][x])
-                                        present = arrow.now()
-                                        past = present.shift(seconds=dataSet[k]['data']['duration'])                                          
-                                        messageBuffer = _("Druck von %s wurde nach %s abgebrochen") % (printers['name'], past.humanize(present,locale='de', only_distance=True, granularity=["minute","second"])) 
-                                printers['messages'].append(messageBuffer)
-                    elif eventTyp == "jobStarted":
-                    # Payload: {start:unixTime} / Gets send after a normal job has been started. {'data': {'start': 1603036621}, 'event': 'jobStarted', 'printer': 'Anycubic_i3_Mega_S'}
-                        msg = printerData("listPrinter")
-                        for printers in self.orderDataStorage:
-                            if printers['printer'] == dataSet[k]['printer']:
-                                jobTitle = ""
-                                for x in range(0, len(msg['data'])):
-                                    if msg['data'][x]['slug'] == dataSet[k]['printer']: 
-                                        jobTitle = msg['data'][x]['job']
-                                        messageBuffer = _("%s hat um %s den Druck %s gestartet und wird vorraussichtlich am %s fertig sein.") % (printers['name'], 
-                                                                                     arrow.get(int(msg['data'][x]['start'])).format('DD.MM.YYYY - HH:mm'),
-                                                                                     jobTitle,
-                                                                                     arrow.get(int(msg['data'][x]['start']) + int(msg['data'][x]['printTime'])).format('DD.MM.YYYY - HH:mm')
-                                                                                     ) 
-                                printers['messages'].append(messageBuffer)
+                                            jobTitle = msg['data'][x]['job']
+                                            messageBuffer = _("%s hat um %s den Druck %s gestartet und endet vorraussichtlich %s.") % (printers['name'], 
+                                                                                         arrow.get(int(msg['data'][x]['start'])).format('DD.MM.YYYY - HH:mm'),
+                                                                                         jobTitle,
+                                                                                         arrow.get(int(msg['data'][x]['start']) + int(msg['data'][x]['printTime'])).format('DD.MM.YYYY - HH:mm')
+                                                                                         ) 
+                                            loggerWS.info(_("eventTyp: jobStarted: %s") % messageBuffer)
+                                            timeDelThread(bot = True, 
+                                              feedbackMsg = telegramSendMsg(messageBuffer,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
+                                              botRequests = self.botRequests)
                         
-                    elif eventTyp == "printqueueChanged":
-                    # Payload: None. / Gets triggered if a printer has a change in it's list of waiting prints. {'data': {'slug': 'Anycubic_i3_Mega_S'}, 'event': 'printqueueChanged', 'printer': 'Anycubic_i3_Mega_S'}
-                        for printers in self.orderDataStorage:
-                            if printers['printer'] == dataSet[k]['printer']:
-                                messageBuffer = _("Druckerwarteschlange %s wurde geändert") % printers['name']                                     
-                                printers['messages'].append(messageBuffer)
-                    elif eventTyp == "state":
-                    # Payload: State data for one printer. / Gets triggered when a state changes.
-                    # {'data': {'activeExtruder': 0, 'debugLevel': 6, 'doorOpen': False, 
-                    # 'extruder': [{'error': 0, 'output': 0, 'tempRead': 20.39999961853027, 'tempSet': 0.0}], 
-                    # 'fans': [{'on': False, 'voltage': 0}], 'filterFan': False, 'firmware': 'Marlin', 'firmwareURL': '', 
-                    # 'flowMultiply': 100, 'hasXHome': False, 'hasYHome': False, 'hasZHome': False, 
-                    # 'heatedBeds': [{'error': 0, 'output': 0, 'tempRead': 19.79999923706055, 'tempSet': 0.0}], 
-                    # 'heatedChambers': [], 'layer': 0, 'lights': 0, 'numExtruder': 1, 'powerOn': False, 'rec': False, 'sdcardMounted': True, 'shutdownAfterPrint': False, 
-                    # 'speedMultiply': 100, 'volumetric': False, 'x': 0.0, 'y': 0.0, 'z': 0.0}, 'event': 'state', 'printer': 'Anycubic_i3_Mega_S'}
-                        for printers in self.orderDataStorage:
-                            if printers['printer'] == dataSet[k]['printer']:
-                                messageBuffer = _("Drucker Einstellung %s Fluss: %d%% Druckgeschwindigkeit: %d%%") % (printers['name'],
-                                                                                                                     dataSet[k]['data']['flowMultiply'],
-                                                                                                                     dataSet[k]['data']['speedMultiply'])
-                                printers['messages'].append(messageBuffer)
-                    elif eventTyp == "config":
-                    # Payload: Config data for one printer. / Gets triggered when a configuration changes. {'data': {'connection': {'connectionMethod': 0, 'continueAfterFastReconnect': True, 
-                    # 'ip': {'address': '', 'port': 23}, 'lcdTimeMode': 4, 'password': '', 'pipe': {'file': ''}, 'powerOffIdleMinutes': 0, 'powerOffMaxTemperature': 50, 'resetScript': '', 
-                    # 'serial': {'baudrate': 250000, 'communicationTimeout': 6.0, 'connectionDelay': 0, 'device': '/dev/serial/by-id/usb-marlinfw.org_Marlin_USB_Device_08FFD018AF4A09025D5E80FBF50020C0-if00', 'dtr': 0, 
-                    # 'inputBufferSize': 127, 'malyanHack': False, 'pingPong': False, 'rts': 0, 'usbreset': 0, 'visibleWithoutRunning': False}}, 
-                    # 'extruders': [{'acceleration': 30.0, 'alias': '', 'changeFastDistance': 20.0, 'changeSlowDistance': 20.0, 'cooldownPerSecond': 0.5, 'eJerk': 30.0, 'extrudeSpeed': 2.0, 'filamentDiameter': 1.75, 
-                    # 'heatupPerSecond': 2.0, 'lastTemp': 205, 'maxSpeed': 30.0, 'maxTemp': 260, 'num': 0, 'offset': 0, 'offsetX': 0.0, 'offsetY': 0.0, 'retractSpeed': 30.0, 'supportTemperature': True, 
-                    # 'tempMaster': 0, 'temperatures': [{'name': 'ABS 245', 'temp': 245}, {'name': 'PLA 210', 'temp': 210}, {'name': 'PLA 195', 'temp': 195}], 
-                    # 'toolDiameter': 0.4, 'toolType': 0}], 'general': {'active': True, 'defaultVolumetric': False, 'doorHandling': 1, 'eepromType': 'marlin', 'firmwareName': 'Marlin', 
-                    # 'heatedBed': True, 'logHistory': True, 'model': '', 'name': 'Anycubic i3 Mega S', 'numFans': 1, 'pauseHandling': 0, 'pauseSeconds': 120, 'printerVariant': 'cartesian', 'sdcard': False, 
-                    # 'slug': 'Anycubic_i3_Mega_S', 'softwarePower': True, 'tempUpdateEvery': 1, 'useModelFromSlug': '', 'useOwnModelRepository': True}, 
-                    # 'heatedBeds': [{'alias': '', 'cooldownPerSecond': 0.1, 'heatupPerSecond': 0.1, 'lastTemp': 80, 'maxTemp': 110, 'offset': 0, 'temperatures': []}], 
-                    # 'heatedChambers': [], 'movement': {'G10Distance': 3.0, 'G10LongDistance': 50.0, 'G10Speed': 50.0, 'G10ZLift': 0.0, 'G11ExtraDistance': 0.0, 
-                    # 'G11ExtraLongDistance': 0.0, 'G11Speed': 50.0, 'allEndstops': True, 'defaultAcceleration': 10000.0, 'defaultRetractAcceleration': 4000.0, 
-                    # 'defaultTravelAcceleration': 10000.0, 'invertX': False, 'invertY': False, 'invertZ': False, 'maxXYSpeed': 500.0, 'maxZSpeed': 8.0, 'movebuffer': 16, 'timeMultiplier': 1.0, 
-                    # 'xEndstop': True, 'xHome': 0.0, 'xMax': 200.0, 'xMin': 0.0, 'xyJerk': 20.0, 'xyPrintAcceleration': 2000.0, 'xySpeed': 100.0, 
-                    # 'xyTravelAcceleration': 2000.0, 'yEndstop': True, 'yHome': 0.0, 'yMax': 200.0, 'yMin': 0.0, 'zEndstop': True, 'zHome': 0.0, 'zJerk': 0.3, 'zMax': 210.0, 'zMin': 0.0, 
-                    # 'zPrintAcceleration': 60.0, 'zSpeed': 2.0, 'zTravelAcceleration': 60.0}, 'properties': {}, 'quickCommands': [{'command': 'G29\nM500', 'name': 'Auto Bed Leveling'}, 
-                    # {'command': 'G28 X0 Y0', 'name': 'Home XY'}, {'command': 'G28\nG90\nG1 Z10 F4000\nG1 X100 Z150 F4000\nM84', 'name': 'Head Works High'}], 
-                    # 'recover': {'delayBeforeReconnect': 30, 'enabled': False, 'extraZOnFirmwareDetect': 0.0, 'firmwarePowerlossSignal': '', 'maxTimeForAutocontinue': 300, 'procedure': 'G28 X0 Y0', 
-                    # 'reactivateBedOnConnect': True, 'replayExtruderSwitches': False, 'runOnConnect': 'G28 X0 Y0'}, 'responseEvents': [], 'shape': {'basicShape': {'color': '#dddddd', 'radius': 100, 'shape': 'rectangle', 
-                    # 'x': 0, 'xMax': 225.0, 'xMin': 0.0, 'y': 0, 'yMax': 220.0, 'yMin': 0.0}, 'gridColor': '#454545', 'gridSpacing': 10.0, 'marker': []}, 
-                    # 'webcams': [{'dynamicUrl': 'http://127.0.0.1:8081/?action=stream', 'forceSnapshotPosition': False, 'method': 3, 'orientation': 0, 'pos': 0, 'reloadInterval': 3.0, 'snapshotDelay': 800, 'snapshotX': 100.0, 
-                    # 'snapshotY': 200.0, 'staticUrl': 'http://127.0.0.1:8081/?action=snapshot', 'timelapseBitrate': 1000, 'timelapseFramerate': 30, 'timelapseHeight': 0.1, 'timelapseInterval': 20.0, 'timelapseLayer': 1, 
-                    # 'timelapseMethod': 1, 'timelapseSelected': 2}]}, 'event': 'config', 'printer': 'Anycubic_i3_Mega_S'}
-                        timeDelThread(bot = True, 
-                                          feedbackMsg = telegramSendMsg("Drucker konfig",reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
-                                          botRequests = self.botRequests)
-                    elif eventTyp == "settingChanged":
-                    # Payload: List of new settings / Gets triggered when a global setting variable got changed.
-                        timeDelThread(bot = True, 
-                                          feedbackMsg = telegramSendMsg("Server setting" + str(dataSet[k]),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
-                                          botRequests = self.botRequests)
-                    elif eventTyp == "printerSettingChanged":
-                    # Payload: {key:"key",value:"new value"} / Gets triggered everytime a printer setting gets changed.
-                        timeDelThread(bot = True, 
-                                          feedbackMsg = telegramSendMsg("Drucker setting" + str(dataSet[k]),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
-                                          botRequests = self.botRequests)
-                    elif eventTyp == "prepareJob":
-                    # Payload: none / Gets triggered if a model gets copied to job directory. Since feedback is normally instant and large files can take some time this allows giving some feedback.
-                    # {'data': {}, 'event': 'prepareJob', 'printer': 'Anycubic_i3_Mega_S'}
-                        msg = printerData("listPrinter")
-                        for printers in self.orderDataStorage:
-                            if printers['printer'] == dataSet[k]['printer']:
-                                for x in range(0, len(msg['data'])):
-                                    if msg['data'][x]['slug'] == dataSet[k]['printer']: 
-                                        messageBuffer = _("Druckauftrag für %s wird bearbeitet") % printers['name']                                     
-                                printers['messages'].append(messageBuffer)                        
-                    elif eventTyp == "prepareJobFinished":
-                    # Payload: none / Gets triggered at the end of copy model to job. Used to hide messages from prepareJob. 
-                    # {'data': {}, 'event': 'prepareJobFinished', 'printer': 'Anycubic_i3_Mega_S'}
-                        msg = printerData("listPrinter")
-                        for printers in self.orderDataStorage:
-                            if printers['printer'] == dataSet[k]['printer']:
-                                for x in range(0, len(msg['data'])):
-                                    if msg['data'][x]['slug'] == dataSet[k]['printer']: 
-                                        messageBuffer = _("Druckauftragsbearbeitung für %s wurde fertiggestellt") % printers['name']                                     
-                                printers['messages'].append(messageBuffer)
-                    elif eventTyp == "changeFilamentRequested":
-                    # Payload: none / Firmware requested a filament change on server side.
-                        timeDelThread(bot = True, 
-                                          feedbackMsg = telegramSendMsg("Drucker Filament Ende" + str(dataSet[k]),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
-                                          botRequests = self.botRequests)
-        for printers in self.orderDataStorage:
-            messageBuffer = ""
-            for x in range(0, len(printers['messages'])):
-                messageBuffer += "[" + str(x+1) + "]: " + printers['messages'][x] + "\n"
-            if messageBuffer != "":
-                loggerWS.info(_("Drucker %s hat %s versendet") % (printers['name'], messageBuffer))
-                timeDelThread(bot = True, 
-                            feedbackMsg = telegramSendMsg(messageBuffer,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
-                            botRequests = self.botRequests)
-            printers['messages'] = []
-        
-        botThreads.checkForMsgThreads()
+                        elif eventTyp == "changeFilamentRequested":
+                        # Payload: none / Firmware requested a filament change on server side.
+                            loggerWS.info(_("eventTyp: changeFilamentRequested"))                                    
+                            timeDelThread(bot = True, 
+                                              feedbackMsg = telegramSendMsg("Drucker Filament Ende" + str(dataSet[k]),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
+                                              botRequests = self.botRequests)
+            else:
+                self.setPrinterDataStorage(self.getMessageCntAction(dataSetCompl['callback_id']),dataSetCompl['data'])                
+        self.checkForMsgThreads()
         stopTime = arrow.now() 
         runTime = stopTime - startTime
         loggerWS.debug(_("Order Storage Runtime: %ssek.") % runTime)
+
+    def coolDownAction(self, slug):
+        msg2 = self.getPrinterDataStorage("stateList")
+        if msg2 != "Error":
+            stateLists = msg2['data']
+            state = stateLists[slug]
+            for printers in self.botRequests:
+                if printers['printer'] == slug:
+                    extrTempLimit = printers['extrCoolTemp']
+                    belowLimit = True
+                    for extruder in state['extruder']:
+                        if extruder['tempRead'] > float(extrTempLimit):
+                            belowLimit = False
+                    if belowLimit == True:
+                        packOrder = {}
+                        packOrder['id'] = printers['extrCoolTempExtComm']
+                        if printers['extrCoolTempExtComm'] != None:
+                            if printerData("runExternalCommand","My Printer",packOrder) == "Error":
+                                timeDelThread(bot = True, 
+                                                feedbackMsg = telegramSendMsg(_("Drucker Befehl nach Abkühlvorgang fehlgeschlagen"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
+                                                botRequests = botThreads.botRequests)
+                            else:
+                                timeDelThread(bot = True, 
+                                                feedbackMsg = telegramSendMsg(_("Drucker Befehl nach Abkühlvorgang ausgeführt"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN),
+                                                botRequests = botThreads.botRequests)
+                        return True
+        return False     
+    
+    def servMsgAction(self, extMsg):
+        if not self.getServerMessages(printerData("messages")):
+            return False
+        keepThreadActive = False # inverse
+        messageBuffer = "/" + _("Benachrichtigung") + ":\n"
+        messageBuffer += _("Update: %s um %s") % (arrow.now().format('DD.MM.YYYY'), arrow.now().format('HH:mm:ss')) + "\n"
+        msgKey = []
+        if len(self.messageDataStorage) == 0:
+            keepThreadActive = True
+            self.removeMsgHandler()
+        if extMsg:
+            for msg in self.messageDataStorage:
+                name = "x"
+                for item in self.botRequests:
+                    if msg['slug'] == item['printer']:
+                        name = item['name']
+                messageBuffer += "[%s]: %s, %s\n %s\n" % (msg['id'],arrow.get(msg['date']).format('DD.MM.YYYY - HH:mm'),name,msg['msg'])
+                msgKey.append(InlineKeyboardButton(msg['id'], callback_data=msg['id'])) 
+            replyMarkup = getMsgKeyboard(msgKey)
+        else:
+            lastMsg = len(self.messageDataStorage)-1
+            msg = self.messageDataStorage[lastMsg]
+            name = "x"
+            for item in self.botRequests:
+                if msg['slug'] == item['printer']:
+                    name = item['name']
+            messageBuffer += _("Letzte Nachricht") + " [%s]: %s, %s\n %s" % (msg['id'],arrow.get(msg['date']).format('DD.MM.YYYY - HH:mm'),name,msg['msg'])
+            replyMarkup = None
+        serverMsgThread = threading.current_thread()
+        if arrow.now() > serverMsgThread.updateTime.shift(minutes=+5):
+            serverMsgThread.requestNewMessageID = True
+        if serverMsgThread.messageID == 0:
+            feedbackMsg = telegramSendMsg(msg=messageBuffer, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+            serverMsgThread.messageID = feedbackMsg['message_id']
+            serverMsgThread.chatID = feedbackMsg['chat']['id']
+            loggerWS.info(_("servMsgAction erzeuge telegram Nachricht: %s / messageID: %s") % (serverMsgThread.name, serverMsgThread.messageID))
+        else:
+            if serverMsgThread.requestNewMessageID:
+                timeDelThread(messageID=serverMsgThread.messageID,chatID=serverMsgThread.chatID,printer="Server",delayTimeSelect=0)
+                feedbackMsg = telegramSendMsg(msg=messageBuffer, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+                serverMsgThread.messageID = feedbackMsg['message_id']
+                serverMsgThread.chatID = feedbackMsg['chat']['id']
+                serverMsgThread.updateTime = arrow.now()
+                serverMsgThread.requestNewMessageID = False
+                loggerWS.info(_("servMsgAction erneuert telegram Nachricht: %s / messageID: %s") % (serverMsgThread.name, serverMsgThread.messageID))
+            else:
+                try:
+                    telegramEditMsg(msg=messageBuffer,message_id=serverMsgThread.messageID,reply_markup=replyMarkup,chat_id=serverMsgThread.chatID,token=MY_TELEGRAM_TOKEN)
+                except:
+                    loggerWS.error(_("servMsgAction editiert telegram Nachricht fehlgeschlagen: %s / messageID: %s") % (serverMsgThread.name, serverMsgThread.messageID))
+                loggerWS.debug(_("servMsgAction editiert telegram Nachricht: %s / messageID: %s") % (serverMsgThread.name, serverMsgThread.messageID))
+        return False
                 
     def ThreadHdlRestart(self):
         loggerWS.debug(_("Threads Alive:\nwsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, wsThreadRestart: %s, Restarts Websocket/Send/Receive: %d, Restarts Order Data: %d") % (self.wsThreadSend.is_alive(), 
