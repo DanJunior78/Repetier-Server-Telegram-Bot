@@ -14,13 +14,19 @@ Python >= 3.8
 _If you want to support me with a fresh coffee and if you think it´s worthing what i'm doing, donate something, to get a fresh coffee_
 [Push here :love_letter:](https://paypal.me/DanielGlock78)
 
-
+# !For updating your existing installation, please refer Version History section below!
 # Images/Pictures
 
 ![Main View](/00_Pictures/Main_View.JPG)
 ![Printer Detail](/00_Pictures/Printer_Detail_View.JPG)
 ![External Commands](/00_Pictures/ExtCommands.JPG)
 ![Webcam](/00_Pictures/Webcam_Items.JPG)
+
+New in V04:
+
+![Settings](/00_Pictures/Settings_V04.JPG)
+![Settings_Temperature](/00_Pictures/Settings3_V04.JPG)
+![Settings_ExtCommand](/00_Pictures/Settings2_V04.JPG)
 
 # Library dependencies (install via pip):
 
@@ -59,6 +65,12 @@ German, English, Spanish
 Please be aware of differences in the platform (Windows and Linux).
 
 You can reduce the program size by deleting languages in the folder ./locale (But i would not recommend it, there are still only 3 languages inside...a few kB of your HD)
+
+# Version History:
+V03: First Release
+
+V04: Bugfixes, New functions for showing messages, Command to ExtCommand after printing and cooling down the extruder, reduced messages
+  Please use new Configuration JSON or if you know how to modifiy your existing. Check for differences.
 
 # Additional information & support request
 
