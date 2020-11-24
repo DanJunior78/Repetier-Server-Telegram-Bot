@@ -29,7 +29,7 @@ New in V04:
 ![Settings](/00_Pictures/Settings_V04.JPG)
 ![Settings_Temperature](/00_Pictures/Settings3_V04.JPG)
 ![Settings_ExtCommand](/00_Pictures/Settings2_V04.JPG)
-
+![Notifications](/00_Pictures/Notifications_V04.JPG)
 
 # Library dependencies (install via pip):
 
