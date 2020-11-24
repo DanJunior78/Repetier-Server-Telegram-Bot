@@ -71,7 +71,7 @@ Use always the new Python file and the latest JSON configuration file. Please do
 
 V03: First Release
 
-V04: Bugfixes, New functions for showing messages, Command to ExtCommand after printing and cooling down the extruder, reduced messages
+V04: Bugfixes, New functions for showing messages, quick commands, command to ExtCommand after printing and cooling down the extruder, reduced messages
   Please use new Configuration JSON or if you know how to modifiy your existing. Check for differences.
 
 # Additional information & support request
