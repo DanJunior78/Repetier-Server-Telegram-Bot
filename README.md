@@ -67,6 +67,8 @@ Please be aware of differences in the platform (Windows and Linux).
 You can reduce the program size by deleting languages in the folder ./locale (But i would not recommend it, there are still only 3 languages inside...a few kB of your HD)
 
 # Version History:
+Use always the new Python file and the latest JSON configuration file. Please download always locale Folder (language files) too. 
+
 V03: First Release
 
 V04: Bugfixes, New functions for showing messages, Command to ExtCommand after printing and cooling down the extruder, reduced messages
