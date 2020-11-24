@@ -44,7 +44,7 @@ Requiered data:| What to fill in:
 "RepetierServerIP": ""| --> Fill in your Repetier-Server IP adress, e.g. "192.168.100.44"
 "RepetierServerIP2": ""| --> For future use, not required 
 "RepetierServerPort": "3344"| --> usually Repetier-Server port is: 3344 
-"MY_TELEGRAM_ID": | -->  Your telgram ID
+"MY_TELEGRAM_ID": | -->  Your telgram ID -> Is a integer number. You can check the number via the bot: Telegram Bot Raw - It feedbacks your details
 "MY_TELEGRAM_TOKEN": ""| --> Your botfather token 
 "LOGFILENAME": ""| --> usually all logs go to ./log folder
 "LOGFILENAMEWS": ""| --> usually all logs go to ./log folder 
