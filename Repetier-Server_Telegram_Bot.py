@@ -64,7 +64,7 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "0.4"
+SW_VERSION = "0.41" # 25.11.2020
 CFG_VERSION = "V04"
 EX_DEBUG = False
 
@@ -1463,15 +1463,16 @@ class wsThreadHdl(wsThread):
                     loggerWS.error(_("Kann Thread nicht aus Liste printerActiveThreads löschen. Drucker: %s") % threads.name)
                 loggerWS.info(_("Thread %s beendet") % threads.name)
 
-    def stopSingleThread(self, name, function):
-        for threads in self.printerActiveThreads:
+    def stopSingleThread(self, name, function, activeThreadList):
+        for threads in activeThreadList:
             if threads.name == name and threads.function == function:
+                loggerWS.info(_("Thread %s beendet") % threads.name)
                 threads.stop()
                 try:
-                    self.printerActiveThreads.remove(threads)
+                    activeThreadList.remove(threads)
                 except:
-                    loggerWS.error(_("Kann Thread nicht aus Liste printerActiveThreads löschen. Drucker: %s") % name)
-                loggerWS.info(_("Thread %s beendet") % self.getName())
+                    loggerWS.error(_("Kann Thread nicht aus Thread Liste löschen. Drucker: %s") % name)
+                loggerWS.info(_("Thread für %s / %s beendet") % (name, function))                
 
     def delPrinterMsg(self):
         for IDs in self.msgIDs:
@@ -1899,9 +1900,11 @@ class wsThreadHdl(wsThread):
             if len(self.messageDataStorage) != 0:
                 if len(self.getServerThread("Server_Messages","Server_Messages")) == 0:
                     self.startMsgServerThread(name="Server_Messages",execute=self.servMsgAction,function="Server_Messages",interval=2)
+                    loggerWS.info(_("getServerMessages startet Benachrichtigungs Thread"))
             else:
                 for thread in self.getServerThread("Server_Messages","Server_Messages"):
-                    thread.stop()                    
+                    loggerWS.info(_("getServerMessages beende Benachrichtigungs Thread"))
+                    self.stopSingleThread("Server_Messages","Server_Messages",self.serverActiveThreads)
             return True
         else:
             return False
@@ -2459,6 +2462,7 @@ class wsThreadHdl(wsThread):
 
                         elif eventTyp == "messagesChanged":
                             self.getServerMessages(printerData("messages"))
+                            loggerWS.info(_("eventTyp: messagesChanged"))
                             timeDelThread(bot = True, 
                                         feedbackMsg = telegramSendMsg(_("Neue Nachricht!"),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN), 
                                         botRequests = self.botRequests)
