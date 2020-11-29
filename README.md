@@ -11,6 +11,8 @@ Following requierements:
 
 Python >= 3.8 
 
+Get news and support at: https://t.me/Repetier_Server_Telegram
+
 _If you want to support me with a fresh coffee and if you think it´s worthing what i'm doing, donate something, to get a fresh coffee_
 [Push here :love_letter:](https://paypal.me/DanielGlock78)
 
