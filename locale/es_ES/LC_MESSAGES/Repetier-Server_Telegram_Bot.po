@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Repetier-Server_Telegram_Bot\n"
-"POT-Creation-Date: 2020-11-25 13:07+0100\n"
-"PO-Revision-Date: 2020-11-25 13:12+0100\n"
+"POT-Creation-Date: 2020-11-29 10:08+0100\n"
+"PO-Revision-Date: 2020-11-29 10:26+0100\n"
 "Last-Translator: Daniel Glock <daniel.g.aus.g@gmail.com>\n"
 "Language-Team: es <LL@li.org>\n"
 "Language: es\n"
@@ -17,150 +17,175 @@ msgstr ""
 "X-Generator: Poedit 2.4.2\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:127
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:161
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:171
+msgid "Config Datei (JSON) Eintrag: %s mit Inhalt: %s"
+msgstr "Entrada de archivo de configuración (JSON): %s con contenido: %s"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:163
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:173
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:182
+msgid "Config Datei (JSON) Eintrag: %s mit Standardwert \"%s\" geladen"
+msgstr ""
+"Entrada de archivo de configuración (JSON): %s carga con el valor "
+"predeterminado \"%s\""
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:166
+msgid ""
+"Config Datei (JSON) upgrade Datei Version von %s mit Standardwert \"%s\" "
+"geladen"
+msgstr ""
+"Config File (JSON) actualiza Version de archivo %s con valor del programa "
+"actual \"%s\""
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:180
+msgid "Config Datei (JSON) Eintrag: %s mit Inhalt: %s akzeptiert"
+msgstr ""
+"Entrada de archivo de configuración (JSON): %s con contenido: %s aceptado"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:190
 msgid "Sprachedateipfad: %s"
 msgstr "Ruta del archivo de idioma: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:132
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:195
 msgid "Sprache OS: %s/%s"
 msgstr "Idioma OS: %s/%s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:139
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:202
 msgid "Sprache auf Ausweichsprache englisch umgestellt"
 msgstr "Idioma cambiado al idioma alternativo Inglés"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:141
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:204
 msgid "Sprache auf \"%s\" umgestellt"
 msgstr "Se ha cambiado el idioma a \"%s\""
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:143
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:206
 msgid "Sprachedateiinfo: %s"
 msgstr "Información del archivo de idioma: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:158
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:221
 msgid "Logger: %s wurde im Debug Modus(%s) aktiviert. Level: %s"
 msgstr "Registrador: %s se ha activado en modo de depuración (%s). Nivel: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:172
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:235
 msgid "Konfigurationsdatei nicht gefunden - impConfig - : %s"
 msgstr "Archivo de configuración no encontrado - impConfig - : %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:176
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:240
 msgid "Konfigurationsversion stimmt überein: %s"
 msgstr "Coincidencias de la versión de configuración: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:178
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:242
 msgid "Konfigurationsdatei Versionskonflikt: %s, anstatt: %s"
 msgstr "Conflicto de versión del archivo de configuración: %s en lugar de: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:180
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:244
 msgid "Konfigurationsdatei enthält Element CFG_VERSION nicht"
 msgstr "El archivo de configuración no contiene elementos CFG_VERSION"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:184
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:248
 msgid "Sprache Repetier Server: %s"
 msgstr "Idioma Repetier Server: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:186
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:250
 msgid "Konfigurationsdatei enthält Element LANGUAGE nicht"
 msgstr "El archivo de configuración no contiene el elemento LANGUAGE"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:192
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:256
 msgid "API Key Repetier Server: %s"
 msgstr "Llave API Repetier Server: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:194
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:258
 msgid "Konfigurationsdatei enthält Element MY_REPETIER_SERVER_API_KEY nicht"
 msgstr ""
 "El archivo de configuración no contiene elementos MY_REPETIER_SERVER_API_KEY"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:198
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:262
 msgid "Repetier Server IP: %s"
 msgstr "Repetier Server IP: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:200
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:264
 msgid "Konfigurationsdatei enthält Element RepetierServerIP nicht"
 msgstr "El archivo de configuración no contiene el elemento RepetierServerIP"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:204
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:268
 msgid "Repetier Server IP2: %s"
 msgstr "Repetier Server IP2: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:206
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:270
 msgid "Konfigurationsdatei enthält Element RepetierServerIP2 nicht"
 msgstr "El archivo de configuración no contiene el elemento RepetierServerIP2"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:210
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:274
 msgid "Repetier Server Port: %s"
 msgstr "Repetier Server Port: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:212
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:276
 msgid "Konfigurationsdatei enthält Element RepetierServerPort nicht"
 msgstr "El archivo de configuración no contiene el elemento RepetierServerPort"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:216
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:280
 msgid "Telegram Token: %s"
 msgstr "Telegram Token: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:218
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:282
 msgid "Konfigurationsdatei enthält Element MY_TELEGRAM_TOKEN nicht"
 msgstr "El archivo de configuración no contiene elementos MY_TELEGRAM_TOKEN"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:222
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:286
 msgid "Administrator Telegram ID: %s"
 msgstr "Administrador Telegram ID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:224
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:288
 msgid "Konfigurationsdatei enthält Element MY_TELEGRAM_ID nicht"
 msgstr "El archivo de configuración no contiene elementos MY_TELEGRAM_ID"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:228
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:292
 msgid "LogFileName: %s"
 msgstr "LogFileName: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:230
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:294
 msgid "Konfigurationsdatei enthält Element LOGFILENAME nicht"
 msgstr "El archivo de configuración no contiene el elemento LOGFILENAME"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:237
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:301
 msgid "LogFileNameWS: %s"
 msgstr "LogFileNameWS: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:239
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:303
 msgid "Konfigurationsdatei enthält Element LOGFILENAMEWS nicht"
 msgstr "El archivo de configuración no contiene el elemento LOGFILENAMEWS"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:246
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:310
 msgid "PNGFileFolder: %s"
 msgstr "PNGFileFolder: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:248
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:312
 msgid "Konfigurationsdatei enthält Element PNGFILEFOLDER nicht"
 msgstr "El archivo de configuración no contiene el elemento PNGFILEFOLDER"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:255
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:319
 msgid "GIFFileFolder: %s"
 msgstr "GIFFileFolder: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:257
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:266
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:321
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:330
 msgid "Konfigurationsdatei enthält Element GIFFILEFOLDER nicht"
 msgstr "El archivo de configuración no contiene elemento GIFFILEFOLDER"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:264
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:328
 msgid "VIDFileFolder: %s"
 msgstr "VIDFileFolder: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:275
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1725
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:339
 msgid "Konfigurationsdatei konnte nicht beschrieben werden"
 msgstr "No se pudo escribir el archivo de configuración"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:277
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:341
 msgid "Konfigurationsdatei erfolgreich eingelesen: %s"
 msgstr "Archivo de configuración leído correctamente: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:393
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:457
 msgid ""
 "BOT Fehler!!! Versuch es noch einmal.\n"
 " %s"
@@ -168,107 +193,124 @@ msgstr ""
 "Error BOT!!! Vuelve a intentarlo.\n"
 " %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:396
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:460
 msgid "Bot Bad Request \"%s\""
 msgstr "Bot Bad Request \"%s\""
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:398
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:462
 msgid "Bot TimedOut \"%s\""
 msgstr "Bot TimedOut \"%s\""
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:400
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:464
 msgid "Bot Error \"%s\""
 msgstr "Error del bot \"%s\""
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:430
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:440
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:449
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:494
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:504
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:513
 msgid "Ende"
 msgstr "Salir"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:439
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:503
 msgid "Zurück"
 msgstr "Atrás"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:464
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:528
 msgid "ExtCommands"
 msgstr "ExtCommands"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:467
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:531
 msgid "Webcam %s"
 msgstr "Webcam %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:469
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:561
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:533
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:647
 msgid "Schnellbefehle"
 msgstr "Comandos rápidos"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:470
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:534
 msgid "Einstellungen"
 msgstr "Configuración"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:491
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:555
 msgid "OK"
 msgstr "OK"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:513
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:577
 msgid "Sende Video Kamera %s"
 msgstr "Enviar vídeo de cámara %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:515
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:579
 msgid "Sende Gif Kamera %s"
 msgstr "Enviar Gif de cámara %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:516
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:580
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:637
 msgid "Sende Png Kamera %s"
 msgstr "Enviar Png de cámara %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:524
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:558
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:588
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:644
 msgid ""
 "Anfragefehler getPrinterConfig in getQuickCommandsButton für Drucker: %s"
 msgstr ""
 "Error de solicitud getPrinterConfig en getQuickCommandsButton para "
 "impresoras: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:537
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:601
 msgid "Extruder abgekühlt: %s°C"
 msgstr "Extrusor enfriado: %s oC"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:544
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:608
 msgid "ExtCom: %s"
 msgstr "ExtCom activo: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:546
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:610
 msgid "ExtCom bei temp. limit inaktiv"
 msgstr "ExtCom a temperatura. Limite inactivo"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:551
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:611
+msgid "Bild nach Druck: %ss"
+msgstr "Imagen al terminar la impresión: %ss"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:613
+msgid "Bild: %s"
+msgstr "Foto: %s"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:615
+msgid "Bild inaktiv"
+msgstr "Imagen inactiva"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:620
 msgid "ExtCom deaktivieren"
 msgstr "Desactivar ExtCom"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:570
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:625
+msgid "Bild deaktivieren"
+msgstr "Desactivar la imagen"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:656
 msgid "Anfragefehler getPrinterConfig in sendQuickCommand für Drucker: %s"
 msgstr "Error de solicitud getPrinterConfig en buildPng para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:572
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:658
 msgid "Schnellbefehl bearbeiten fehlgeschlagen"
 msgstr "Error al editar el comando rápido"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:583
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:669
 msgid "Schnellbefehl senden fehlgeschlagen"
 msgstr "Error al enviar el comando rápido"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:590
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:676
 msgid "Schnellbefehl gesendet"
 msgstr "Comando rápido enviado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:601
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:687
 msgid "Bitte neuen Extruder Abkühlwert eingeben. Aktueller Wert: %d°C"
 msgstr ""
 "Introduzca un nuevo valor de refrigeración del extrusor. Valor actual: %d oC"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:610
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:696
 msgid ""
 "ExtCom bei temp. limit inaktiv. Wähle einen Befehl aus oder gebe ein "
 "Buchstabe ein um die Funktion abzuwählen"
@@ -276,305 +318,374 @@ msgstr ""
 "ExtCom a temperatura. límite inactivo. Seleccione un comando o introduzca "
 "una letra para anular la selección de la función"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:614
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:700
 msgid "Konnte keine Verbindung zum Server aufbauen."
 msgstr "No se pudo conectar al servidor."
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:617
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:703
 msgid "ExtCom Aktiv: %s"
 msgstr "ExtCom activo: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:629
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:648
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:715
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:733
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:749
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:768
 msgid "Konfiguration gespeichert"
 msgstr "Configuración guardada"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:633
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:652
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:719
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:737
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:753
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:772
 msgid "Konfiguration speichern fehlgeschlagen"
 msgstr "Error al guardar la configuración"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:667
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:780
+msgid "Bitte neue Verzögerungszeit eingeben. Aktueller Wert: %ds"
+msgstr "Por favor, introduzca un nuevo tiempo de retardo. Valor actual: %ds"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:789
+msgid ""
+"Bild nach Druck inaktiv. Wähle einen Befehl aus oder gebe ein Buchstabe ein "
+"um die Funktion abzuwählen"
+msgstr ""
+"Imagen inactiva después de la impresión. Seleccione un comando o introduzca "
+"una letra para anular la selección de la función"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:791
+msgid "Webcam %s Aktiv"
+msgstr "Webcam %s Activa"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:806
 msgid "Befehl fehlgeschlagen"
 msgstr "Error de comando"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:671
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:810
 msgid "Befehl ausgeführt"
 msgstr "Comando ejecutado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:681
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:820
 msgid "Nachricht nicht gelöscht"
 msgstr "Mensaje no se elimino"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:688
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:827
 msgid "Nachricht gelöscht"
 msgstr "Mensaje eliminado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:738
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:877
 msgid "updatePrinterMsgReplayMarkup: Drucker %s löscht MessageID: %s"
 msgstr "updatePrinterMsgReplayMarkup: La %s de impresora elimina MessageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:751
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:890
 msgid "updateServerMsgReplayMarkup: große Anzeige: %s"
 msgstr "updateServerMsgReplayMarkup: pantalla grande: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:776
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:915
 msgid "removeServerMsgReplayMarkup: minimiere Anzeige"
 msgstr "removeServerMsgReplayMarkup: minimiza la visualización"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:780
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:808
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:919
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:947
 msgid "Bot antwortet auf unbekannten client: %s / %s: %s, %s"
 msgstr "Bot responde al cliente desconocido: %s / %s: %s, %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:785
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:813
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:924
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:952
 msgid "Unbefugter Zugriff (ID: %s) durch Nutzer %s, %s %s"
 msgstr "Acceso no autorizado (ID: %s) por parte del usuario %s, %s %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:792
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:820
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:931
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:959
 msgid "Kein Zugriff!"
 msgstr "¡Sin acceso!"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:796
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:935
 msgid "mainServerMenu starte telegram Konversation: %s / messageID: %s"
 msgstr "mainServerMenu iniciar la conversación en telegram: %s / messageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:824
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:963
 msgid "mainMenu starte telegram Konversation: %s / messageID: %s"
 msgstr "servMsgAction comienza conversacion en telegram: %s / messageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1012
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1207
 msgid "Bot beendet Konversation: %s (%s): %s, %s"
 msgstr "Bot termina la conversación: %s (%s): %s, %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1021
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1217
 msgid "Ich nix versteh %s, %s."
 msgstr "No entiendo, hablas basco, o que? %s, %s."
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1027
-msgid "Bot kennt Antwort nicht: %s"
-msgstr "Bot no sabe la respuesta: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1223
+msgid "unknownCommand: Bot kennt Antwort nicht: %s"
+msgstr "unknownCommand: Bot no conoze respuesta: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1034
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1047
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1230
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1243
 msgid "Du warst zu langsam, %s. Jetzt darfst nochmal drücken!!!"
 msgstr "Fuiste demasiado lento, %s. Ahora puedes presionar de nuevo!!!"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1041
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1237
 msgid "Konversations-Timeout"
 msgstr "Conversación timeout"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1054
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1250
 msgid "Konversations-Timeout-Messages"
 msgstr "Conversación timeout"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1088
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1284
 msgid "Antwort öffnen des Websocket: %s, Unerwarteter Fehler: %s"
 msgstr "Respuesta abrir el websocket: %s, Error inesperado: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1097
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1293
 msgid "Antwort auf: %s, Websocket Rückmeldung: %s : Unerwarteter Fehler: %s"
 msgstr "Respuesta a: %s, Websocket Feedback: %s : Error inesperado: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1101
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1297
 msgid "Über Websocket gesendet: %s"
 msgstr "Enviado a través de Websocket: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1107
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1303
 msgid "Unerwarteter Fehler bei Antwort des Websocket: %s"
 msgstr "Error inesperado de respuesta del websocket: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1110
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1306
 msgid "Vom Websocket erhalten: %s"
 msgstr "Respuesta websocket: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1115
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1311
 msgid "JSON: %s : Unerwarteter Fehler: %s"
 msgstr "JSON: %s : Error inesperado: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1119
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1315
 msgid "Server Meldung nicht die angeforderten: %s : Kein nutzbarer Inhalt"
 msgstr ""
 "Mensaje del servidor no el solicitado: %s : No hay contenido utilizable"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1147
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1168
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1266
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1343
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1364
 msgid "Thread initialisiert: %s"
 msgstr "Thread inicializado: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1152
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1173
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1247
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1271
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1348
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1369
 msgid "Thread %s beendet: Ident: %s / ID: %s"
 msgstr "%s terminado del subproceso: Ident: %s / ID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1199
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1395
 msgid ""
-"Thread (keine ID vorhanden) initialisiert für MessageID: %s mit er Laufzeit: "
-"%ss"
+"timeDelThread: Thread (keine ID vorhanden) initialisiert für Nachricht \"%s"
+"\" und MessageID: %s mit er Laufzeit: %ss"
 msgstr ""
-"Subproceso (sin ID disponible) inicializado para MessageID: %s con él "
-"runtime: %ss"
+"timeDelThread: subproceso (sin identificador disponible) inicializado para "
+"el mensaje \"%s\" y MessageID: %s con él Runtime: %ss"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1203
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1399
 msgid ""
-"Thread initialisiert für Drucker: %s und MessageID: %s mit er Laufzeit: %ss"
+"timeDelThread: Thread initialisiert für Drucker: %s und MessageID: %s mit er "
+"Laufzeit: %ss"
 msgstr ""
-"Subproceso inicializado para impresora: %s y MessageID: %s con él runtime: "
-"%ss"
+"timeDelThread: subproceso inicializado para la impresora: %s y MessageID: %s "
+"con él Runtime: %ss"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1205
-msgid "Thread initialisiert für MessageID: %s mit er Laufzeit: %ss"
-msgstr "Subproceso inicializado para MessageID: %s con él Runtime: %ss"
-
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1210
-msgid "Thread Nachricht löschen für MessageID %s beendet: Ident: %s / ID: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1401
+msgid ""
+"timeDelThread: Thread initialisiert für MessageID: %s mit er Laufzeit: %ss"
 msgstr ""
-"Eliminar mensaje de subproceso para MessageID %s terminado: Ident: %s / ID: "
-"%s"
+"timeDelThread: subproceso inicializado para MessageID: %s con él Runtime: %ss"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1221
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1406
+msgid ""
+"timeDelThread: Thread Nachricht löschen für MessageID %s beendet: Ident: "
+"%s / ID: %s"
+msgstr ""
+"timeDelThread: eliminar el mensaje de subproceso para MessageID %s "
+"terminado: Ident: %s / ID: %s"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1417
 msgid ""
 "Konnte in delMessage Methode keine telegramDelMsg senden auf messageID: %s"
 msgstr ""
 "No se pudo enviar telegramDelMsg en el método delMessage en messageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1222
-msgid "MessageID %s von der chatID %s wurde gelöscht"
-msgstr "MessageID %s se ha eliminado de chatID %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1418
+msgid "delMessage: MessageID %s von der chatID %s wurde gelöscht"
+msgstr "delMessage: MessageID %s del %s chatID se ha eliminado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1242
-msgid "Drucker Thread initialisiert: %s"
-msgstr "Thread de impresora inicializada: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1438
+msgid "msgThread: Drucker Thread initialisiert: %s"
+msgstr "msgThread: Thread de impresora inicializada: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1288
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1443
+msgid "msgThread: Thread %s beendet: Ident: %s / ID: %s"
+msgstr "msgThread: %s terminado del subproceso: Ident: %s / ID: %s"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1462
+msgid "vidGifThread: Thread initialisiert: %s"
+msgstr "vidGifThread: subproceso inicializado: %s"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1467
+msgid "vidGifThread: Thread %s beendet: Ident: %s / ID: %s"
+msgstr "vidGifThread: %s terminado el subproceso: Ident: %s / ID: %s"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1485
 msgid "Action thread initialisiert: %s / %s"
 msgstr "Thread de acción inicializado: %s / %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1293
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1490
 msgid "Action thread %s / %s beendet: Ident: %s / ID: %s"
 msgstr "%s de subprocesos de acción / %s terminado: Ident: %s / ID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1317
-msgid "Server thread initialisiert: %s / %s"
-msgstr "Thread de servidor inicializado: %s / %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1514
+msgid "serverMsgThread: Server thread initialisiert: %s / %s"
+msgstr "serverMsgThread: subproceso de servidor inicializado: %s / %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1325
-msgid "Konnte Thread %s nicht in Join setzen, Unexpected Error: %s"
-msgstr "No se pudo poner el subproceso %s en Join, Unexpected Error: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1522
+msgid ""
+"serverMsgThread: Konnte Thread %s nicht in Join setzen, Unexpected Error: %s"
+msgstr ""
+"serverMsgThread: No se pudo unir %s de los subprocesos, error inesperado: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1326
-msgid "Server thread %s / %s beendet: Ident: %s / ID: %s"
-msgstr "%s de subprocesos de acción %s terminado: Ident: %s / ID: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1523
+msgid "serverMsgThread: Server thread %s / %s beendet: Ident: %s / ID: %s"
+msgstr ""
+"serverMsgThread: %s de los subprocesos de servidor / %s terminado: Ident: "
+"%s / ID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1373
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1568
 msgid "Threads %s gestartet"
 msgstr "Threads %s iniciado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1383
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1578
 msgid "Threads %s beendet"
 msgstr "Termina subproceso %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1463
-msgid "Kann Thread nicht aus Liste printerActiveThreads löschen. Drucker: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1659
+msgid ""
+"stopByThread: Kann Thread nicht aus Liste printerActiveThreads löschen. "
+"Drucker: %s"
 msgstr ""
-"No se puede eliminar subprocesos de la lista printerActiveThreads. "
-"Impresora: %s"
+"stopByThread: No se puede eliminar subprocesos de la lista "
+"printerActiveThreads. Impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1464
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1469
-msgid "Thread %s beendet"
-msgstr "Thread %s terminado"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1660
+msgid "stopByThread: Thread %s beendet"
+msgstr "stopByThread: %s terminado el subproceso"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1474
-msgid "Kann Thread nicht aus Thread Liste löschen. Drucker: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1665
+msgid "stopSingleThread: Thread %s beendet"
+msgstr "stopSingleThread: %s terminado el subproceso"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1670
+msgid ""
+"stopSingleThread: Kann Thread nicht aus Thread Liste löschen. Drucker: %s"
 msgstr ""
-"No se puede eliminar subprocesos de la lista de subprocesos. Impresora: %s"
+"stopSingleThread: No se puede eliminar el subproceso de la lista de "
+"subprocesos. Impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1475
-msgid "Thread für %s / %s beendet"
-msgstr "Elimina thread %s /%s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1671
+msgid "stopSingleThread: Thread für %s / %s beendet"
+msgstr "stopSingleThread: subproceso para %s/%s terminado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1535
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1563
-msgid "Handler %s hinzugefügt"
-msgstr "Agregado handler %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1676
+msgid ""
+"removeSingleThreadOfList: Thread %s wird aus der angeforderten Thread Liste "
+"gelöscht"
+msgstr ""
+"removeSingleThreadOfList: el %s de subprocesos se elimina de la lista de "
+"subprocesos solicitados"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1545
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2547
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1680
+msgid ""
+"removeSingleThreadOfList: Kann Thread nicht aus Thread Liste löschen. "
+"Drucker: %s"
+msgstr ""
+"removeSingleThreadOfList: No se puede eliminar subproceso de la lista de "
+"subprocesos. Impresora: %s"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1750
+msgid "addHandler: Handler %s hinzugefügt"
+msgstr "addHandler: %s agrega el controlador"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1760
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2783
 msgid "Benachrichtigung"
 msgstr "Notificación"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1570
-msgid "Handler %s entfernt"
-msgstr "Handler borrado %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1778
+msgid "Handler %s hinzugefügt"
+msgstr "Agregado handler %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1607
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1785
+msgid "removeMsgHandler: Handler %s entfernt"
+msgstr "removeMsgHandler: %s quita el controlador"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1827
 msgid "Keine Server Rückmeldung in Methode checkForMsgThreads"
 msgstr "No hay respuesta del servidor en el método checkForMsgThreads"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1617
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1837
 msgid "Beende in Methode checkServerConfigChange Thread: %s"
 msgstr "Para thread en methodo checkServerConfigChange: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1637
-msgid "Bot Teilnehmer in checkBotToServerConfig hinzugefügt: %s"
-msgstr "Se han añadido los participantes del bot en checkBotToServerConfig: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1857
+msgid "checkBotToServerConfig: Bot Teilnehmer hinzugefügt: %s"
+msgstr "checkBotToServerConfig: Se han añadido participantes del bot: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1656
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1667
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1687
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1704
-msgid "Teilnehmer in botData hinzugefügt: %s"
-msgstr "Participantes en botData añadido: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1876
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1887
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1909
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1925
+msgid "botData: Teilnehmer hinzugefügt: %s"
+msgstr "botData: Se han añadido participantes: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1662
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1882
 msgid "Konfigurationsdatei in botData enthält keine Telegram Datenablage"
 msgstr ""
 "El archivo de configuración de botData no contiene almacenamiento de datos "
 "de Telegram"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1707
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1928
 msgid "Bot Data angelegt"
 msgstr "Datos bot creados"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1709
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1930
 msgid "Bot Data Initialisierung fehlgeschlagen"
 msgstr "Error en la inicialización de bots"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1716
-msgid "Konfigurationsdatei nicht gefunden in botData: %s"
-msgstr "Archivo de configuración no encontrado en botData: %s"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1937
+msgid "rConfigFile: Konfigurationsdatei nicht gefunden in botData: %s"
+msgstr ""
+"rConfigFile: archivo de configuración que no se encuentra en botData: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1740
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1946
+msgid "wConfigFile: Konfigurationsdatei konnte nicht beschrieben werden"
+msgstr "wConfigFile: No se pudo escribir el archivo de configuración"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1961
 msgid "checkMsgID: Drucker %s fordert neue MessageID für MessageID an: %s"
 msgstr "checkMsgID: impresora %s solicita nuevo MessageID para MessageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1789
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1947
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1966
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1977
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2548
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2010
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2173
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2192
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2203
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2784
 msgid "Update: %s um %s"
 msgstr "Actualización: %s en %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1793
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2014
 msgid "Ausgeschaltet"
 msgstr "Apagado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1803
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2024
 msgid "Konnte keepBasicPrinterInfo keine Bot Nachricht senden an %s"
 msgstr "No se pudo mantenerBasicPrinterInfo enviar un mensaje de bot a %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1804
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2025
 msgid "keepBasicPrinterInfo: Drucker %s erzeugt neue MessageID: %s"
 msgstr "keepBasicPrinterInfo: la %s de impresora crea un nuevo MessageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1809
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2030
 msgid ""
 "Konnte keepBasicPrinterInfo keinen telegramEditMsg senden an %s auf "
 "messageID: %s"
@@ -582,385 +693,409 @@ msgstr ""
 "No he podido keepBasicPrinterInfo enviar telegramEditMsg a %s en messageID: "
 "%s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1846
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2067
 msgid "Printer %s not found in method getPrinterSetting!"
 msgstr "¡La impresora no %s encuentra en el método getPrinterSetting!"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1864
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2077
+msgid "Printer %s stateLists wrong in getExtruderStatus in data: %s"
+msgstr "Impresora %s stateLists incorrecto en getExtruderStatus en data: %s"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2078
+msgid "Error!!!"
+msgstr "¡¡¡Error!!!"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2090
 msgid "Extruder %d: %.1f °C / %.1f °C"
 msgstr "Extrusor %d: %.1f °C/ %.1f °C"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1867
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2093
 msgid "Extruder %d: %.1f °C"
 msgstr "Extrusor %d: %.1f °C"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1872
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2098
 msgid "Extruder heizt/heizen auf"
 msgstr "El extrusor se calientan/calienta"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1874
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2100
 msgid "Extruder heizt auf"
 msgstr "El extrusor se calienta"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1877
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2103
 msgid "Extruder kühlen ab"
 msgstr "Los extrusores se enfrían"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1879
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2105
 msgid "Extruder kühlt ab"
 msgstr "Extrusor se enfría"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1881
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2107
 msgid "Einsatzbereit"
 msgstr "Disponible"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1883
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2109
 msgid "unbekannt"
 msgstr "Desconocido"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1903
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2129
 msgid "getServerMessages startet Benachrichtigungs Thread"
 msgstr "getServerMessages inicia el thread de las notificaciónes"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1906
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2132
 msgid "getServerMessages beende Benachrichtigungs Thread"
 msgstr "getServerMessages elimina el thread de las notificaciónes"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1923
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2149
 msgid "Response to open threading websocket: %s, Unexpected Error: %s"
 msgstr "Respuesta a open threading websocket: %s, Unexpected Error: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1927
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2618
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2153
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2857
 msgid "Websocket established to: %s"
 msgstr "Websocket establecido para: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1948
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2174
 msgid "Druck der Datei"
 msgstr "Impresión del archivo"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1950
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2176
 msgid "ist bei %.1f"
 msgstr "está en %.1f"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1951
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2177
 msgid "Layer: %s/%s bei Z: %.3fmm"
 msgstr "Capa: %s/%s en Z: %.3fmm"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1952
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2178
 msgid "Fertigstellung %s"
 msgstr "Finaliza %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1953
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2179
 msgid "Druck wurde %s begonnen"
 msgstr "La impresión comenzó %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1954
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2180
 msgid "Vorraussichtliches Ende: %s"
 msgstr "Impresion termina: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1955
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2181
 msgid "Drucker Status:"
 msgstr "Estado de la impresora:"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1956
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2182
 msgid "Druckgeschwindigkeit: %s%% Fluss: %s%%"
 msgstr "Velocidad de impresión: %s%% Fluido: %s%%"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1967
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1981
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2193
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2207
 msgid "Aufheizvorgang:"
 msgstr "Proceso de calentamiento:"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1991
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2217
 msgid "Konnte msgPrinter keine Bot Nachricht senden an %s"
 msgstr "No pude enviar en msgPrinter un mensaje de bot a %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1992
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2218
 msgid "msgPrinter: Drucker %s erzeugt neue MessageID: %d"
 msgstr "msgPrinter: Printer %s crea un nuevo MessageID: %d"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:1997
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2223
 msgid "Konnte msgPrinter keinen telegramEditMsg senden an %s auf messageID: %s"
 msgstr "Podría msgPrinter no enviar telegramEditMsg a %s en messageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2000
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2226
 msgid "Konnte msgPrinter nicht ausführen. Keine Daten vom Server für %s"
 msgstr "No se pudo ejecutar msgPrinter. No hay datos del servidor para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2011
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2237
 msgid "Lüfter %d: %.0f%%"
 msgstr "Ventilador %d: %.0f%%"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2013
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2239
 msgid "Lüfter %d: Aus"
 msgstr "Ventilador %d: apagado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2024
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2026
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2250
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2252
 msgid "Chamber %d: %.1f °C/ %.1f °C\n"
 msgstr "Cámara %d: %.1f °C/ %.1f °C\n"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2038
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2040
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2264
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2266
 msgid "Heatbed %d: %.1f °C/ %.1f °C\n"
 msgstr "Heatbed %d: %.1f °C/ %.1f °C\n"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2052
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2054
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2278
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2280
 msgid "Extruder %d: %.1f °C/ %.1f °C\n"
 msgstr "Extrusor %d: %.1f °C/ %.1f °C\n"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2065
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2291
 msgid "Anfragefehler getPrinterConfig in buildPng für Drucker: %s"
 msgstr "Error de solicitud getPrinterConfig en buildPng para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2071
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2297
 msgid "Png Erstellung startet für %s"
 msgstr "La creación de Png comienza para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2073
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2299
 msgid "Lösche %s"
 msgstr "Eliminar %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2079
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2160
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2305
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2386
 msgid "Png Erstellung beendet für %s"
 msgstr "Creación Png terminada para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2084
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2186
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2264
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2310
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2412
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2490
 msgid "/%s druckt \"%s\" bei %.1f%%"
 msgstr "/%s imprime \"%s\" al %.1f%%"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2087
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2189
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2267
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2313
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2415
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2493
 msgid "/%s - eingeschaltet"
 msgstr "/%s - encendido"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2089
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2191
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2269
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2315
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2417
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2495
 msgid "/%s - ausgeschaltet"
 msgstr "/%s - apagado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2090
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2316
 msgid "Png Caption Erstellung beendet für %s"
 msgstr "Fecha png Creación terminada para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2095
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2275
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2321
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2501
 msgid "Sendefehler telegramSendPic in buildGif für Drucker: %s"
 msgstr "Enviar telegramas de errorSendPic en buildGif para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2096
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2322
 msgid "Png versendet für %s"
 msgstr "Png enviado para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2106
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2207
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2332
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2433
 msgid "Anfragefehler getWebcamStaticUrl in get_image für Drucker: %s"
 msgstr ""
 "Error de solicitud getWebcamStaticUrl en get_image para la impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2113
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2339
 msgid "Anfragefehler requests in get_image für Drucker: %s"
 msgstr "Solicitar solicitudes de error en get_image para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2130
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2356
 msgid ""
 "Verzeichnis/Datei konnte nicht in get_image für Drucker erstellt werden: %s"
 msgstr "No se puede crear directorio/archivo en get_image para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2139
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2365
 msgid "Anfragefehler getPrinterConfig in buildGif für Drucker: %s"
 msgstr "Error de solicitud getPrinterConfig en buildGif para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2150
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2376
 msgid "Gif Erstellung startet für %s"
 msgstr "La creación de gifs comienza para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2170
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2396
 msgid "Erstellungsfehler imageio.mimsave in buildGif für Drucker: %s"
 msgstr "Error de creación imageio.mimsave en buildGif para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2178
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2404
 msgid "TypeError bei gifsicle in buildGif: %s"
 msgstr "TypeError en gifsicle en buildGif: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2180
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2406
 msgid "Optimierungsfehler optimize von gifsicle in buildGif für Drucker: %s"
 msgstr "Error de optimización por gifsicle en buildGif para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2181
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2407
 msgid "Gif Erstellung beendet für %s"
 msgstr "Creación de GIF terminada para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2192
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2418
 msgid "Gif Caption Erstellung beendet für %s"
 msgstr "Creación de subtítulos Gif terminada para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2197
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2423
 msgid "Sendefehler telegramSendAnimation in buildGif für Drucker: %s"
 msgstr "Enviar error telegramSendAnimation en buildGif para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2198
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2424
 msgid "Gif versendet für %s"
 msgstr "Gif enviado para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2215
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2441
 msgid "Anfragefehler requests in get_gif für Drucker: %s"
 msgstr "Solicitar solicitudes de error en get_gif para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2244
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2470
 msgid "Anfragefehler getPrinterConfig in buildVid für Drucker: %s"
 msgstr "Error de solicitud getPrinterConfig en buildVid para impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2250
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2476
 msgid "Vid Erstellung startet für %s"
 msgstr "La creación de Vid comienza por %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2252
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2478
 msgid "removing %s"
 msgstr "eliminar %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2258
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2484
 msgid "Vid Erstellung beendet für %s"
 msgstr "Creación de Vid terminada para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2270
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2496
 msgid "Vid Caption Erstellung beendet für %s"
 msgstr "Creación de subtítulos en vid terminada para %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2276
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2502
 msgid "Vid versendet für %s"
 msgstr "Vid enviado por %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2290
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2516
 msgid "Anfragefehler getWebcamDynamicUrl in get_Vid für Drucker: %s"
 msgstr ""
 "Error de solicitud getWebcamDynamicUrl en get_Vid para la impresora: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2320
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2546
 msgid "Stream konnte nicht in get_Vid für Drucker gelesen werden: %s"
 msgstr "No se puede leer la secuencia en get_Vid para impresoras: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2337
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2563
 msgid "Antwort: %s - Unerwarteter Fehler: %s"
 msgstr "Respuesta: %s - Error inesperado: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2340
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2566
 msgid "Thread Send aktiv"
 msgstr "Thread enviar activo"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2348
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2574
 msgid "Antwort unerwarteter Fehler: %s"
 msgstr "Respuesta de errores inesperados: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2352
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2578
 msgid "Thread Rec aktiv"
 msgstr "Rosca Rec activa"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2373
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2599
 msgid ""
 "getMessageCntAction - CallbackID wurde gelöscht. Es wurde nicht "
 "zurückgemeldet: %s"
 msgstr "getMessageCntAction - Se ha eliminado CallbackID. No fue devuelto: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2406
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2632
 msgid "Thread lock gestartet"
 msgstr "Thread lock iniciado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2411
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2637
 msgid "Thread lock freigegeben"
 msgstr "Thread lock liberado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2428
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2646
 msgid "Event - JSON laden fehlgeschlagen: %s"
 msgstr "Evento - Error de carga JSON: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2434
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2652
 msgid "Event - Struktur data nicht erreichbar: %s"
 msgstr "Evento - Datos de estructura inalcanzables: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2441
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2659
 msgid "Event - Loggen nicht möglich: %s"
 msgstr "Evento - El registro no es posible: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2452
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2665
+msgid "eventTyp: jobFinished detected"
+msgstr "eventType: jobFinished detectado"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2671
 msgid "%s hat nach %s den Druck beendet."
 msgstr "%s ha terminado la impresión después de %s."
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2453
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2672
 msgid "eventTyp: jobFinished: %s"
 msgstr "eventTyp: jobFinished: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2465
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2691
+msgid "eventTyp: messagesChanged detected"
+msgstr "eventType: messagesChanged detectado"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2693
 msgid "eventTyp: messagesChanged"
 msgstr "eventType: messagesChanged"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2467
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2695
 msgid "Neue Nachricht!"
 msgstr "¡Nuevo mensaje!"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2479
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2700
+msgid "eventTyp: jobKilled detected"
+msgstr "eventType: jobKilled detectado"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2708
 msgid "Druck von %s wurde nach %s abgebrochen"
 msgstr "La impresión de %s fue abortada después de %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2480
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2709
 msgid "eventTyp: jobKilled: %s"
 msgstr "eventTyp: jobKilled: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2493
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2716
+msgid "eventTyp: jobStarted detected"
+msgstr "eventType: jobStarted detectado"
+
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2723
 msgid "%s hat um %s den Druck %s gestartet und endet vorraussichtlich %s."
 msgstr "%s comenzó la impresión %s a %s y se espera que esté listo para el %s."
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2498
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2728
 msgid "eventTyp: jobStarted: %s"
 msgstr "eventTyp: jobStarted: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2505
-msgid "eventTyp: changeFilamentRequested"
-msgstr "eventTyp: changeFilamentRequested"
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2735
+msgid "eventTyp: changeFilamentRequested detected"
+msgstr "eventType: changeFilamentRequested detectado"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2514
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2744
 msgid "Order Storage Runtime: %ssek."
 msgstr "Ordene Storage Runtime: %ssec."
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2534
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2764
 msgid "Drucker Befehl nach Abkühlvorgang fehlgeschlagen"
 msgstr "Error en el comando al servidor después de enfriamiento del extrusor"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2538
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2768
 msgid "Drucker Befehl nach Abkühlvorgang ausgeführt"
 msgstr ""
 "Comando de impresora ejecutado después de la operación de refrigeración"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2569
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2809
 msgid "Letzte Nachricht"
 msgstr "Ultimo mensaje"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2578
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2817
 msgid "servMsgAction erzeuge telegram Nachricht: %s / messageID: %s"
 msgstr "servMsgAction genera mensaje de telegrama: %s / messageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2587
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2826
 msgid "servMsgAction erneuert telegram Nachricht: %s / messageID: %s"
 msgstr "servMsgAction renueva el mensaje de telegrama: %s / messageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2592
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2831
 msgid ""
 "servMsgAction editiert telegram Nachricht fehlgeschlagen: %s / messageID: %s"
 msgstr ""
 "servMsgAction error de editar el mensaje de telegram: %s / messageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2593
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2832
 msgid "servMsgAction editiert telegram Nachricht: %s / messageID: %s"
 msgstr "servMsgAction edita el mensaje de telegram: %s / messageID: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2597
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2836
 msgid ""
 "Threads Alive:\n"
 "wsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, wsThreadRestart: "
@@ -970,67 +1105,67 @@ msgstr ""
 "wsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, wsThreadRestart: "
 "%s, Restarts Websocket/Send/Receive: %d, Restarts Order Data: %d"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2607
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2846
 msgid "wsThreadSend und wsThreadRec restart Zähler zurückgesetzt"
 msgstr "wsThreadSend y wsThreadRec reinicio del contador restablecer"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2619
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2858
 msgid "wsThreadSend und wsThreadRec nachgestartet. Zähler: %d"
 msgstr "wsThreadSend y wsThreadRec. Contador: %d"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2623
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2862
 msgid "wsThreadOrderData restart Zähler zurückgesetzt"
 msgstr "wsThreadOrderData reinicio del contador restablecer"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2628
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2867
 msgid "wsThreadOrderData nachgestartet. Zähler: %s"
 msgstr "wsThreadOrderData. Contador: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2629
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2868
 msgid "Auflistung aller aktiven Threads. Zähler: %d"
 msgstr "Colección de todos los subprocesos activos. Contador: %d"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2632
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2871
 msgid "Thread: %s"
 msgstr "Thread: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2646
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2885
 msgid "########### Repetier-Server Bot ###########"
 msgstr "########### Bot de Servidor Repetier ###########"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2647
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2886
 msgid "Software Version: %s"
 msgstr "Versión de software: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2648
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2887
 msgid "Thread Name: %s"
 msgstr "Nombre del thread: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2649
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2888
 msgid "########### Geräte and Python Information ###########"
 msgstr "########### Información de dispositivos y Python ###########"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2650
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2889
 msgid "Python Version: %s"
 msgstr "Versión de Python: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2651
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2890
 msgid "OS: %s"
 msgstr "OS: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2652
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2891
 msgid "OS Version: %s"
 msgstr "Versión del sistema operativo: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2654
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2893
 msgid "Active User: %s"
 msgstr "Usuario activo: %s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2684
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2924
 msgid "Python Programm wurde beendet. Aktive Threads: %d/ %s"
 msgstr "El programa Python se ha detenido. Threads activos: %d/%s"
 
-#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2687
+#: D:\temp\python\Repetier-Server_Telegram_Bot.py:2927
 msgid "Bot geht Offline"
 msgstr "Bot se desconecto"
 
