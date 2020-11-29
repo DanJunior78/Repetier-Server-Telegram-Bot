@@ -43,6 +43,9 @@ New in V04:
 - pip install opencv-python
 - pip install python-telegram-bot
 
+please check correct installation depending on your Python installation with: python3 -m pip list / python3.9 -m pip list
+and try if not properly installed via e.g. for Python 3.9: python3.9 -m pip install xxxxxxxxxx
+
 # How to get started:
 
 Configuration File (JSON): Repetier-Server_Telegram_Bot_Vx.json
