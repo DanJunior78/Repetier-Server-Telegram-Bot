@@ -76,6 +76,8 @@ V03: First Release
 
 V04: Bugfixes, New functions for showing messages, quick commands, command to ExtCommand after printing and cooling down the extruder, reduced messages
   Please use new Configuration JSON or if you know how to modifiy your existing. Check for differences.
+  
+V05.000: Bugfixes, implemented FR001: Send picture after print finished, removed telegram message - repetier server message due to exceeding telegram bot limits, which will be fixed in V1.0.0, which will be the next version of my software.
 
 # Additional information & support request
 
