@@ -1,5 +1,5 @@
 ######################################################################################################################
-# Repetier-Server_Telegram_Bot
+# Repetier-Server_Telegram_Bot Setup Tool
 # Copyright (c) 2020 Repetier-Server_Telegram_Bot [https://github.com/DanJunior78/Repetier-Server-Telegram-Bot]
 # Owner: Daniel Glock, Germany Twitter: @Daniel_Glock
 # 
