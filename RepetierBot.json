@@ -1,0 +1,1 @@
+{"version": {"CFG_VERSION": "V1.00"}, "server": {"LANGUAGE": "en", "MY_REPETIER_SERVER_API_KEY": "", "RepetierServerIP": "", "RepetierServerPort": "", "MY_TELEGRAM_ID": 0, "MY_TELEGRAM_TOKEN": "", "LOGFILENAME": "", "LOGFILENAMEWS": "", "PNGFILEFOLDER": "", "GIFFILEFOLDER": "", "VIDFILEFOLDER": ""}, "printers": [], "gui": {"testSuccess": false}}
