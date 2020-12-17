@@ -51,6 +51,8 @@ please check correct installation depending on your Python installation with: py
 
 and try if not properly installed via e.g. for Python 3.9: python3.9 -m pip install xxxxxxxxxx
 
+12/17/20: please don´t update single libraries via pip. known issues with: pip install numpy==1.19.4 -> program would not start as it is a problem on latest Windows 10 64bit installations.
+
 # How to get started:
 
 Configuration File (JSON): Repetier-Server_Telegram_Bot_Vx.json
