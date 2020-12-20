@@ -1,11 +1,10 @@
-# Repetier-Server-Telegram-Bot (Beta) - Python
+# Repetier-Server-Telegram-Bot - Python
+## Version: 1.0.2 - 20.12.2020
 Telegram Bot connecting your Repetier Server and your Telegram bot account.
 
-It updates every 2 seconds your bot and you´ll have latest information about your prints and printer status.
+It updates frequently your bot and you´ll have latest information about your prints and printer status.
 
-This is still a beta version and i am testing it with several friends having up to 2 printers connected to a raspberry.
-
-Application is tested on Windows 10 and Linux Mint 20
+Application is tested on Windows 10, Windows Server, Raspberry Pi, Proxmox VM and Linux Mint 20 (thanks to all supporting gents from the news group)
 
 Following requierements:
 
@@ -23,12 +22,29 @@ _If you want to support me with a fresh coffee and if you think it´s worthing w
 # !For updating your existing installation, please refer Version History section below!
 # Images/Pictures
 
-![Main View](/00_Pictures/Main_View.JPG)
-![Printer Detail](/00_Pictures/Printer_Detail_View.JPG)
+### New in V1.0.2:
+
+![Main View](/00_Pictures/main_view_v1_0.JPG)
+![Printer Detail](/00_Pictures/main_detail_view_v1_0.JPG)
+![Printing view collapsed](/00_Pictures/printing_v1_0.JPG)
+![Heat up at print start](/00_Pictures/heat_up_v1_0.JPG)
+![Heat up at print start 2](/00_Pictures/heat_up2_v1_0.JPG)
+![Cool down at print finish and message](/00_Pictures/cool_down_messages_V1_0.JPG)
+![New settings in V1.0.2](/00_Pictures/settings_v1_0.JPG)
+![New debug support files in V1.0.2](/00_Pictures/Debug_Support.JPG)
+
+impressions from Beta users (thanks again to Seb):
+
+![User Impression V1.0.2](/00_Pictures/main_view_v1_0_by_Seb.JPG)
+![User Impression 2 V1.0.2](/00_Pictures/main_view_v1_0_by_Seb2.JPG)
+
+
+New in V05 (content still valid in V1.0.2):
+
 ![External Commands](/00_Pictures/ExtCommands.JPG)
 ![Webcam](/00_Pictures/Webcam_Items.JPG)
 
-New in V04:
+New in V04 (content still valid in V1.0.2):
 
 ![Quick Command and Settings](/00_Pictures/QuickCommandsAndSettings_V04.JPG)
 ![Quick Command and Settings](/00_Pictures/QuickCommands_V04.JPG)
@@ -53,26 +69,25 @@ and try if not properly installed via e.g. for Python 3.9: python3.9 -m pip inst
 
 12/17/20: please don´t update single libraries via pip. known issues with: pip install numpy==1.19.4 -> program would not start as it is a problem on latest Windows 10 64bit installations.
 
+# How to update from an old version:
+
+Please only stop your actual running bot and exchange all files. From V1.0.2 and greater all updates will work without exchange of the .json file.
+
 # How to get started:
 
 Configuration File (JSON): Repetier-Server_Telegram_Bot_Vx.json
 
 Requiered data:| What to fill in:
 ---------------|-----------------
-"CFG_VERSION": "V03"| --> **do not change!!!**
+"CFG_VERSION": "Vxxx.xxx.xx"| --> **do not change!!!**
 "LANGUAGE": "en"| --> Possible to change to your language, otherwise it will be used the system setting or if not availble, it will keep program in english.
 "MY_REPETIER_SERVER_API_KEY": ""| --> Your Repetier-Server API Key
 "RepetierServerIP": ""| --> Fill in your Repetier-Server IP adress, e.g. "192.168.100.44"
-"RepetierServerIP2": ""| --> For future use, not required 
 "RepetierServerPort": "3344"| --> usually Repetier-Server port is: 3344 
 "MY_TELEGRAM_ID": | -->  Your telgram ID -> Is a integer number. You can check the number via the bot: Telegram Bot Raw - It feedbacks your details
 "MY_TELEGRAM_TOKEN": ""| --> Your botfather token 
-"LOGFILENAME": ""| --> usually all logs go to ./log folder
-"LOGFILENAMEWS": ""| --> usually all logs go to ./log folder 
-"PNGFILEFOLDER": ""| --> usually all pics/videos go to ./pic folder
-"GIFFILEFOLDER": ""| --> usually all pics/videos go to ./pic folder 
-"VIDFILEFOLDER": ""| --> usually all pics/videos go to ./pic folder 
-"data": [] | --> **Do not change!!!**
+"printers": [] | --> **Do not change!!!**
+"gui": [] | --> **Do not change!!!**
 
 # Available Languages:
 
@@ -90,6 +105,9 @@ V04: Bugfixes, New functions for showing messages, quick commands, command to Ex
   Please use new Configuration JSON or if you know how to modifiy your existing. Check for differences.
   
 V05.000: Bugfixes, implemented FR001: Send picture after print finished, removed telegram message - repetier server message due to exceeding telegram bot limits, which will be fixed in V1.0.0, which will be the next version of my software.
+
+V1.0.2:
+Exchange of the core. new functions, better user experience, more stability, easy handling for debug information (and sending it to the support), setup tool for windows.
 
 # Additional information & support request
 
