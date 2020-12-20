@@ -72,7 +72,8 @@ and try if not properly installed via e.g. for Python 3.9: python3.9 -m pip inst
 # How to update from an old version:
 
 Please only stop your actual running bot and exchange all files. From V1.0.2 and greater all updates will work without exchange of the .json file.
-From > V1.0.2 please use in linux: wget https://github.com/DanJunior78/Repetier-Server-Telegram-Bot/blob/main/RepetierBot.py
+From > V1.0.2 please use in linux: 
+### wget https://raw.githubusercontent.com/DanJunior78/Repetier-Server-Telegram-Bot/main/RepetierBot.py
 
 # How to get started:
 
