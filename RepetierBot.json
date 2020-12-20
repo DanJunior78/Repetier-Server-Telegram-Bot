@@ -2,7 +2,7 @@
 	{"CFG_VERSION": "V1.0"}, 
 "server": 
 	{"LANGUAGE": "en", 
-	"MY_REPETIER_SERVER_API_KEY": "", 
+	"MY_REPETIER_SERVER_API_KEY": "xxxxxxx-xxxxxx-xxxxxxxx-xxxxxxxx", 
 	"RepetierServerIP": "", 
 	"RepetierServerPort": "", 
 	"MY_TELEGRAM_ID": 0, 
