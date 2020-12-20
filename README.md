@@ -114,6 +114,9 @@ V1.0.2:
 Exchange of the core. new functions, better user experience, more stability, easy handling for debug information (and sending it to the support), setup tool for windows.
 Please exchange all files if you have used a former version of this program. In future it will auto update the config file without renewing this file (nothing lasts as long as each change, lol)
 
+V1.0.3:
+Bugfix for Gifs on a linux machine. Otimization of the Gif on Linux not possible.
+
 # Additional information & support request
 
 i would appreciate if someone would support me to add languages. I would be fully supportive with it, because i´ve a translation tool available. 
