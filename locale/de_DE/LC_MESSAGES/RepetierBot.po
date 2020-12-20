@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Repetier-Server_Telegram_Bot\n"
 "POT-Creation-Date: 2020-12-19 21:17+0100\n"
-"PO-Revision-Date: 2020-12-20 11:18+0100\n"
+"PO-Revision-Date: 2020-12-20 16:26+0100\n"
 "Last-Translator: Daniel Glock <daniel.g.aus.g@gmail.com>\n"
 "Language-Team: de\n"
 "Language: de\n"
@@ -443,7 +443,7 @@ msgstr "Starte Druck von"
 
 #: D:\temp\python\RepetierBot.py:2744
 msgid "Prints"
-msgstr "Fotoabzüge"
+msgstr "Druckt"
 
 #: D:\temp\python\RepetierBot.py:2744
 msgid "at"

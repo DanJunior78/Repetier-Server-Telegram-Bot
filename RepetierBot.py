@@ -65,7 +65,7 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.2" 
+SW_VERSION = "1.0.3" 
 CFG_VERSION = "V1.0"
 EX_DEBUG = True
 
@@ -2095,18 +2095,24 @@ class botThreadHdl(dataHdlThread):
             loggerWS.info("remMsgFromBot removed message from %s/%s"%(slug,function)) # message_id
                                 
     def remMsgFromBuffer(self, slug, function):
-        for i in range(0,len(self.botData['bot']['prioMessages'])):
-            message = self.botData['bot']['prioMessages'][i]
-            if message['slug'] == slug and message['function'] == function:
-                elementPop = self.botData['bot']['prioMessages'].pop(i)
-                loggerWS.info("remMsgFromBuffer found and removed in prio Messages message from %s/%s with message id: %s"%(slug,function, elementPop['message_id']))
-        loggerWS.info("remMsgFromBuffer removed in prio Messages message from %s/%s"%(slug,function)) # message_id
-        for i in range(0,len(self.botData['bot']['messages'])):
-            message = self.botData['bot']['messages'][i]
-            if message['slug'] == slug and message['function'] == function:
-                self.botData['bot']['messages'].pop(i)
-                loggerWS.info("remMsgFromBuffer found and removed in normal Messages message from %s/%s"%(slug,function))
-        loggerWS.info("remMsgFromBuffer removed in normal Messages message from %s/%s"%(slug,function)) # message_id
+        try:
+            for i in range(0,len(self.botData['bot']['prioMessages'])):
+                message = self.botData['bot']['prioMessages'][i]
+                if message['slug'] == slug and message['function'] == function:
+                    elementPop = self.botData['bot']['prioMessages'].pop(i)
+                    loggerWS.info("remMsgFromBuffer found and removed in prio Messages message from %s/%s with message id: %s"%(slug,function, elementPop['message_id']))
+            loggerWS.info("remMsgFromBuffer removed in prio Messages message from %s/%s"%(slug,function)) # message_id
+        except:
+            loggerWS.error("remMsgFromBuffer index not existing in prio Messages message from %s/%s"%(slug,function)) # message_id
+        try:
+            for i in range(0,len(self.botData['bot']['messages'])):
+                message = self.botData['bot']['messages'][i]
+                if message['slug'] == slug and message['function'] == function:
+                    self.botData['bot']['messages'].pop(i)
+                    loggerWS.info("remMsgFromBuffer found and removed in normal Messages message from %s/%s"%(slug,function))
+            loggerWS.info("remMsgFromBuffer removed in normal Messages message from %s/%s"%(slug,function)) # message_id
+        except:
+            loggerWS.error("remMsgFromBuffer index not existing in normal Messages message from %s/%s"%(slug,function)) # message_id
                                 
     def addMsgToBot(self, slug, function, msg, reply_markup=None, vidPic=None, priority=False, botMsg=False, singleMsg=False, delTime=15, modMsg=None, printInfo=None):
         if botMsg: # modMsg: modify message replay by "reply_markup" / modify printer pic "print_pic"
@@ -2863,7 +2869,7 @@ class botThreadHdl(dataHdlThread):
             loggerWS.error("TypeError at gifsicle in buildGif: %s" % err)
         except:
             loggerWS.error("Could not optimize in buildGif gifsicle for printer: %s" % slug)
-        return "Error"
+        return os.path.join(gifDir, gifName)
 
     def get_vid(self, webcam, slug, vidDir):
         try:
@@ -2915,7 +2921,7 @@ class botThreadHdl(dataHdlThread):
     def abortVidGif(self, slug):
         self.addMsgToBot(slug=slug,
                             function="vidGifAbort",
-                            msg="📵 <b>" + _("Error on the picture/video request") % slug + "</b>",
+                            msg="📵 <b>" + _("Error on the picture/video request for printer: %s") % slug + "</b>",
                             reply_markup=None,
                             vidPic=None,
                             priority=False,
