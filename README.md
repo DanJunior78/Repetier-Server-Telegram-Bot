@@ -97,7 +97,7 @@ Please be aware of differences in the platform (Windows and Linux).
 You can reduce the program size by deleting languages in the folder ./locale (But i would not recommend it, there are still only 3 languages inside...a few kB of your HD)
 
 # Version History:
-Use always the new Python file and the latest JSON configuration file. Please download always locale Folder (language files) too. 
+Use always the new Python file and the latest JSON configuration file ( if version < V1.0.2). Please download always locale Folder (language files) too. 
 
 V03: First Release
 
@@ -108,6 +108,7 @@ V05.000: Bugfixes, implemented FR001: Send picture after print finished, removed
 
 V1.0.2:
 Exchange of the core. new functions, better user experience, more stability, easy handling for debug information (and sending it to the support), setup tool for windows.
+Please exchange all files if you have used a former version of this program. In future it will auto update the config file without renewing this file (nothing lasts as long as each change, lol)
 
 # Additional information & support request
 
