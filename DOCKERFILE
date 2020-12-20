@@ -1,0 +1,8 @@
+FROM python:3.9
+ADD ./ /
+RUN pip install --no-cache-dir arrow websocket_client requests imageio pygifsicle opencv-python python-telegram-bot
+
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6  -y
+
+CMD [ "python", "Repetier-Server_Telegram_Bot.py" ]

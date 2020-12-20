@@ -11,6 +11,12 @@ Following requierements:
 
 Python >= 3.8 
 
+Please visit the wiki for helpful information related to this program: [Main Wiki Page](https://github.com/DanJunior78/Repetier-Server-Telegram-Bot/wiki)
+
+[Get support on Telegram :face_with_head_bandage:](https://t.me/Repetier_S_Telegram_Bot_Support)
+
+[Get news on Telegram :newspaper:](https://t.me/Repetier_Server_Telegram)
+
 _If you want to support me with a fresh coffee and if you think it´s worthing what i'm doing, donate something, to get a fresh coffee_
 [Push here :love_letter:](https://paypal.me/DanielGlock78)
 
@@ -40,6 +46,12 @@ New in V04:
 - pip install pygifsicle
 - pip install opencv-python
 - pip install python-telegram-bot
+
+please check correct installation depending on your Python installation with: python3 -m pip list / python3.9 -m pip list
+
+and try if not properly installed via e.g. for Python 3.9: python3.9 -m pip install xxxxxxxxxx
+
+12/17/20: please don´t update single libraries via pip. known issues with: pip install numpy==1.19.4 -> program would not start as it is a problem on latest Windows 10 64bit installations.
 
 # How to get started:
 
@@ -76,6 +88,8 @@ V03: First Release
 
 V04: Bugfixes, New functions for showing messages, quick commands, command to ExtCommand after printing and cooling down the extruder, reduced messages
   Please use new Configuration JSON or if you know how to modifiy your existing. Check for differences.
+  
+V05.000: Bugfixes, implemented FR001: Send picture after print finished, removed telegram message - repetier server message due to exceeding telegram bot limits, which will be fixed in V1.0.0, which will be the next version of my software.
 
 # Additional information & support request
 
