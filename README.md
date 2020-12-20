@@ -67,6 +67,8 @@ please check correct installation depending on your Python installation with: py
 
 and try if not properly installed via e.g. for Python 3.9: python3.9 -m pip install xxxxxxxxxx
 
+UPDATE ALL PIP PACKAGES. CHECK WITH: python3.9 -m pip list --outdated -> Update all what is possible. Some are not possible, leaf them.
+
 12/17/20: please don´t update single libraries via pip. known issues with: pip install numpy==1.19.4 -> program would not start as it is a problem on latest Windows 10 64bit installations.
 
 # How to update from an old version:
