@@ -1,0 +1,375 @@
+# Repetier-Server_Telegram_Bot.
+# Copyright (C) 2020 Repetier Server Bot
+# Daniel Glock <daniel.g.aus.g@gmail.com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Repetier-Server_Telegram_Bot-Server\n"
+"POT-Creation-Date: 2020-12-04 15:16+0100\n"
+"PO-Revision-Date: 2020-12-04 15:19+0100\n"
+"Last-Translator: Daniel Glock <daniel.g.aus.g@gmail.com>\n"
+"Language-Team: es\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CP1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 2.4.2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: D:\temp\python\RepetierBotSetup.py:98
+msgid "Language file folder: %s"
+msgstr "Carpeta de archivos de idioma: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:103
+msgid "Language OS: %s/%s"
+msgstr "Idioma OS: %s/%s"
+
+#: D:\temp\python\RepetierBotSetup.py:110
+msgid "Changed to alternative language english"
+msgstr "Cambiado a idioma alternativo inglés"
+
+#: D:\temp\python\RepetierBotSetup.py:112
+msgid "Changed language to \"%s\""
+msgstr "Se ha cambiado el idioma a \"%s\""
+
+#: D:\temp\python\RepetierBotSetup.py:114
+msgid "Language file information: %s"
+msgstr "Información del archivo de idioma: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:129
+msgid "Logger: %s was activated in debug mode (%s). Level: %s"
+msgstr "Registrador: %s se activó en modo de depuración (%s). Nivel: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:143
+msgid "Configuration file not found - impConfig - : %s"
+msgstr "Archivo de configuración no encontrado - impConfig - : %s"
+
+#: D:\temp\python\RepetierBotSetup.py:147
+msgid "Configuration file matches: %s"
+msgstr "Coincidencias de archivos de configuración: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:149
+msgid "Configuration file version conflict: %s, instead of: %s"
+msgstr "Conflicto de versión del archivo de configuración: %s, en lugar de: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:151
+msgid "Configuration file does not contain CFG_VERSION element"
+msgstr "El archivo de configuración no contiene CFG_VERSION elemento"
+
+#: D:\temp\python\RepetierBotSetup.py:156
+msgid "Repetier Server language: %s"
+msgstr "Idioma del servidor repetidor: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:158
+msgid "Configuration file does not contain LANGUAGE element"
+msgstr "El archivo de configuración no contiene el elemento LANGUAGE"
+
+#: D:\temp\python\RepetierBotSetup.py:164
+msgid "API Key Repetier Server: %s"
+msgstr "Servidor API Key Repetier: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:166
+msgid "Configuration file does not contain MY_REPETIER_SERVER_API_KEY element"
+msgstr ""
+"El archivo de configuración no contiene MY_REPETIER_SERVER_API_KEY elemento"
+
+#: D:\temp\python\RepetierBotSetup.py:170
+msgid "Repetier Server IP: %s"
+msgstr "IP del servidor repetidor: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:172
+msgid "Configuration file does not contain RepetierServerIP element"
+msgstr "El archivo de configuración no contiene el elemento RepetierServerIP"
+
+#: D:\temp\python\RepetierBotSetup.py:176
+msgid "Repetier Server Port: %s"
+msgstr "Puerto de servidor Repetier: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:178
+msgid "Configuration file does not contain RepetierServerPort element"
+msgstr "El archivo de configuración no contiene el elemento RepetierServerPort"
+
+#: D:\temp\python\RepetierBotSetup.py:182
+msgid "Telegram Token: %s"
+msgstr "Ficha de Telegrama: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:184
+msgid "Configuration file does not contain MY_TELEGRAM_TOKEN element"
+msgstr "El archivo de configuración no contiene MY_TELEGRAM_TOKEN elemento"
+
+#: D:\temp\python\RepetierBotSetup.py:188
+msgid "Administrator Telegram ID: %s"
+msgstr "ID de Telegrama de administrador: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:190
+msgid "Configuration file does not contain MY_TELEGRAM_ID element"
+msgstr "El archivo de configuración no contiene MY_TELEGRAM_ID elemento"
+
+#: D:\temp\python\RepetierBotSetup.py:196
+msgid "Configuration file could not be saved"
+msgstr "No se ha podido guardar el archivo de configuración"
+
+#: D:\temp\python\RepetierBotSetup.py:198
+msgid "Configuration file successfull imported: %s"
+msgstr "Archivo de configuración importado correctamente: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:236
+msgid "Antwort öffnen des Websocket: %s, Unerwarteter Fehler: %s"
+msgstr "Antwort éffnen des Websocket: %s, Unerwarteter Fehler: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:244
+msgid "Antwort auf: %s, Websocket Rückmeldung: %s : Unerwarteter Fehler: %s"
+msgstr "Antwort auf: %s, Websocket R-cmeldung: %s : Unerwarteter Fehler: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:248
+msgid "Über Websocket gesendet: %s"
+msgstr "Websocket gesendet: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:254
+msgid "Unerwarteter Fehler bei Antwort des Websocket: %s"
+msgstr "Unerwarteter Fehler bei Antwort des Websocket: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:257
+msgid "Vom Websocket erhalten: %s"
+msgstr "Vom Websocket erhalten: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:262
+msgid "JSON: %s : Unerwarteter Fehler: %s"
+msgstr "JSON: %s : Unerwarteter Fehler: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:266
+msgid "Server Meldung nicht die angeforderten: %s : Kein nutzbarer Inhalt"
+msgstr "Servidor Meldung nicht die angeforderten: %s : Kein nutzbarer Inhalt"
+
+#: D:\temp\python\RepetierBotSetup.py:283
+msgid "Config Version: "
+msgstr "Versión de Python: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:283
+msgid "Quick Configuration tool for Repetier-Server bot"
+msgstr "El archivo de configuración no contiene el elemento RepetierServerIP"
+
+#: D:\temp\python\RepetierBotSetup.py:283
+msgid "Tool Version: "
+msgstr "Versión del sistema operativo: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:293
+msgid "JSON saved"
+msgstr "JSON guardado"
+
+#: D:\temp\python\RepetierBotSetup.py:297
+msgid "Exiting program"
+msgstr "Salir del programa"
+
+#: D:\temp\python\RepetierBotSetup.py:306
+msgid "Start test routine"
+msgstr "Iniciar la rutina de prueba"
+
+#: D:\temp\python\RepetierBotSetup.py:307
+msgid "Test Repetier Server connection:"
+msgstr "Puerto de servidor Repetier: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:314
+msgid "   Connecting to Repetier-Server: %s - failed"
+msgstr "   Conexión al servidor Repetier: %s - error"
+
+#: D:\temp\python\RepetierBotSetup.py:317
+msgid "   Connecting to Repetier-Server: %s - successful connected"
+msgstr "   Conexión al Servidor Repetier: %s - conectado con éxito"
+
+#: D:\temp\python\RepetierBotSetup.py:319
+msgid "      - Printer: %s - found"
+msgstr "      - Impresora: %s - encontrado"
+
+#: D:\temp\python\RepetierBotSetup.py:324
+msgid "Test Telegram Bot connection:"
+msgstr "Probar la conexión al Telegram Bot:"
+
+#: D:\temp\python\RepetierBotSetup.py:327
+msgid "Repetier-Server Test Message"
+msgstr "Su dirección de red Repetier-Server"
+
+#: D:\temp\python\RepetierBotSetup.py:328
+msgid "   Connecting to Telegram Bot: successful"
+msgstr "   Conexión al telegram bot: exitoso"
+
+#: D:\temp\python\RepetierBotSetup.py:330
+msgid "   Connecting to Telegram Bot: Wrong Telegram ID - failed"
+msgstr "   Conexión al telegram bot: ID de telegrama incorrecto - falló"
+
+#: D:\temp\python\RepetierBotSetup.py:333
+msgid "   Connecting to Telegram Bot: Wrong Telegram Bot Token - failed"
+msgstr "   Conexión a telegram bot: Error de telegram bot token - falló"
+
+#: D:\temp\python\RepetierBotSetup.py:336
+msgid "   Connecting to Telegram Bot: %s - failed"
+msgstr "   Conexión al telegram bot: %s - falló"
+
+#: D:\temp\python\RepetierBotSetup.py:340
+msgid "Test routine successful"
+msgstr "Rutina de prueba exitosa"
+
+#: D:\temp\python\RepetierBotSetup.py:344
+msgid "Test routine failed"
+msgstr "Error en la rutina de prueba"
+
+#: D:\temp\python\RepetierBotSetup.py:349
+msgid "Blank field detected"
+msgstr "Campo en blanco detectado"
+
+#: D:\temp\python\RepetierBotSetup.py:349
+msgid "Fill out all fields!!!"
+msgstr "Rellene todos los campos!!!"
+
+#: D:\temp\python\RepetierBotSetup.py:393
+msgid "Select Language"
+msgstr "Seleccione idioma"
+
+#: D:\temp\python\RepetierBotSetup.py:397
+msgid "Network settings:"
+msgstr "Configuración de red:"
+
+#: D:\temp\python\RepetierBotSetup.py:411
+msgid "Your Repetier-Server network adress"
+msgstr "Su dirección de red Repetier-Server"
+
+#: D:\temp\python\RepetierBotSetup.py:420
+msgid "Your Repetier API Key"
+msgstr "Su clave de API de Repetier"
+
+#: D:\temp\python\RepetierBotSetup.py:430
+msgid "Your Telegram botfather token"
+msgstr "Tu token de botfather de Telegram"
+
+#: D:\temp\python\RepetierBotSetup.py:439
+msgid "Your own Telgram ID"
+msgstr "Su propio ID de Telgram"
+
+#: D:\temp\python\RepetierBotSetup.py:443
+msgid "Test"
+msgstr "Prueba"
+
+#: D:\temp\python\RepetierBotSetup.py:445
+msgid "Information:"
+msgstr "Información:"
+
+#: D:\temp\python\RepetierBotSetup.py:452
+msgid "Please fill out your setup and push \"Test\" button afterwards!"
+msgstr ""
+"Por favor, llene su configuración y presione el botón \"Prueba\" después!"
+
+#: D:\temp\python\RepetierBotSetup.py:473
+msgid ""
+"checkTextFields: Repetier-Server: %s:%s, Repetier-Server-API: %s, Telegram-"
+"Token: %s, Telegram-ID: %s"
+msgstr ""
+"checkTextFields: Repetier-Server: %s:%s, Repetier-Server-API: %s, Telegram-"
+"Token: %s, Telegram-ID: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:485
+msgid "setConfigFile: Changed language from: %s to: %s"
+msgstr "setConfigFile: se ha cambiado el idioma de: %s a: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:488
+msgid "setConfigFile: Changed Server IP from: %s to: %s"
+msgstr "setConfigFile: se ha cambiado la IP del servidor de: %s a: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:491
+msgid "setConfigFile: Changed Server Port from: %s to: %s"
+msgstr "setConfigFile: Puerto de servidor modificado de: %s a: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:494
+msgid "setConfigFile: Changed Repetier API from: %s to: %s"
+msgstr "setConfigFile: se ha cambiado la API de Repetidor de: %s a: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:497
+msgid "setConfigFile: Changed Telegram Token from: %s to: %s"
+msgstr "setConfigFile: Se ha cambiado el token de Telegram de: %s a: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:500
+msgid "setConfigFile: Changed Telegram ID from: %s to: %s"
+msgstr "setConfigFile: se ha cambiado el ID de Telegram de: %s a: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:586
+msgid "Exit"
+msgstr "Salir"
+
+#: D:\temp\python\RepetierBotSetup.py:600
+msgid "########### Repetier-Server Bot Setup ###########"
+msgstr "• Configuración del bot de Servidor Repetidor ###########"
+
+#: D:\temp\python\RepetierBotSetup.py:601
+msgid "Software Version: %s"
+msgstr "Versión de software: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:602
+msgid "Thread Name: %s"
+msgstr "Nombre del hilo: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:603
+msgid "########### Geräte and Python Information ###########"
+msgstr "Información de Geréte y Python ###########"
+
+#: D:\temp\python\RepetierBotSetup.py:604
+msgid "Python Version: %s"
+msgstr "Versión de Python: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:605
+msgid "OS: %s"
+msgstr "OS: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:606
+msgid "OS Version: %s"
+msgstr "Versión del sistema operativo: %s"
+
+#: D:\temp\python\RepetierBotSetup.py:608
+msgid "Active User: %s"
+msgstr "Usuario activo: %s"
+
+#, fuzzy
+#~ msgid "LogFileName: %s"
+#~ msgstr "LogFileName: %s"
+
+#, fuzzy
+#~ msgid "Configuration file does not contain LOGFILENAME element"
+#~ msgstr "El archivo de configuración no contiene el elemento LOGFILENAME"
+
+#, fuzzy
+#~ msgid "LogFileNameWS: %s"
+#~ msgstr "LogFileNameWS: %s"
+
+#, fuzzy
+#~ msgid "Configuration file does not contain LOGFILENAMEWS element"
+#~ msgstr "El archivo de configuración no contiene el elemento LOGFILENAMEWS"
+
+#, fuzzy
+#~ msgid "PNGFileFolder: %s"
+#~ msgstr "PNGFileFolder: %s"
+
+#, fuzzy
+#~ msgid "Configuration file does not contain PNGFILEFOLDER element"
+#~ msgstr "El archivo de configuración no contiene el elemento PNGFILEFOLDER"
+
+#, fuzzy
+#~ msgid "GIFFileFolder: %s"
+#~ msgstr "GIFFileFolder: %s"
+
+#, fuzzy
+#~ msgid "Configuration file does not contain GIFFILEFOLDER element"
+#~ msgstr "El archivo de configuración no contiene el elemento GIFFILEFOLDER"
+
+#, fuzzy
+#~ msgid "VIDFileFolder: %s"
+#~ msgstr "VIDFileFolder: %s"
+
+#, fuzzy
+#~ msgid "Configuration file does not contain VIDFILEFOLDER element"
+#~ msgstr "El archivo de configuración no contiene el elemento VIDFILEFOLDER"
+
+#, fuzzy
+#~ msgid "Quick Configuration File "
+#~ msgstr "Archivo de configuración rápida "
+
+#~ msgid "Auto Start"
+#~ msgstr "Inicio automático"

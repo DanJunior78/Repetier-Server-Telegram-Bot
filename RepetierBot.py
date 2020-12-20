@@ -1,0 +1,3945 @@
+######################################################################################################################
+# Repetier-Server_Telegram_Bot
+# Copyright (c) 2020 Repetier-Server_Telegram_Bot [https://github.com/DanJunior78/Repetier-Server-Telegram-Bot]
+# Owner: Daniel Glock, Germany Twitter: @Daniel_Glock
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+######################################################################################################################
+
+import __main__ as main
+import gettext
+presLan = gettext
+_ = presLan.gettext
+import logging
+import sys
+import os
+import platform
+import locale
+import datetime
+import time
+from datetime import timedelta
+import arrow # Date ISO 8601
+import threading, time, signal # threading libraries
+import pathlib
+import copy
+from urllib.parse import urlparse
+import getpass
+import json
+from websocket import create_connection
+import requests
+import imageio
+from pygifsicle import optimize #pip install pygifsicle + https://eternallybored.org/misc/gifsicle/
+import cv2
+import telegram
+from telegram import (InlineQueryResultArticle,
+                    InputTextMessageContent,
+                    InlineKeyboardButton,
+                    InlineKeyboardMarkup,
+                    ReplyKeyboardMarkup,
+                    Animation,
+                    ParseMode)
+
+from telegram.ext import (Updater,
+                          CommandHandler,
+                          MessageHandler,
+                          InlineQueryHandler,
+                          CallbackQueryHandler,
+                          Filters,
+                          ConversationHandler)
+from telegram.error import (TelegramError,
+                            Unauthorized,
+                            BadRequest,
+                            TimedOut,
+                            ChatMigrated,
+                            NetworkError)
+
+SW_VERSION = "1.0.2" 
+CFG_VERSION = "V1.0"
+EX_DEBUG = True
+
+LANGUAGE = "de"
+
+# Repetier-Server
+RepetierServerIP = ""
+RepetierServerPort = ""
+MY_REPETIER_SERVER_API_KEY = ""
+MessCnt = 0
+
+# Bot Parameters
+MY_TELEGRAM_TOKEN = ""
+CHATID = ""
+Printer = 1
+
+# Thread cycle time in seconds
+
+THRDSLOW = 10
+THRDSTANDBY = 5
+THRDIDLE = 2
+THRDACTIVE = 1
+THRDNOW = 0
+
+THRDSEND = 2
+THRDRECEIVE = 0.2
+THRDORDERDATA = 1
+THRDBOTCOM = 1
+THRDMANAGER = 1
+THRDMODELMAN = 2
+THRDRESTART = 10
+
+# Bot Handler communication levels
+ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN, TWELVE, THIRTEEN, FOURTEEN, FIFTEEN = range(15)
+
+# Check platform
+checkPlatform = platform.platform()
+
+# Create Logfile in sub folder of program
+formatter=u'(%(threadName)-10s) - %(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+locale.setlocale(locale.LC_ALL, '')
+now = datetime.datetime.now()
+Uhrzeit = "{:%y%m%d_%H%M%S}"
+PROGRAM_FILE = main.__file__
+LOGFILEFOLDER = os.path.join(os.getcwd(), 'log')
+pathlib.Path(LOGFILEFOLDER).mkdir(parents=False, exist_ok=True)
+BASENAME = os.path.basename(PROGRAM_FILE)
+FILENAME_NO_EXTENSION = os.path.splitext(BASENAME)[0]
+PROGRAM_FILE_NO_EXT = os.path.splitext(PROGRAM_FILE)[0]
+FILENAME_FILE_NO_EXT_WS = FILENAME_NO_EXTENSION + "Websocket"
+LOGFILENAME = os.path.join(LOGFILEFOLDER, Uhrzeit.format(now) + "_" + FILENAME_NO_EXTENSION + '.log')
+LOGFILENAMEWS = os.path.join(LOGFILEFOLDER, Uhrzeit.format(now) + "_" + FILENAME_FILE_NO_EXT_WS + '.log')
+LOGFILECONFIG = os.path.join(LOGFILEFOLDER, 'log.conf')
+
+# Configuration and external Data
+
+## Configuration file
+FILENAME_FILE_NO_EXT_CFG = FILENAME_NO_EXTENSION
+CFGFILENAME =  os.path.join(os.getcwd(), FILENAME_FILE_NO_EXT_CFG + '.json')
+
+## Video & Gifs & Pictures & Model Pictures
+PNGFILEFOLDER = os.path.join(os.getcwd(), 'pic', 'png')
+GIFFILEFOLDER = os.path.join(os.getcwd(), 'pic', 'gif') 
+VIDFILEFOLDER = os.path.join(os.getcwd(), 'vid') 
+MODELFILEFOLDER = os.path.join(os.getcwd(), 'mod')
+
+### Functions
+
+# Program datasets inits and updates
+
+def getNewPrinterConfig(slug = "NA", name = "NA"): # Printer dataset for the bot
+    printerConfig = {}
+    printerConfig['slug'] = slug
+    printerConfig['name'] = name        
+    printerConfig['extrCoolTemp'] = 40
+    printerConfig['extrCoolTempExtComm'] = None
+    printerConfig['heatbCoolTemp'] = 40
+    printerConfig['heatbCoolTempExtComm'] = None
+    printerConfig['delayTimeAfterPrintPic'] = 0
+    printerConfig['AfterPrintPicCamSelect'] = None
+    return printerConfig
+
+def getServerConfig(): # Program configuration dataset for the bot, including initialization for update reason
+    mainConfig = {}
+    mainConfig['LANGUAGE'] = "en"
+    mainConfig['MY_REPETIER_SERVER_API_KEY'] = ""
+    mainConfig['RepetierServerIP'] = ""
+    mainConfig['RepetierServerPort'] = ""
+    mainConfig['MY_TELEGRAM_ID'] = ""
+    mainConfig['MY_TELEGRAM_TOKEN'] = ""
+    return mainConfig
+
+# Language Management
+
+def changeLang(langSel = None):
+    global presLan
+    _ = presLan.gettext
+    langPath = os.path.join(os.getcwd(), 'locale')
+    logger.info("Language file folder: %s" % langPath)
+    if langSel == None:
+        if sys.platform.startswith('win'):
+            if os.getenv('LANG') is None:
+                lang, enc = locale.getdefaultlocale()
+                logger.info("Language OS: %s/%s" % locale.getdefaultlocale())
+                os.environ['LANG'] = lang
+                langSel = lang
+    else:
+        os.environ['LANG'] = '%s' % langSel
+    if gettext.find('RepetierBot', langPath) == None:
+        os.environ['LANG'] = 'en'
+        logger.info("Changed to alternative language english")
+    else:
+        logger.info("Changed language to \"%s\"" % langSel)
+    presLan = gettext.translation('RepetierBot', './locale')
+    logger.debug("Language file information: %s" % presLan._info)
+    presLan.install()
+    _ = presLan.gettext
+    
+# Logger setup
+
+def setup_logger(name, formatter, level, log_file):
+    """To setup as many loggers as you want"""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    fileHdl = logging.handlers.TimedRotatingFileHandler(log_file, 
+                                                        when="midnight", 
+                                                        interval=1,
+                                                        backupCount=7,
+                                                        encoding = "UTF-8")
+    fileHdl.setLevel(logging.INFO)
+    fileHdl.setFormatter(logging.Formatter(formatter))
+    fileHdl.suffix = "%Y%m%d"
+    #fileHdl.extMatch = re.compile(r"^\d{8}$")
+    logger.addHandler(fileHdl)
+    if EX_DEBUG == True:
+        strHdl = logging.StreamHandler()
+        strHdl.setLevel(level)
+        strHdl.setFormatter(logging.Formatter(formatter))
+        logger.addHandler(strHdl)
+    logger.info("Logger: %s was activated in debug mode (%s). Level: %s" % (name, EX_DEBUG, level))
+    
+    return logger
+
+# Check configuration file and if entries missing or updates required, update dataset
+
+def checkFileImport(data):
+    configCheckFileVersion = CFG_VERSION
+    configCheckServerData = getServerConfig()
+    configCheckPrinterData = getNewPrinterConfig()
+    try:
+        if data['version']['CFG_VERSION'] != CFG_VERSION:
+            logger.critical('Config file (JSON) upgrade file from version \"%s\" to version \"%s\"' % (data['version']['CFG_VERSION'], CFG_VERSION))
+            data['version']['CFG_VERSION'] = CFG_VERSION
+        else:
+            logger.debug('Config file (JSON) version: %s' % (CFG_VERSION))
+    except:
+        logger.critical('Config file (JSON) version: loaded standard content \"%s\"' % (CFG_VERSION))
+        data['version']['CFG_VERSION'] = CFG_VERSION
+    for posLabel, posData in configCheckServerData.items():
+        try:
+            dataLabelValid = data['server'][posLabel]
+            logger.debug('Config file (JSON) entry: %s with content: %s' % (posLabel, data['server'][posLabel]))
+        except:
+            logger.critical('Config file (JSON) entry: %s loaded standard content \"%s\"' % (posLabel, configCheckServerData[posLabel]))
+            data['server'][posLabel] = configCheckServerData[posLabel]  
+    try:
+        dataLabelValid = data['printers']  
+        logger.debug('Config file (JSON) printers root available')
+    except:
+        data['printers'] = []
+        logger.critical('Config file (JSON) printers root implemented')
+    for i in range(0,len(data['printers'])):
+        for posPrinterLabel, posPrinterData in configCheckPrinterData.items():
+            try:
+                dataLabelValid = data['printers'][i][posPrinterLabel]
+                logger.debug('Config file (JSON) entry: %s with content: %s' % (posPrinterLabel, data['printers'][i][posPrinterLabel]))
+            except:
+                logger.critical('Config file (JSON) entry: %s loaded standard content \"%s\"' % (posPrinterLabel, configCheckPrinterData[posPrinterLabel]))
+                data['printers'][i][posPrinterLabel] = configCheckPrinterData[posPrinterLabel]
+    return data
+
+# Read and check configuration file
+
+def impConfig():
+    global LANGUAGE,MY_REPETIER_SERVER_API_KEY,RepetierServerIP
+    global RepetierServerIP2,RepetierServerPort,MY_TELEGRAM_TOKEN,CHATID
+    global LOGFILENAME,LOGFILENAMEWS,PNGFILEFOLDER,GIFFILEFOLDER,VIDFILEFOLDER
+    global presLan
+    try:
+        with open(CFGFILENAME) as json_file:
+            data = json.load(json_file)
+    except:
+        logger.error("Configuration file not found - impConfig - : %s" % CFGFILENAME)
+        sys.exit()
+    try:
+        if data['gui']['testSuccess'] == True:
+            logger.info("Repetier Server setup was done before") 
+        else:
+            logger.critical("Please do Repetier Server setup before running this program!!!")
+    except:
+        logger.error("Configuration file does not contain gui/testSuccess element")
+    data = checkFileImport(data)
+    try:
+        if data['version']['CFG_VERSION'] == CFG_VERSION:
+            logger.info("Configuration file matches: %s" % CFG_VERSION)
+        else:
+            logger.error("Configuration file version conflict: %s, instead of: %s" % (data['version']['CFG_VERSION'], CFG_VERSION))
+    except:
+        logger.error("Configuration file does not contain CFG_VERSION element")
+        sys.exit()
+    serverData = data['server']
+    try:
+        LANGUAGE = serverData['LANGUAGE']
+        logger.info("Repetier Server language: %s" % LANGUAGE)        
+    except:
+        logger.error("Configuration file does not contain LANGUAGE element")
+        sys.exit()
+    if LANGUAGE != "":
+        changeLang(LANGUAGE)
+    try:
+        MY_REPETIER_SERVER_API_KEY = serverData['MY_REPETIER_SERVER_API_KEY']
+        logger.info("API Key Repetier Server: %s" % MY_REPETIER_SERVER_API_KEY)        
+    except:
+        logger.error("Configuration file does not contain MY_REPETIER_SERVER_API_KEY element")
+        sys.exit()
+    try:
+        RepetierServerIP = serverData['RepetierServerIP']
+        logger.info("Repetier Server IP: %s" % RepetierServerIP)        
+    except:
+        logger.error("Configuration file does not contain RepetierServerIP element")
+        sys.exit()
+    try:
+        RepetierServerPort = serverData['RepetierServerPort']
+        logger.info("Repetier Server Port: %s" % RepetierServerPort)        
+    except:
+        logger.error("Configuration file does not contain RepetierServerPort element")
+        sys.exit()
+    try:
+        MY_TELEGRAM_TOKEN = serverData['MY_TELEGRAM_TOKEN']
+        logger.info("Telegram Token: %s" % MY_TELEGRAM_TOKEN)        
+    except:
+        logger.error("Configuration file does not contain MY_TELEGRAM_TOKEN element")
+        sys.exit() 
+    try:            
+        CHATID = serverData['MY_TELEGRAM_ID'] 
+        logger.info("Administrator Telegram ID: %s" % CHATID)        
+    except:
+        logger.error("Configuration file does not contain MY_TELEGRAM_ID element")
+        sys.exit()
+    try:
+        with open(CFGFILENAME, 'w') as outfile:
+            json.dump(data, outfile) 
+    except:
+            logger.error("Configuration file could not be saved")
+
+    logger.info("Configuration file successfull imported: %s" % CFGFILENAME)
+    return data 
+    
+# Telegram main external functions
+
+def telegramSendMsg(msg, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML):
+    bot = telegram.Bot(token=token)
+    return bot.sendMessage(chat_id=chat_id, 
+                           text=msg,
+                           reply_markup=reply_markup,
+                           parse_mode=parse_mode)
+
+def telegramSendPic(pic, caption, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML):
+    bot = telegram.Bot(token=token)
+    return bot.send_photo(chat_id=chat_id, 
+                          photo=open(pic, 'rb'), 
+                          timeout=100,
+                          caption=caption,
+                          reply_markup=reply_markup,
+                          parse_mode=parse_mode)
+
+def telegramSendAnimation(anim, caption, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML):
+    bot = telegram.Bot(token=token)
+    return bot.send_animation(chat_id=chat_id, 
+                          animation=open(anim, 'rb'), 
+                          timeout=100,
+                          caption=caption,
+                          reply_markup=reply_markup,
+                          parse_mode=parse_mode)
+
+def telegramSendVideo(video, caption, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML):
+    bot = telegram.Bot(token=token)
+    return bot.send_video(chat_id=chat_id,
+                          video=open(video, 'rb'), 
+                          timeout=100, 
+                          supports_streaming=True,
+                          caption=caption,
+                          reply_markup=reply_markup,
+                          parse_mode=parse_mode)
+
+def telegramSendDocument(file, caption, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML):
+    bot = telegram.Bot(token=token)
+    return bot.sendDocument(chat_id=chat_id,
+                            document=open(file, 'rb'), 
+                            timeout=100, 
+                            caption=caption,
+                            reply_markup=reply_markup,
+                            parse_mode=parse_mode)
+
+def telegramEditMsg(msg, message_id, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML):
+    bot = telegram.Bot(token=token)
+    return bot.edit_message_text(chat_id=chat_id, 
+                                  message_id=message_id,
+                                  text=msg,
+                                  reply_markup=reply_markup,
+                                  parse_mode=parse_mode)
+
+def telegramEditCapt(caption, message_id, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML):
+    bot = telegram.Bot(token=token)
+    return bot.edit_message_caption(chat_id=chat_id, 
+                                    message_id=message_id,
+                                    caption=caption,
+                                    reply_markup=reply_markup,
+                                    parse_mode=parse_mode)
+
+def telegramEditReplyMarkup(message_id, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN):
+    bot = telegram.Bot(token=token)
+    return bot.edit_message_reply_markup(chat_id=chat_id, 
+                                        message_id=message_id,
+                                        reply_markup=reply_markup,
+                                        timeout=60)
+
+def telegramDelMsg(message_id, chat_id=CHATID, token=MY_TELEGRAM_TOKEN):
+    bot = telegram.Bot(token=token)
+    return bot.deleteMessage(chat_id=chat_id, 
+                             message_id=message_id)
+
+def telegramChatAction(action, chat_id=CHATID, token=MY_TELEGRAM_TOKEN):
+                        bot = telegram.Bot(token=token)
+                        bot.sendChatAction(chat_id=chat_id , 
+                                            action = action)
+                        # telegram.ChatAction.TYPING
+                        #                    .FIND_LOCATION
+                        #                    .RECORD_AUDIO
+                        #                    .RECORD_VIDEO
+                        #                    .RECORD_VIDEO_NOTE
+                        #                    .UPLOAD_AUDIO
+                        #                    .UPLOAD_DOCUMENT
+                        #                    .UPLOAD_PHOTO
+                        #                    .UPLOAD_VIDEO
+                        #                    .UPLOAD_VIDEO_NOTE
+# Check values for input
+
+def isFloat(str):
+    try: 
+        float(str)
+    except ValueError: 
+        return False
+    return True
+
+def isInt(str):
+    try: 
+        int(str)
+    except ValueError: 
+        return False
+    return True
+
+# Format day and time (arrow) for actual prints
+
+def getGranularity(deltaT = 0): # in seconds (datetime..timedelta.total_seconds())
+    seconds = int(deltaT)
+    seconds_in_day = 60 * 60 * 24
+    seconds_in_hour = 60 * 60
+    seconds_in_minute = 60
+
+    days = seconds // seconds_in_day
+    hours = (seconds - (days * seconds_in_day)) // seconds_in_hour
+    minutes = (seconds - (days * seconds_in_day) - (hours * seconds_in_hour)) // seconds_in_minute
+    second = seconds % 60
+    if days > 0:
+        
+        granularity=["day","hour", "minute","second"]
+        return granularity
+    elif hours > 0:
+        granularity=["hour", "minute","second"]
+        return granularity
+    elif minutes > 0:
+        granularity=["minute","second"]
+        return granularity
+    else:
+        granularity=["second"]
+        return granularity
+
+def getTimeToGo(start = 0, timeToPrint = 0):
+    global LANGUAGE
+    present = arrow.now()
+    present = present.replace(tzinfo='UTC')
+    printFinishTime = arrow.get(int(start) + int(timeToPrint))#, 'Europe/Berlin') #Europe/Berlin    
+    timeToGo = printFinishTime - present
+    message = printFinishTime.humanize(present, locale=LANGUAGE, granularity=getGranularity(timeToGo.total_seconds())) # LANGUAGE # 'de'
+    return message
+
+def getTimeGone(start = 0):
+    global LANGUAGE
+    present = arrow.now()
+    present = present.replace(tzinfo='UTC')
+    printStart = arrow.get(int(start))
+    actPrintTime = present - printStart
+    message = printStart.humanize(present, locale=LANGUAGE,granularity=getGranularity(actPrintTime.total_seconds()))
+    return message
+
+def error_callback(update, error): # Telegram bot error handling
+    """
+    Handle errors in the dispatcher and decide which errors are just logged and which errors are important enough to
+    trigger a message to the admin.
+    """
+    try:
+        telegramSendMsg(_("BOT Error!!! Please try again.") + "\n %s" % error.error,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+        raise error.error
+    except telegram.error.BadRequest:
+        logger.error('Bot Bad Request "%s"' % error.error)
+    except telegram.error.TimedOut:
+        logger.error('Bot TimedOut "%s"' % error.error)
+    except:
+        logger.error('Bot Error "%s"' % error.error) 
+
+def checkUserIDValid(update, chatID=CHATID):# Telegram check user ID
+    if update.effective_chat.id == chatID:
+        return True
+    else:
+        return False    
+
+# Telegram interaction functions
+
+def build_menu(buttons,         
+               n_cols,
+               header_buttons=None,
+               footer_buttons=None):
+    """
+    :param buttons: a list of buttons.
+    :param n_cols:  how many columns to show the butt,ons in
+    :param header_buttons:  list of buttons appended to the beginning
+    :param footer_buttons:  list of buttons added to the end
+    :return: the menu
+    """
+    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
+    if header_buttons:
+        menu.insert(0, header_buttons)
+    if footer_buttons:
+        menu.append(footer_buttons)
+    return InlineKeyboardMarkup(menu)
+
+def getStartKeyboard(userKeyb = []):# Main keyboard layout at start of bot for printer
+    stdKeyb = []
+    stdKeyb.append(InlineKeyboardButton(_("End"), callback_data='End'))
+    reply_markup = build_menu(userKeyb,
+               1,
+               footer_buttons=stdKeyb)
+    return reply_markup
+
+def getKeyboard(userKeyb = [], back = ""):# Main keyboard layout of bot for printer levels below
+    stdKeyb = []
+    stdKeyb.append(InlineKeyboardButton(_("Back"), callback_data='Back'))
+    stdKeyb.append(InlineKeyboardButton(_("End"), callback_data='End'))
+    reply_markup = build_menu(userKeyb,
+               2,
+               footer_buttons=stdKeyb)
+    return reply_markup
+
+def getMsgKeyboard():# Message keyboard add ons
+    userKeyb = []
+    msg = botThreads.getServerDataStorage(action="messages")
+    for message in msg:
+        userKeyb.append(InlineKeyboardButton(message['id'], callback_data=message['id']))
+    stdKeyb = []
+    stdKeyb.append(InlineKeyboardButton(_("End"), callback_data='End'))
+    reply_markup = build_menu(userKeyb,
+               4,
+               footer_buttons=stdKeyb)
+    return reply_markup
+
+def checkStartKeys(slug):# Check start keyboard add ons
+    key = []
+    msg = botThreads.getServerDataStorage(action="listExternalCommands")
+    msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+    if msg == "Error" or msg2 == "Error":
+        return key
+    if len(msg) > 0:    
+        key.append(InlineKeyboardButton(_("ExtCommands"), callback_data='ExtCommands'))
+    for webcam in range(0,len(msg2['webcams'])):
+        key.append(InlineKeyboardButton(_('Webcam %s') % str(webcam + 1), callback_data='Webcam %s' % str(webcam + 1)))
+    if len(msg2['quickCommands']) > 0:
+        key.append(InlineKeyboardButton(_('Quick Commands'), callback_data='QuickCommands'))
+    key.append(InlineKeyboardButton(_('Settings'), callback_data='Settings'))
+    return key
+
+def getLogfilesKeyboard():
+    key = []
+    for file in os.listdir(LOGFILEFOLDER):
+        if file.endswith(FILENAME_NO_EXTENSION + '.log'): 
+            buf = {}
+            buf['filename'] = file
+            x = file.split("_")
+            date = x[0][4:] + "." + x[0][2:4] + "." + x[0][:2]
+            time = x[1][:2] + ":" + x[1][2:4] + ":" + x[1][4:]
+            buf['date'] = date
+            buf['time'] = time
+            key.append(InlineKeyboardButton(("%s/%s") % (buf['date'], buf['time']), callback_data=buf['filename']))
+    return key
+
+def getExtCommands():# Get external commands from server
+    key = []
+    msg = botThreads.getServerDataStorage(action="listExternalCommands")
+    if msg == "Error":
+        return key
+    for item in msg:    
+        key.append(InlineKeyboardButton(item['name'], callback_data=item['id']))
+    return key
+
+def getExtCommandsConfirmButton(command):# Get external command OK button
+    key = []
+    msg = botThreads.getServerDataStorage(action="listExternalCommands")
+    if msg == "Error":
+        return key
+    for item in msg:
+        if item['id'] == command:
+            key.append(InlineKeyboardButton(_("OK"), callback_data='OK'))
+    return key
+
+def getExtCommandsConfirmText(command):# Get external commands confirmation text from server
+    msg = botThreads.getServerDataStorage(action="listExternalCommands")
+    if msg == "Error":
+        return "Error"
+    for item in msg:
+        if item['id'] == command:            
+            return item['confirm']
+        
+def getWebcamConfig(slug, update):# Get webcam configuration from server
+    queryData = update.callback_query.data
+    key = []
+    msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+    if msg2 == "Error":
+        return key
+    x = int(queryData.split()[1]) - 1
+    if msg2['webcams'][x]['dynamicUrl'] != "":
+        key.append(InlineKeyboardButton(_('Send Video Camera %s') % str(x + 1), callback_data='Sende Video %s' % str(x + 1))) # 'Sende Video %s' % str(webcam + 1)
+    if msg2['webcams'][x]['staticUrl'] != "": 
+        key.append(InlineKeyboardButton(_('Sende Gif Camera %s') % str(x + 1), callback_data='Sende Gif %s' % str(x + 1)))
+        key.append(InlineKeyboardButton(_('Sende Png Camera %s') % str(x + 1), callback_data='Sende Png %s' % str(x + 1)))
+    return key
+
+def getQuickCommandsButton(slug):# Get quick command configuration from server
+    key = []
+    msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+    if msg2 == "Error":
+        loggerWS.error("Request error getPrinterConfig in getQuickCommandsButton for printer: %s" % str(slug))
+        return key
+    quickCom = msg2['quickCommands']
+    for item in quickCom:    
+        key.append(InlineKeyboardButton(item['name'], callback_data=item['name']))
+    return key
+
+def getSettingsButton(slug):# Get settings configuration from config file
+    key = []
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            key.append(InlineKeyboardButton(_("Extr. cool down: %s°C") % item['extrCoolTemp'], callback_data='Extruder Temp Limit %s' % item['extrCoolTemp']))
+            if item['extrCoolTempExtComm'] != None:
+                msg = botThreads.getServerDataStorage(action="listExternalCommands")
+                for msgitem in msg:
+                    if item['extrCoolTempExtComm'] == msgitem['id']:
+                        key.append(InlineKeyboardButton(_("ExtCom: %s") % msgitem['name'], callback_data='ExtCommand Temp Limit %d' % msgitem['id']))
+            else:
+                key.append(InlineKeyboardButton(_("ExtCom temp. dis."), callback_data='ExtCommand Temp Limit None'))
+            key.append(InlineKeyboardButton(_("Heatb. cool down: %s°C") % item['heatbCoolTemp'], callback_data='Heatbed Temp Limit %s' % item['heatbCoolTemp']))
+            if item['heatbCoolTempExtComm'] != None:
+                msg = botThreads.getServerDataStorage(action="listExternalCommands")
+                for msgitem in msg:
+                    if item['heatbCoolTempExtComm'] == msgitem['id']:
+                        key.append(InlineKeyboardButton(_("HeatbCom: %s") % msgitem['name'], callback_data='HeatbCommand Temp Limit %d' % msgitem['id']))
+            else:
+                key.append(InlineKeyboardButton(_("HeatbCom temp. dis."), callback_data='HeatbCommand Temp Limit None'))
+            key.append(InlineKeyboardButton(_("Pic after print: %ss") % item['delayTimeAfterPrintPic'], callback_data='Print after time %s' % item['delayTimeAfterPrintPic']))
+            if item['AfterPrintPicCamSelect'] != None:
+                key.append(InlineKeyboardButton(_("From Cam: %s") % str(item['AfterPrintPicCamSelect']+1), callback_data='Sende Png %s' % str(item['AfterPrintPicCamSelect'])))
+            else:
+                key.append(InlineKeyboardButton(_("Pic disabled"), callback_data='Sende Png None'))
+    return key
+
+def getExtComAndDisableButton():# Get external command buttons and disable button
+    key = getExtCommands()
+    key.append(InlineKeyboardButton(_("disable ExtCom"), callback_data='ExtCommand Temp Limit Disable'))
+    return key
+
+def getAfterPrintWebcamAndDisableButton(slug):# Get webcam buttons and disable button
+    key = getAllWebcamsFromPrinter(slug)
+    key.append(InlineKeyboardButton(_("disable Pic"), callback_data='Sende Png None'))
+    return key
+
+def getAllWebcamsFromPrinter(slug):# Get available webcams from server
+    key = []
+    msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+    if msg2 == "Error":
+        return key
+    for x in range(0, len(msg2['webcams'])):
+        if msg2['webcams'][x]['staticUrl'] != "": 
+            key.append(InlineKeyboardButton(_('Send Png Camera %s') % str(x + 1), callback_data='Sende Png %s' % str(x + 1)))
+    return key
+
+def getQuickCommandsText(slug):# Get quick command text from server
+    msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+    if msg2 == "Error":
+        loggerWS.error("Request error getPrinterConfig in getQuickCommandsButton for printer: %s" % str(slug))
+        return key
+    quickCom = msg2['quickCommands']
+    message = _("Quick Commands") + ":\n"
+    for item in quickCom:    
+        message += "<b>%s</b>:\n <code>%s</code>" % (item['name'], item['command']) + "\n"
+    return message
+
+def sendQuickCommand(slug, text):# Send quick command
+    msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+    if msg2 == "Error":
+        loggerWS.error("Request error getPrinterConfig in sendQuickCommand for printer: %s" % str(slug))
+        sendMsgToBot(slug=slug, 
+                 function="printer", 
+                 msg="<b>" + _("Quick command handling aborted") + "</b>", 
+                 reply_markup=None,
+                 singleMsg=True)
+        return
+    quickCom = msg2['quickCommands']
+    for item in quickCom:    
+        if item['name'] == text:
+            packOrder = {}
+            packOrder['name'] = item['name']
+            botThreads.sendRecExtendedData(action="sendQuickCommand", slug=slug, data=packOrder, messageCntItem="sendQuickCommand")
+        
+def getExtrSetLimitText(slug):# Text in interaction to get the temp. limit value
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            message =  _("Please input new extruder cool down temperature. Actual value: %d°C") % item['extrCoolTemp']
+            return message
+
+def getPrinExtCommText(slug):# Text in interaction to get external command
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if item['extrCoolTempExtComm'] == None:
+                message = _("ExtCom disabled. Choose new action.")
+            else:
+                msg = botThreads.getServerDataStorage(action="listExternalCommands")
+                if msg == "Error":
+                    message = _("Could not connect to the server.")
+                else:
+                    item = msg[item['extrCoolTempExtComm']]                    
+                    message = _("ExtCom active: %s") % item['name']
+            return message
+
+def setExtrSetLimit(slug, text):# set extruder temperature setting to define cold condition
+    if isInt(text):
+        for printer in botThreads.botData['printers']:
+            if printer == slug:
+                item = botThreads.botData['printers'][printer]['config']
+                item['extrCoolTemp'] = int(text)
+        if botThreads.savePrinterConfigFile():
+            sendMsgToBot(slug=slug, 
+                            function="extrCoolTemp", 
+                            msg="<i>" + _("Configuration saved") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="extrCoolTemp", 
+                            msg="<b>" + _("Configuration saving failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+
+def setPrinExtComm(slug, text):# set external command which will be after cool down temperature activated
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if isInt(text):
+                item['extrCoolTempExtComm'] = int(text)
+            else:
+                item['extrCoolTempExtComm'] = None
+            if botThreads.savePrinterConfigFile():
+                sendMsgToBot(slug=slug, 
+                            function="extrCoolTempExtComm", 
+                            msg="<i>" + _("Configuration saved") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+            else:
+                sendMsgToBot(slug=slug, 
+                            function="extrCoolTempExtComm", 
+                            msg="<b>" + _("Configuration saving failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+
+def getHeatbSetLimitText(slug):# Text in interaction to get the temp. limit value
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            message =  _("Please input new heatbed cool down temperature. Actual value: %d°C") % item['heatbCoolTemp']
+            return message
+
+def getPrinHeatbCommText(slug):# Text in interaction to get external command
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if item['heatbCoolTempExtComm'] == None:
+                message = _("ExtCom disabled. Choose new action.")
+            else:
+                msg = botThreads.getServerDataStorage(action="listExternalCommands")
+                if msg == "Error":
+                    message = _("Could not connect to the server.")
+                else:
+                    item = msg[item['heatbCoolTempExtComm']]                    
+                    message = _("ExtCom active: %s") % item['name']
+            return message
+
+def setHeatbSetLimit(slug, text):# set extruder temperature setting to define cold condition
+    if isInt(text):
+        for printer in botThreads.botData['printers']:
+            if printer == slug:
+                item = botThreads.botData['printers'][printer]['config']
+                item['heatbCoolTemp'] = int(text)
+        if botThreads.savePrinterConfigFile():
+            sendMsgToBot(slug=slug, 
+                            function="heatbCoolTemp", 
+                            msg="<i>" + _("Configuration saved") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="heatbCoolTemp", 
+                            msg="<b>" + _("Configuration saving failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+
+def setPrinHeatbComm(slug, text):# set external command which will be after cool down temperature activated
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if isInt(text):
+                item['heatbCoolTempExtComm'] = int(text)
+            else:
+                item['heatbCoolTempExtComm'] = None
+            if botThreads.savePrinterConfigFile():
+                sendMsgToBot(slug=slug, 
+                            function="heatbCoolTempExtComm", 
+                            msg="<i>" + _("Configuration saved") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+            else:
+                sendMsgToBot(slug=slug, 
+                            function="heatbCoolTempExtComm", 
+                            msg="<b>" + _("Configuration saving failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+
+def setAfterPrintTimeValue(slug, text):# set time delay for pic after print has finished
+    if isInt(text):
+        for printer in botThreads.botData['printers']:
+            if printer == slug:
+                item = botThreads.botData['printers'][printer]['config']
+                item['delayTimeAfterPrintPic'] = int(text)
+        if botThreads.savePrinterConfigFile():
+            sendMsgToBot(slug=slug, 
+                        function="delayTimeAfterPrintPic", 
+                        msg="<i>" + _("Configuration saved") + "</i>", 
+                        reply_markup=None,
+                        singleMsg=True,
+                        delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                        function="delayTimeAfterPrintPic", 
+                        msg="<b>" + _("Configuration saving failed") + "</b>", 
+                        reply_markup=None,
+                        singleMsg=True,
+                        delTime=5)
+
+def setAfterPrintWebcam(slug, text):# select one of multiple cams to take pic after print has finished
+    x = text.split()[2]
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if isInt(x):
+                item['AfterPrintPicCamSelect'] = int(x) - 1
+            else:
+                item['AfterPrintPicCamSelect'] = None
+            if botThreads.savePrinterConfigFile():
+                sendMsgToBot(slug=slug, 
+                            function="AfterPrintPicCamSelect", 
+                            msg="<i>" + _("Configuration saved") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+            else:
+                sendMsgToBot(slug=slug, 
+                            function="AfterPrintPicCamSelect", 
+                            msg="<b>" + _("Configuration saving failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+
+def getAfterPrintTimeText(slug):# Text for interaction
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            message =  _("Please input new delay time. Actual value: %ds") % item['delayTimeAfterPrintPic']
+            return message
+
+def getAfterPrintWebcamText(slug):# Text for interaction
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if item['AfterPrintPicCamSelect'] == None:
+                message = _("Pic after print disabled. Choose camera")
+            else:
+                message = _("Webcam %s active") % str(item['AfterPrintPicCamSelect']+1)
+            return message
+
+def sendExtCommand(updateMsgTxt):# sends external command action
+    key = []
+    msg = botThreads.getServerDataStorage(action="listExternalCommands")
+    if msg == "Error":
+        return key
+    for item in msg:
+        if item['confirm'] == updateMsgTxt:
+            packOrder = {}
+            packOrder['id'] = item['id']
+            botThreads.sendRecExtendedData(action="runExternalCommand", slug="server", data=packOrder, messageCntItem="runExternalCommand")
+    return key
+
+def sendDelMessage(id): # removeMessage from repetier server
+    packOrder = {}
+    packOrder['id'] = id
+    botThreads.sendRecExtendedData(action="removeMessage", slug="server", data=packOrder, messageCntItem="removeMessage")
+    
+def botAddTracking(slug, function, context): # mark printer which activate bot interaction
+    logger.debug("botAddTracking for: %s" % (slug))
+    context.user_data['slug'] = slug
+    actConv = {}
+    actConv['slug'] = slug
+    actConv['function'] = function
+    botThreads.botData['bot']['actConv'] = actConv
+
+def botGetTracking(context): # get marked printer which activate bot interaction
+    return context.user_data['slug']
+
+def botRemTracking():
+    botThreads.botData['bot']['actConv'] = None
+
+def getBotSlug(botFeedback): # get "/" rid of bot activation on slug for handling
+    slug = botFeedback[1:]
+    return slug
+
+def getSystemDebugConfig(): # get debug information from application
+    cfgFile = os.path.join(LOGFILEFOLDER, FILENAME_NO_EXTENSION + '.conf')
+    configFile = {}
+    configFile['server'] = botThreads.botData['server']['config']
+    configFile['printers'] = {}
+    for printers in botThreads.botData['printers']:
+        configFile['printers'][printers] = botThreads.botData['printers'][printers]['config']
+    try:
+            with open(cfgFile, 'w') as outfile:
+                json.dump(configFile, outfile) 
+    except:
+            logger.error("getSystemDebugConfig: Debug configuration file could not be written to: %s" % cfgFile)
+    return cfgFile
+
+def sendMsgToBot(slug, function, # send messages at conversation time to the bot
+                 msg=None, msgLong=None, msgShort=None, 
+                 path=None, caption=None, vidPic=False,
+                 reply_markup=None,  
+                 removeMsg=False, message_id=None,
+                 singleMsg=False, delTime=15,
+                 modMsg=None):
+    if message_id != None:
+        botThreads.remMsgFromBot(slug=slug, function=function, message_id=message_id)
+        logger.info("sendMsgToBot - Remove: Slug: %s Function: %s" % (slug, function))
+    elif removeMsg:
+        botThreads.remMsgFromBot(slug=slug, function=function)
+        logger.debug("sendMsgToBot - Remove: Slug: %s Function: %s" % (slug, function))
+    elif vidPic: 
+        message = {}
+        message['path'] = path
+        message['caption'] = caption
+        botThreads.addMsgToBot(slug=slug, function=function, msg=message, reply_markup=reply_markup, vidPic=vidPic, singleMsg=singleMsg, delTime=delTime, modMsg=modMsg, priority=True)
+        logger.debug("sendMsgToBot - Send: Slug: %s Function: %s Path: %s Caption: %s ReplM: %s" % (slug, function, message['path'], message['caption'], reply_markup))
+    else:
+        message = {}
+        if singleMsg:
+            message = msg
+        else:
+            if msg != None:
+                message['msgLong'] = msg
+                message['msgShort'] = msg
+            else:
+                message['msgLong'] = msgLong
+                message['msgShort'] = msgShort
+        botThreads.addMsgToBot(slug=slug, function=function, msg=message, reply_markup=reply_markup, singleMsg=singleMsg, delTime=delTime, modMsg="reply_markup", priority=True)
+        logger.debug("sendMsgToBot - Send: Slug: %s Function: %s msg: %s ReplM: %s" % (slug, function, msg, reply_markup))
+
+def pushMsgToFront(slug, function): # push all active messages to the front
+    for item in botThreads.botData['bot']['messageID']:
+        if item['slug'] == slug and item['slug'] == slug:
+            with botThreads.threadLock:
+                item['newMessageID'] = True
+
+def mainServerMenu(update, context):
+    if not checkUserIDValid(update,chatID=CHATID):
+        logger.critical("Bot answered to an unknown user: %s / %s: %s, %s" % (update.effective_chat.username, 
+                                                                                      update.effective_chat.id, 
+                                                                                      update.effective_chat.last_name, 
+                                                                                      update.effective_chat.first_name)
+                        )
+        msgTelegram = "Unauthorized access (ID: %s) from user %s, %s %s" % (update.effective_chat.id,
+                                                                                 update.effective_chat.username, 
+                                                                                 update.effective_chat.first_name, 
+                                                                                 update.effective_chat.last_name
+                                                                                 )
+        telegramSendMsg(msgTelegram,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+    
+        update.message.reply_text(_('Access denied!'))
+        return ConversationHandler.END
+    botAddTracking(slug=getBotSlug(update.message.text), 
+                   function="messages", 
+                   context=context)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtEntry", 
+                 message_id=update.message.message_id)
+    logger.info("Starting conversation server %s / messageID: %s" % (botGetTracking(context), update.message.message_id))
+    pushMsgToFront(botGetTracking(context), "messages")
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="messages", 
+                 msg="<b>" + _("Server %s selected") % botGetTracking(context) + "...</b>", 
+                 reply_markup=getMsgKeyboard())
+    return ONE 
+
+def delServerMessage(update, context):
+    queryMessageData = update.callback_query.data
+    sendDelMessage(queryMessageData)
+    return ONE
+
+def mainMenu(update, context):
+    if not checkUserIDValid(update,chatID=CHATID):
+        logger.critical("Bot answered to an unknown user: %s / %s: %s, %s" % (update.effective_chat.username, 
+                                                                                      update.effective_chat.id, 
+                                                                                      update.effective_chat.last_name, 
+                                                                                      update.effective_chat.first_name)
+                        )
+        msgTelegram = "Unauthorized access (ID: %s) from user %s, %s %s" % (update.effective_chat.id,
+                                                                                 update.effective_chat.username, 
+                                                                                 update.effective_chat.first_name, 
+                                                                                 update.effective_chat.last_name
+                                                                                )
+        telegramSendMsg(msgTelegram,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+    
+        update.message.reply_text(_('Access denied!'))
+        return ConversationHandler.END
+    botAddTracking(slug=getBotSlug(update.message.text), 
+                   function="printer", 
+                   context=context)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtEntry", 
+                 message_id=update.message.message_id)
+    logger.debug("Starting conversation for printer %s / messageID: %s" % (botGetTracking(context), update.message.message_id))
+    pushMsgToFront(botGetTracking(context), "printer")
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Printer %s selected") % botGetTracking(context) + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    return ONE 
+
+def extCommands(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening external commands") + "...</b>", 
+                 reply_markup=getKeyboard(getExtCommands()))
+    return TWO
+
+def extCommandsBack(update,context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Back to main menu...") + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="extCommands", 
+                 removeMsg=True)
+    sendMsgToBot(botGetTracking(context), 
+                 "quickCommands", 
+                 removeMsg=True)
+    
+    return ONE
+
+def extCommandsChoosen(update,context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening external command confirmation") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="extCommands", 
+                 msg=getExtCommandsConfirmText(int(update.callback_query.data)), 
+                 reply_markup=getKeyboard(getExtCommandsConfirmButton(int(update.callback_query.data))))
+    return THREE
+
+def extCommandAction(update,context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Going back to external commands") + "...</b>", 
+                 reply_markup=getKeyboard(getExtCommands()))
+    sendExtCommand(queryMessageData.text)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="extCommands", 
+                 removeMsg=True)
+    return TWO
+
+def webcams(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening webcams") + "...</b>", 
+                 reply_markup=getKeyboard(getWebcamConfig(botGetTracking(context), update)))
+    return FOUR
+
+def webcamSendVideo(update, context):
+    queryData = update.callback_query.data
+    botRemTracking()
+    botThreads.startWebcamThread(slug=botGetTracking(context),
+                                name="process_video", 
+                                type="vid", 
+                                queryData=queryData)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Generate video file. Closing keyboard") + "...</b>", 
+                 reply_markup=None)
+    return ConversationHandler.END
+
+def webcamSendGif(update, context):
+    queryData = update.callback_query.data
+    botRemTracking()
+    botThreads.startWebcamThread(slug=botGetTracking(context),
+                                name="process_gif", 
+                                type="gif", 
+                                queryData=queryData)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Generate gif file. Closing keyboard") + "...</b>", 
+                 reply_markup=None)
+    return ConversationHandler.END
+
+def webcamSendPng(update, context):
+    queryData = update.callback_query.data
+    botRemTracking()
+    botThreads.startWebcamThread(slug=botGetTracking(context),
+                                name="process_png", 
+                                type="pic", 
+                                queryData=queryData)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Get pic. Closing keyboard") + "...</b>", 
+                 reply_markup=None)
+    return ConversationHandler.END
+
+def quickCommands(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening quick commands") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="quickCommands", 
+                 msg=getQuickCommandsText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(getQuickCommandsButton(botGetTracking(context))))
+    return EIGHT
+
+def prinQuickCommand(update, context):
+    queryData = update.callback_query.data
+    botRemTracking()
+    sendQuickCommand(botGetTracking(context),queryData)
+    sendMsgToBot(botGetTracking(context), 
+                 "quickCommands", 
+                 removeMsg=True)
+    return ConversationHandler.END
+
+def settings(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    return FIVE
+
+def settingsBack(update,context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context)))) 
+    sendMsgToBot(botGetTracking(context), 
+                 "extrSetLimit", 
+                 removeMsg=True)
+    sendMsgToBot(botGetTracking(context), 
+                 "prinExtComm", 
+                 removeMsg=True)
+    sendMsgToBot(botGetTracking(context), 
+                 "heatbSetLimit", 
+                 removeMsg=True)
+    sendMsgToBot(botGetTracking(context), 
+                 "prinHeatbComm", 
+                 removeMsg=True)
+    return FIVE
+
+def extrSetLimit(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening extruder set limit") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="extrSetLimit", 
+                 msg=getExtrSetLimitText(botGetTracking(context)), 
+                 reply_markup=getKeyboard())
+    return SIX
+
+def extrSetLimitValue(update, context):
+    messageData = update.message
+    sendMsgToBot(botGetTracking(context), 
+                 "extrSetLimit", 
+                 removeMsg=True)
+    setExtrSetLimit(botGetTracking(context),messageData.text)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtExtrSetLimitValue", 
+                 message_id=messageData.message_id)
+    return FIVE
+
+def prinExtCommOff(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening extruder command at set limit") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="prinExtComm", 
+                 msg=getPrinExtCommText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(getExtComAndDisableButton()))
+    return SEVEN
+
+def prinExtCommOffItem(update, context):
+    queryMessage = update.callback_query.message
+    queryData = update.callback_query.data
+    setPrinExtComm(botGetTracking(context),queryData)
+    sendMsgToBot(botGetTracking(context), 
+                 "prinExtComm", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    return FIVE
+
+def heatbSetLimit(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening heatbed set limit") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="heatbSetLimit", 
+                 msg=getHeatbSetLimitText(botGetTracking(context)), 
+                 reply_markup=getKeyboard())
+    return ELEVEN
+
+def heatbSetLimitValue(update, context):
+    messageData = update.message
+    sendMsgToBot(botGetTracking(context), 
+                 "heatbSetLimit", 
+                 removeMsg=True)
+    setHeatbSetLimit(botGetTracking(context),messageData.text)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtheatbSetLimitValue", 
+                 message_id=messageData.message_id)
+    return FIVE
+
+def prinHeatbCommOff(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening heatbed command at set limit") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="prinHeatbComm", 
+                 msg=getPrinExtCommText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(getExtComAndDisableButton()))
+    return TWELVE
+
+def prinHeatbCommOffItem(update, context):
+    queryMessage = update.callback_query.message
+    queryData = update.callback_query.data
+    setPrinHeatbComm(botGetTracking(context),queryData)
+    sendMsgToBot(botGetTracking(context), 
+                 "prinHeatbComm", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    return FIVE
+
+def afterPrintTime(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening after print send picture time delay") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="afterPrintTime", 
+                 msg=getAfterPrintTimeText(botGetTracking(context)), 
+                 reply_markup=getKeyboard())
+    return NINE
+
+def afterPrintTimeValue(update, context):
+    messageData = update.message
+    sendMsgToBot(botGetTracking(context), 
+                 "afterPrintTime", 
+                 removeMsg=True)
+    setAfterPrintTimeValue(botGetTracking(context),messageData.text)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtAfterPrintTimeValue", 
+                 message_id=messageData.message_id)
+    return FIVE
+
+def afterPrintWebcam(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening after print send picture select webcam") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="afterPrintWebcam", 
+                 msg=getAfterPrintWebcamText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(getAfterPrintWebcamAndDisableButton(botGetTracking(context))))
+    return TEN
+
+def afterPrintWebcamItem(update, context):
+    queryMessage = update.callback_query.message
+    queryData = update.callback_query.data
+    setAfterPrintWebcam(botGetTracking(context),queryData)
+    sendMsgToBot(botGetTracking(context), 
+                 "afterPrintWebcam", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    return FIVE
+
+def exitBot(update, context):
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<i>🔜 " + _("Closing keyboard") + "...</i>", 
+                 reply_markup=None)
+    botRemTracking()
+    remAllExtraMsgs(botGetTracking(context))
+    logger.info("Bot finished conversation: %s (%s): %s, %s" 
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+def unknownCommand(update, context):  
+    botRemTracking()
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg= "<i>" + _("Closing keyboard") + "...</i>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="unknownCommand", 
+                 msg= "<b>🚫 " + _("Didn´t get ya, maaaaan...What is") + " \"<i>%s</i>\" ⁉️</b>" % update.message.text, 
+                 reply_markup=None,
+                 singleMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtUnknownCommand", 
+                 message_id=update.message.message_id)
+    logger.info("unknownCommand: Bot doesn´t know the answer: %s" % update.message.text)
+    return ConversationHandler.END
+
+def botTimeout(update, context):
+    botRemTracking()
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg= "<i>" + _("Closing keyboard") + "...</i>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="botTimeout", 
+                 msg= "<b>📣 " + _("Don´t sleep, please...wake up") + ", %s</b>" % update.effective_chat.first_name, 
+                 reply_markup=None,
+                 singleMsg=True)
+    remAllExtraMsgs(botGetTracking(context))
+    logger.info("Conversations timeout")
+    return ConversationHandler.END
+
+def exitMessageBot(update, context):
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="messages", 
+                 msg="<i>🔜 " + _("Closing keyboard") + "...</i>", 
+                 reply_markup=None)
+    botRemTracking()
+    remAllExtraMsgs(botGetTracking(context))
+    logger.debug("Bot finished conversation: %s (%s): %s, %s" 
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+def botMessagesTimeout(update, context):   
+    botRemTracking()
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="messages", 
+                 msg= "<i>" + _("Closing keyboard") + "...</i>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="botMessagesTimeout", 
+                 msg= "<b>📣 " + _("Don´t sleep, please...wake up") + ", %s</b>" % update.effective_chat.first_name, 
+                 reply_markup=None,
+                 singleMsg=True)
+    remAllExtraMsgs(botGetTracking(context))
+    logger.info("Conversations timeout")
+    return ConversationHandler.END
+
+def resetMsgs(update, context):
+    sendMsgToBot(slug="bot", 
+                 function="resetMsgs", 
+                 message_id=update.message.message_id)
+    for item in botThreads.botData['bot']['messageID']:
+        with botThreads.threadLock:
+            item['newMessageID'] = True
+    sendMsgToBot(slug="bot", 
+                 function="resetMsgs", 
+                 msg= "<b>📣 " + _("Reset, reset") + "🎶...🎶 " + _("everyone comes back") + "🎵... 🎵" + _("hopefully") + ", %s</b>" % update.effective_chat.first_name, 
+                 reply_markup=None,
+                 singleMsg=True)
+    remAllExtraMsgs(botGetTracking(context))
+    return ConversationHandler.END
+
+def remAllExtraMsgs(slug):
+    for message in botThreads.botData['bot']['messageID']:
+        if message['function'] != "printer" and message['function'] != "server" and message['function'] != "messages":
+            botThreads.remMsgFromBot(slug, message['function'])
+
+# Support 
+
+def addDebugHandler(telegramDispatcher):
+    conv_handler = ConversationHandler(
+    entry_points=[CommandHandler("debug", debugFileUpload)
+                    ],
+    states={
+        ONE: [CallbackQueryHandler(exitDebugFileUpload, pattern="^End$"), # Start conversation
+                CallbackQueryHandler(uploadDebugFileUpload)
+                ],
+        ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, timeoutDebugFileUpload)],       
+            },
+    fallbacks=[MessageHandler(Filters.all, exitDebugFileUpload)],
+    allow_reentry=False,
+    conversation_timeout=60,
+    name="Repetier-Server-Debug"
+    )
+    telegramDispatcher.add_handler(conv_handler)
+    logger.info("addHandler: Added handler debug handler")
+
+def debugFileUpload(update, context):
+    if not checkUserIDValid(update,chatID=CHATID):
+        logger.critical("Bot answered to an unknown user: %s / %s: %s, %s" % (update.effective_chat.username, 
+                                                                                      update.effective_chat.id, 
+                                                                                      update.effective_chat.last_name, 
+                                                                                      update.effective_chat.first_name)
+                        )
+        msgTelegram = "Unauthorized access (ID: %s) from user %s, %s %s" % (update.effective_chat.id,
+                                                                                 update.effective_chat.username, 
+                                                                                 update.effective_chat.first_name, 
+                                                                                 update.effective_chat.last_name
+                                                                                )
+        telegramSendMsg(msgTelegram,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+    
+        update.message.reply_text(_('Access denied!'))
+        return ConversationHandler.END
+    botAddTracking(slug=getBotSlug(update.message.text), 
+                   function="debugFileUpload", 
+                   context=context)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtEntry", 
+                 message_id=update.message.message_id)
+    logger.debug("Starting debug conversation messageID: %s" % (update.message.message_id))
+    sendMsgToBot(slug=getBotSlug(update.message.text), 
+                 function="logfileUpload", 
+                 msg=_("Please choose file to upload :"), 
+                 reply_markup=getStartKeyboard(getLogfilesKeyboard()))
+    return ONE 
+    
+def uploadDebugFileUpload(update, context):
+    selectedLog = update.callback_query.data
+    logger.info("uploadDebugFileUpload request file: %s" % (selectedLog))
+    fileStart = selectedLog.replace(FILENAME_NO_EXTENSION + '.log', "")
+    for file in os.listdir(LOGFILEFOLDER):
+        if file.startswith(fileStart):
+            sendMsgToBot(botGetTracking(context), file, path=os.path.join(LOGFILEFOLDER, file), caption=file, vidPic="file",)
+    caption = "<i>" + _("Actual system configuration") + "</i>\n<strong>" + _("Please check the system configuration. Otherwise modify or delete items which you won´t distribute to third persons!") + "</strong>\n\n" + _("Please send files to telegram group for support: ") + "\n\n<a href=\"https://t.me/Repetier_S_Telegram_Bot_Support\">Telegram Bot Support Group</a>"
+    sendMsgToBot(slug=botGetTracking(context), function=file, path=getSystemDebugConfig(), caption=caption, vidPic="file",)
+    return ONE
+    
+def exitDebugFileUpload(update, context):
+    sendMsgToBot(botGetTracking(context), "RemoveAtExit", message_id=update.callback_query.message.message_id)
+    sendMsgToBot(botGetTracking(context), "logfileUpload", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot ends debug conversation: %s (%s): %s, %s"
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+def timeoutDebugFileUpload(update, context):
+    sendMsgToBot(botGetTracking(context), "logfileUpload", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot timeout debug conversation: %s (%s): %s, %s" 
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+# Websocket
+def messageCntHndl():
+    global MessCnt
+
+    MessCnt += 1    
+    if MessCnt >= 1000:
+        MessCnt = 1
+    
+    return MessCnt
+
+def encCommand(action = "ping", callback_id = 200, printer = "My Printer", data = {}):
+    command = {}
+    command['action'] = action
+    command['data'] = data
+    command['printer'] = printer
+    command['callback_id'] = callback_id
+    command = json.dumps(command)
+        
+    return command
+
+# Threading
+
+class ProgramKilled(Exception):
+    pass
+
+def signal_handler(signum, frame):
+    raise ProgramKilled
+
+class dataHdlThread(threading.Thread):
+    def __init__(self, interval, execute, name, addData = None, *args, **kwargs):
+        threading.Thread.__init__(self)
+        self.daemon = False
+        self.stopped = threading.Event()
+        self.interval = timedelta(seconds=interval)
+        self.execute = execute
+        self.name = name
+        self.addData = addData
+        self.args = args
+        self.kwargs = kwargs
+        loggerWS.info("Thread init: %s" % self.name)
+
+        self.threadInterval = interval
+        self.threadState = None
+        self.updateTime = arrow.now()
+        
+    def stop(self):
+        self.stopped.set()
+        self.join()        
+        loggerWS.info("Thread %s terminated - Ident: %s / ID: %s" % (self.getName(), self.ident, self.native_id))
+        
+    def run(self):
+        while not self.stopped.wait(self.interval.total_seconds()):
+            self.execute(*self.args, **self.kwargs)
+
+    def updateReferenceTime(self):
+        self.updateTime = arrow.now()
+        loggerWS.debug("Action thread %s update reference time: %s" % (self.getName(), self.updateTime))
+     
+
+    def modifyInterval(self, newInterval): # interval in seconds
+        if newInterval != self.threadInterval:
+            self.interval = timedelta(seconds=newInterval)
+            self.threadInterval = newInterval
+            loggerWS.info("Thread %s interval changed to: %s - Ident: %s / ID: %s" % (self.getName(), self.interval, self.ident, self.native_id)) 
+
+class actionThread(threading.Thread):
+    def __init__(self, interval, execute, name, slug, function, threadFlex=True, addData = None, messageID = None, chatID = CHATID, *args, **kwargs):
+        threading.Thread.__init__(self)
+        self.daemon = False
+        self.stopped = threading.Event()
+        self.interval = timedelta(seconds=interval)
+        self.execute = execute
+        self.threadFlex = threadFlex
+        self.name = name
+        self.slug = slug
+        self.function = function
+        self.addData = addData
+        self.messageID = messageID
+        self.chatID = chatID
+        self.args = args
+        self.kwargs = kwargs
+        
+        self.threadInterval = interval
+        self.threadState = None
+        self.updateTime = arrow.now()
+        loggerWS.info("Action thread init: %s / %s" % (self.name, self.function))
+        
+    def stop(self):
+        self.stopped.set()
+        self.join()        
+        loggerWS.info("Action thread %s / %s terminated: Ident: %s / ID: %s" % (self.getName(),self.function, self.ident, self.native_id))
+        
+    def run(self):
+        while not self.stopped.wait(self.interval.total_seconds()):
+            if not self.execute(*self.args, **self.kwargs): # Requires return value
+                self.stopped.set()
+
+    def modifyInterval(self, newInterval): # interval in seconds
+        if newInterval != self.threadInterval:
+            self.interval = timedelta(seconds=newInterval)
+            self.threadInterval = newInterval
+            loggerWS.info("Thread %s interval changed to: %s - Ident: %s / ID: %s" % (self.getName(), self.interval, self.ident, self.native_id))       
+
+    def updateReferenceTime(self):
+        self.updateTime = arrow.now()
+        loggerWS.debug("Action thread %s / %s update reference time: %s" % (self.getName(),self.function, self.updateTime))
+        
+        
+class timeDelThread(threading.Thread):
+    def __init__(self, feedbackMsg = None, messageID = 0, chatID = CHATID, delayTimeSelect = 15, printer = None, function = None, *args, **kwargs):
+        threading.Thread.__init__(self)
+        self.daemon = False
+        self.stopped = threading.Event()
+        self.feedbackMsg = feedbackMsg
+        self.messageID = messageID
+        self.chatID = chatID
+        self.delayTimeSelect = timedelta(seconds=delayTimeSelect)
+        self.printer = printer
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+
+        if self.feedbackMsg != None:
+            self.messageID = self.feedbackMsg['message_id']
+            self.name = _("Message: %s") % self.messageID        
+            self.chatID = self.feedbackMsg['chat']['id']
+            logger.info("timeDelThread: Thread initialized for single delayed messageID: %s runtime: %ss" % (self.messageID, self.delayTimeSelect))
+        else:
+            self.name = self.messageID                
+            if self.printer != None:
+                logger.info("timeDelThread: Thread initialized for printer: %s and MessageID: %s runtime: %ss" % (printer, self.messageID, self.delayTimeSelect))
+            else:
+                logger.info("timeDelThread: Thread initialized for messageID: %s runtime: %ss" % (self.messageID, self.delayTimeSelect))
+        self.start()
+        
+    def stop(self):
+        self.join()        
+        logger.info("timeDelThread: Thread message deleted ends for messageID %s: Ident: %s / ID: %s" % (self.messageID, self.ident, self.native_id))
+        
+    def run(self):
+        self.stopped.wait(self.delayTimeSelect.total_seconds())
+        self.delMessage(*self.args, **self.kwargs)
+
+    def delMessage(self):
+        if self.delayTimeSelect != 0:
+            try:
+                self.telegramDelMsg(self.messageID, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+            except:
+                loggerWS.error("Could not delMessage method send telegramDelMsg to messageID: %s" % self.messageID)
+            logger.debug("delMessage: messageID %s from chatID %s deleted" % (self.messageID, self.chatID))
+
+    def telegramDelMsg(self, message_id, chat_id, token = MY_TELEGRAM_TOKEN):
+        bot = telegram.Bot(token=token)
+        return bot.deleteMessage(chat_id=chat_id, message_id=message_id)
+
+class vidGifThread(threading.Thread):
+    def __init__(self, execute, name, slug, type, queryData = None, webcamSelect = None, captionSelect = None, captionText = None, *args, **kwargs):
+        threading.Thread.__init__(self)
+        self.daemon = False
+        self.stopped = threading.Event()
+        self.execute = execute
+        self.name = name
+        self.slug = slug
+        self.type = type # "png" / "gif" / "vid"
+        self.queryData = queryData
+        self.webcamSelect = webcamSelect
+        self.captionSelect = captionSelect
+        self.captionText = captionText
+        self.args = args
+        self.kwargs = kwargs
+
+        loggerWS.info("vidGifThread: Thread init: %s/%s" % (self.name, self.type))
+        
+    def stop(self):
+        self.stopped.set()
+        self.join()        
+        loggerWS.info("vidGifThread: Thread %s terminated: Ident: %s / ID: %s" % (self.getName(), self.ident, self.native_id))
+        
+    def run(self):
+        self.execute(*self.args, **self.kwargs)
+
+class botThreadHdl(dataHdlThread):
+    def __init__(self, telegramDispatcher, configFile, *args, **kwargs):
+        self.telegramDispatcher = telegramDispatcher
+        self.botHandlers = []
+        self.webserver = "ws://" + RepetierServerIP + ":" + RepetierServerPort + "/socket/?lang=de&&apikey=" + MY_REPETIER_SERVER_API_KEY
+        self.restartWsSend = 0
+        self.restartWsReceive = 0
+        self.restartOrderData = 0
+        self.restartbotCom = 0
+        self.restartThdMan = 0
+        self.restartModelManager = 0
+        self.sendCommand = self.encCommand()
+        self.configFile = configFile
+        self.botData = {}
+        self.threadLock = threading.Lock()
+        self.programStart = arrow.now()
+        self.nextMsgRenew = self.programStart.shift(days=1)
+        self.nextRSTimeoutMsg = None
+        loggerWS.info("Update all long term messages at: %s" % self.nextMsgRenew.format('DD.MM.YYYY - HH:mm'))
+        self.wsThreadSend = dataHdlThread(interval=THRDSEND, execute=self.ThreadSend, name="Repetier-Server-Send")
+        self.wsThreadRec = dataHdlThread(interval=THRDRECEIVE, execute=self.ThreadRec, name="Repetier-Server-Receive")
+        self.wsThreadOrderData = dataHdlThread(interval=THRDORDERDATA, execute=self.ThreadHdlOrderData, name="Repetier-Server-Order-Data")
+        self.botCommunicator = dataHdlThread(interval=THRDBOTCOM, execute=self.ThreadHdlBot, name="Repetier-Server-Bot-Communication-Threads")
+        self.threadManager = dataHdlThread(interval=THRDMANAGER, execute=self.ThreadManager, name="Repetier-Server-Thread-Manager")
+        self.modelManager = dataHdlThread(interval=THRDMODELMAN, execute=self.modelManager, name="Repetier-Server-Model-Manager")
+        self.wsThreadRestart = dataHdlThread(interval=THRDRESTART, execute=self.ThreadHdlRestart, name="Repetier-Server-Restart-Threads")
+
+    def start(self):
+        self.initDatastructure()
+        self.initPrinterConfigActions()
+        self.addMsgToBot(slug="Bot",
+                             function="startMessage",
+                             msg="<b>"+_("Welcome to Repetier-Server telegram bot!")+"</b>\n<b>"+_("from")+"</b>\nhttps://github.com/DanJunior78/Repetier-Server-Telegram-Bot\n<i>"+_("Version: ") + "%s</i>"% SW_VERSION,
+                             reply_markup=None,
+                             vidPic=None,
+                             priority=False,
+                             botMsg=True,
+                             singleMsg=True, 
+                             delTime=30
+                             ) 
+        self.sendLanguage()
+        while self.wsWebsocket() == 'Error':
+            loggerWS.error("start: Could not establish websocket at start up")
+        else:
+            loggerWS.info("start: Continues after successful repetier server connection")
+        self.initServerActions()
+        self.wsThreadSend.start()
+        self.wsThreadRec.start()
+        self.wsThreadOrderData.start()
+        time.sleep(5)
+        self.threadManager.start()
+        self.botCommunicator.start()
+        time.sleep(2)
+        self.modelManager.start()
+        self.wsThreadRestart.start()
+        loggerWS.debug("Threads %s started" % self.getNames())
+
+    def stop(self):
+        self.wsThreadRestart.stop()
+        self.wsThreadOrderData.stop()
+        self.threadManager.stop()
+        self.modelManager.stop()
+        time.sleep(2)
+        self.stopPrinterThreads()
+        self.stopServerThreads()
+        self.botCommunicator.stop()
+        time.sleep(2)
+        self.wsThreadRec.stop()
+        time.sleep(2)
+        self.wsThreadSend.stop()
+        self.botData['server']['websocket']['actWS'].close()
+        loggerWS.debug("Threads %s stopped and websocket closed" % self.getNames())
+        return None
+
+    def initDatastructure(self):# has to be called after generating instance
+        loggerWS.info("initDatastructure for argv: %s " % sys.argv)
+        self.botData = self.initBotData(self.configFile)
+        if len(sys.argv) > 1:
+            if sys.argv[1] == "":    # future implementation
+                loggerWS.critical("initDatastructure...")
+        else:
+            loggerWS.info("initDatastructure no argv at startup")
+       
+    def initBotData(self, configFile):
+        botDataSet = {}
+        botDataSet['server'] = self.initServerRoot(configFile['server'])
+        botDataSet['printers'] = self.initPrinterRoot(configFile['printers'])
+        botDataSet['bot'] = self.initBotRoot()
+        botDataSet['gui'] = self.initGuiRoot(configFile['gui'])        
+        return botDataSet
+
+    def initServerRoot(self, configFileServer):
+        initServer = {}
+        initServer['config'] = configFileServer
+        initServer['websocket'] = {}
+        initServer['websocket']['actWS'] = None
+        initServer['websocket']['timeout'] = None
+        initServer['websocket']['msgCnt'] = 10000
+        initServer['websocket']['msgCntHandler'] = []
+        initServer['websocket']['dataSendBuffer'] = []
+        initServer['websocket']['dataReceiveBuffer'] = []
+        #initServer['websocket']['availablePrinters'] = []
+        initServer['threads'] = {}
+        initServer['dataRepetier'] = {}
+        #initServer['notifications'] = []
+        #initServer['statistic'] = None
+        #initServer['statistic'] = None
+        return initServer
+
+    def initPrinterRoot(self, configFilePrinters):
+        initPrinters = {}
+        for printer in configFilePrinters:
+            initPrinters[printer['slug']] = {}
+            initPrinters[printer['slug']]['config'] = printer
+            initPrinters[printer['slug']]['threads'] = {}
+            initPrinters[printer['slug']]['dataRepetier'] = {}
+            initPrinters[printer['slug']]['dataRepetier']['newRenderImage'] = {}
+            initPrinters[printer['slug']]['dataRepetier']['newRenderImage']['id'] = None
+        return initPrinters
+
+    def initBotRoot(self):
+        initBot = {}
+        initBot['handler'] = {}
+        initBot['messages'] = []
+        initBot['prioMessages'] = []
+        initBot['messageID'] = []
+        initBot['toDelete'] = []
+        initBot['actConv'] = None # if used {}
+        initBot['messageBot'] = []
+        return initBot
+
+    def initGuiRoot(self, configFilePrinters):
+        initGui = {}
+        initGui = configFilePrinters
+        return initGui
+
+    def sendLanguage(self):
+        msg = "<i>" + _("Language set to") + " </i>"
+        if LANGUAGE == "en":
+            msg += "🇬🇧"
+        elif LANGUAGE == "de":
+            msg += "🇩🇪"
+        elif LANGUAGE == "es":
+            msg += "🇪🇸"
+        else:
+            msg += "🇬🇧"
+        self.addMsgToBot(slug="Bot",
+                             function="languageInfo",
+                             msg=msg,
+                             reply_markup=None,
+                             vidPic=None,
+                             priority=False,
+                             botMsg=True,
+                             singleMsg=True, 
+                             delTime=5
+                             )
+
+    def stopPrinterThreads(self):
+        for printer in self.botData['printers']:
+            for thread in self.botData['printers'][printer]['threads']:
+                self.botData['printers'][printer]['threads'][thread].stop()
+                loggerWS.info("stopPrinterThreads - Stop thread %s from printer %s" % (thread, printer))
+
+    def stopServerThreads(self):
+        for thread in self.botData['server']['threads']:
+            self.botData['server']['threads'][thread].stop()
+            loggerWS.info("stopServerThreads - Stop thread %s from server" % (thread))
+            
+    def startActionThread(self, name, slug, execute, function, interval, threadFlex=True, addData = None):
+        x = actionThread(interval=interval,
+                         execute=execute,
+                         name=name,
+                         slug=slug,
+                         function=function,
+                         addData=addData, 
+                         threadFlex=threadFlex)
+        x.start()
+        return x
+
+    def startWebcamThread(self, slug, name, type, queryData=None, webcamSelect = None, captionSelect = None, captionText = None):
+        x = vidGifThread(execute=self.webcamHandler,
+                          slug=slug, 
+                          name=name,
+                          type=type, 
+                          queryData=queryData,
+                          webcamSelect=webcamSelect,
+                          captionSelect=captionSelect,
+                          captionText=captionText)
+        x.start()
+
+    def delPrinterMsg(self):
+        for messages in self.botData['bot']['messageID']:
+            timeDelThread(messageID=messages['message_id'],delayTimeSelect=1)
+            loggerWS.info("delPrinterMsg: Message from messageID %s/%s with messageID %s will be removed" % (messages['slug'], messages['function'], messages['message_id']))
+        for messages in self.botData['bot']['toDelete']:
+            timeDelThread(messageID=messages['message_id'],delayTimeSelect=1)
+            loggerWS.info("delPrinterMsg: Message from toDelete %s/%s with messageID %s will be removed" % (messages['slug'], messages['function'], messages['message_id']))
+
+    def addHandler(self, item, hdlType=None): # Types: printer / messages /
+        if hdlType == "printer":
+            conv_handler = ConversationHandler(
+            entry_points=[CommandHandler(item, mainMenu)
+                          ],
+            states={
+                ONE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Start conversation
+                      CallbackQueryHandler(extCommands, pattern="^ExtCommands$"),
+                      CallbackQueryHandler(webcams, pattern="Webcam*"),
+                      CallbackQueryHandler(quickCommands, pattern="^QuickCommands"),
+                      CallbackQueryHandler(settings, pattern="Settings*")
+                      ],
+                TWO: [CallbackQueryHandler(exitBot, pattern="^End$"), # ExtCommand conversation
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
+                      CallbackQueryHandler(extCommandsChoosen)
+                      ],
+                THREE: [CallbackQueryHandler(exitBot, pattern="^End$"), # ExtCommand conversation
+                      CallbackQueryHandler(extCommands, pattern="^Back$"), 
+                      CallbackQueryHandler(extCommandAction, pattern="^OK$")
+                      ],
+                FOUR: [CallbackQueryHandler(exitBot, pattern="^End$"), # Webcam conversation
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
+                      CallbackQueryHandler(webcamSendVideo, pattern="Sende Video*"),
+                      CallbackQueryHandler(webcamSendGif, pattern="Sende Gif*"),
+                      CallbackQueryHandler(webcamSendPng, pattern="Sende Png*")
+                      ],
+                FIVE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
+                      CallbackQueryHandler(extrSetLimit, pattern="Extruder Temp Limit*"),
+                      CallbackQueryHandler(prinExtCommOff, pattern="ExtCommand Temp Limit*"), # Heatbed Temp Limit
+                      CallbackQueryHandler(heatbSetLimit, pattern="Heatbed Temp Limit*"),
+                      CallbackQueryHandler(prinHeatbCommOff, pattern="HeatbCommand Temp Limit*"), # Heatbed Temp Limit
+                      CallbackQueryHandler(afterPrintTime, pattern="Print after time*"),
+                      CallbackQueryHandler(afterPrintWebcam, pattern="Sende Png*")
+                      ],
+                SIX: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation extrSetLimit
+                      CallbackQueryHandler(settingsBack, pattern="^Back$"),
+                      MessageHandler(Filters.all, extrSetLimitValue)
+                      ],
+                SEVEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation prinExtCommOff
+                      CallbackQueryHandler(settingsBack, pattern="^Back$"),
+                      CallbackQueryHandler(prinExtCommOffItem)
+                      ],
+                EIGHT: [CallbackQueryHandler(exitBot, pattern="^End$"), # QuickCommands conversation prinQuickCommand
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(prinQuickCommand)
+                      ],
+                NINE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation afterPrintTime
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      MessageHandler(Filters.all, afterPrintTimeValue)
+                      ],
+                TEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation afterPrintWebcam
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(afterPrintWebcamItem)
+                      ],
+                ELEVEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation extrSetLimit
+                      CallbackQueryHandler(settingsBack, pattern="^Back$"),
+                      MessageHandler(Filters.all, heatbSetLimitValue)
+                      ],
+                TWELVE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation prinExtCommOff
+                      CallbackQueryHandler(settingsBack, pattern="^Back$"),
+                      CallbackQueryHandler(prinHeatbCommOffItem)
+                      ],
+                ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, botTimeout)],      
+                    },
+            fallbacks=[MessageHandler(Filters.all, unknownCommand)],
+            allow_reentry=True,
+            conversation_timeout=60,
+            name="Repetier-Server-Bot"
+            )
+        elif hdlType == "messages":
+            conv_handler = ConversationHandler(
+            entry_points=[CommandHandler(_("Messages"), mainServerMenu)
+                          ],
+            states={
+                ONE: [CallbackQueryHandler(exitMessageBot, pattern="^End$"), # Start conversation
+                      CallbackQueryHandler(delServerMessage)
+                      ],
+                ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, botMessagesTimeout)],         
+                    },
+            fallbacks=[MessageHandler(Filters.all, unknownCommand)],
+            allow_reentry=True,
+            conversation_timeout=60,
+            name="Repetier-Server-Bot-Messages"
+            )
+        else:
+            logger.info("addHandler: No handler activated: %s" % item)
+        if hdlType != None:
+            self.botData['bot']['handler'][item] = conv_handler
+            self.telegramDispatcher.add_handler(conv_handler)
+            loggerWS.info("addHandler: Added handler %s" % item)
+
+    def removeHandler(self, item, hdlType=None): # remove_handler(handler)
+        if hdlType != None:
+            handler = self.botData['bot']['handler'].pop(item)
+            self.telegramDispatcher.remove_handler(handler)
+
+    def rConfigFile(self):
+        try:
+            with open(CFGFILENAME) as json_file:
+                data = json.load(json_file)
+        except:
+            logger.error("rConfigFile: Configuration file not found: %s" % CFGFILENAME)
+            return "Error"
+        return data
+
+    def wConfigFile(self, data):
+        try:
+            with open(CFGFILENAME, 'w') as outfile:
+                json.dump(data, outfile) 
+        except:
+                logger.error("wConfigFile: Configuration file could not be written")
+
+    def savePrinterConfigFile(self):
+        data = self.rConfigFile()
+        if data != "Error":
+            data['printers'] = []
+            for printer in self.botData['printers']:
+                data['printers'].append(self.botData['printers'][printer]['config'])
+            self.wConfigFile(data)
+            return True
+        else:
+            logger.error("saveConfigFile: Skip saving configuration due to failing rConfigFile.")
+            return False
+
+    def getNames(self):
+        return {self.wsThreadSend.getName(), 
+                self.wsThreadRec.getName(), 
+                self.wsThreadOrderData.getName(), 
+                self.botCommunicator.getName(), 
+                self.threadManager.getName(), 
+                self.modelManager.getName(), 
+                self.wsThreadRestart.getName()}
+
+    def are_alive(self):
+        return {self.wsThreadSend.is_alive(), 
+                self.wsThreadRec.is_alive(), 
+                self.wsThreadOrderData.is_alive(), 
+                self.botCommunicator.is_alive(), 
+                self.threadManager.is_alive(), 
+                self.modelManager.is_alive(), 
+                self.wsThreadRestart.is_alive()}
+
+    def idents(self):
+        return {self.wsThreadSend.ident, 
+                self.wsThreadRec.ident, 
+                self.wsThreadOrderData.ident, 
+                self.botCommunicator.ident, 
+                self.threadManager.ident, 
+                self.modelManager.ident, 
+                self.wsThreadRestart.ident}
+
+    def native_ids(self):
+        return {self.wsThreadSend.native_id, 
+                self.wsThreadRec.native_id, 
+                self.wsThreadOrderData.native_id, 
+                self.botCommunicator.native_id, 
+                self.threadManager.native_id, 
+                self.modelManager.native_id, 
+                self.wsThreadRestart.native_id}
+
+    def encCommand(self, action = "ping", callback_id = -1, printer = "My Printer", data = {}):
+        command = {}
+        command['action'] = action
+        command['data'] = data
+        command['printer'] = printer
+        command['callback_id'] = callback_id
+        command = json.dumps(command)
+        return command
+    
+    def wsWebsocket(self):
+        try:
+            websocket = create_connection(self.webserver)
+        except OSError:
+            loggerWS.error("wsWebsocket: Response to open websocket: %s, Unexpected Error: %s" % (self.webserver, sys.exc_info()[1]))
+            if self.botData['server']['websocket']['timeout'] == None:
+                self.botData['server']['websocket']['timeout'] = arrow.now()
+            return "Error"
+        except:
+            loggerWS.error("wsWebsocket: Response to open websocket: %s, Unexpected Error: %s" % (self.webserver, sys.exc_info()[0]))
+            if self.botData['server']['websocket']['timeout'] == None:
+                self.botData['server']['websocket']['timeout'] = arrow.now()
+            return "Error"
+        self.botData['server']['websocket']['actWS'] = websocket
+        self.botData['server']['websocket']['timeout'] = None
+        loggerWS.info("Websocket established")
+        return websocket
+
+    def remMsgFromBot(self, slug, function, message_id=None):
+        if message_id != None:
+            message={}
+            message['slug'] = slug
+            message['function'] = function
+            message['message_id'] = message_id
+            with self.threadLock:
+                self.botData['bot']['toDelete'].append(message)
+            loggerWS.info("remMsgFromBot found and removed message with id %s"%(message_id))
+        else:
+            for i in range(0,len(self.botData['bot']['messageID'])):
+                message = self.botData['bot']['messageID'][i]
+                if message['slug'] == slug and message['function'] == function:
+                    self.botData['bot']['toDelete'].append(message)
+                    elementPop = self.botData['bot']['messageID'].pop(i)
+                    loggerWS.info("remMsgFromBot found and removed message from %s/%s with message id: %s"%(slug,function, elementPop['message_id']))
+            loggerWS.info("remMsgFromBot removed message from %s/%s"%(slug,function)) # message_id
+                                
+    def remMsgFromBuffer(self, slug, function):
+        for i in range(0,len(self.botData['bot']['prioMessages'])):
+            message = self.botData['bot']['prioMessages'][i]
+            if message['slug'] == slug and message['function'] == function:
+                elementPop = self.botData['bot']['prioMessages'].pop(i)
+                loggerWS.info("remMsgFromBuffer found and removed in prio Messages message from %s/%s with message id: %s"%(slug,function, elementPop['message_id']))
+        loggerWS.info("remMsgFromBuffer removed in prio Messages message from %s/%s"%(slug,function)) # message_id
+        for i in range(0,len(self.botData['bot']['messages'])):
+            message = self.botData['bot']['messages'][i]
+            if message['slug'] == slug and message['function'] == function:
+                self.botData['bot']['messages'].pop(i)
+                loggerWS.info("remMsgFromBuffer found and removed in normal Messages message from %s/%s"%(slug,function))
+        loggerWS.info("remMsgFromBuffer removed in normal Messages message from %s/%s"%(slug,function)) # message_id
+                                
+    def addMsgToBot(self, slug, function, msg, reply_markup=None, vidPic=None, priority=False, botMsg=False, singleMsg=False, delTime=15, modMsg=None, printInfo=None):
+        if botMsg: # modMsg: modify message replay by "reply_markup" / modify printer pic "print_pic"
+            with self.threadLock:
+                self.botData['bot']['messageBot'].append(self.setNewBotMsg(slug, function, msg, reply_markup, vidPic, singleMsg, delTime, modMsg, printInfo))
+        else:
+            if not priority:
+                dataAvailable = False
+                for message in self.botData['bot']['messages']:
+                    if message['slug'] == slug and message['function'] == function:
+                        loggerWS.debug("addMsgToBot - Edit Bot Message Entry: %s to %s" % (message['msg'], msg))
+                        with self.threadLock:
+                            message['msg'] = msg
+                            message['updTime'] = arrow.now()
+                        dataAvailable = True  
+                if not dataAvailable:
+                    loggerWS.debug("addMsgToBot - New Bot message entry")
+                    with self.threadLock:
+                        self.botData['bot']['messages'].append(self.setNewBotMsg(slug, function, msg, reply_markup, vidPic, singleMsg, delTime, modMsg, printInfo))
+            else:
+                loggerWS.debug("addMsgToBot - New Bot priority message entry")
+                with self.threadLock:
+                    self.botData['bot']['prioMessages'].append(self.setNewBotMsg(slug, function, msg, reply_markup, vidPic, singleMsg, delTime, modMsg, printInfo))
+
+    def setNewBotMsg(self, slug, function, msg, reply_markup=None, vidPic=None, singleMsg=False, delTime=15, modMsg=None, printInfo=None):
+        newEntry = {}
+        newEntry['slug'] = slug
+        newEntry['function'] = function
+        newEntry['msg'] = msg
+        newEntry['reply_markup'] = reply_markup
+        newEntry['singleMsg'] = singleMsg
+        newEntry['delTime'] = delTime
+        newEntry['vidPic'] = vidPic # video = "vid" / pic = "pic" / gif = "gif"
+        newEntry['printInfo'] = printInfo
+        newEntry['modMsg'] = modMsg
+        newEntry['updTime'] = arrow.now()
+        loggerWS.debug("setNewBotMsg - New Bot Message Entry: %s" % newEntry) 
+        return newEntry
+
+    def setNewMsgToMsgID(self, msg, feedbackBot):
+        msg['message_id'] = feedbackBot['message_id'] # newMessageID
+        msg['newMessageID'] = False
+        return msg
+
+    def setNewPrintInfo(self, msg, id=None, actPrint=None):
+        msg['printInfo'] = {}
+        msg['printInfo']['id'] = id # RS model ID
+        msg['printInfo']['actPrint'] = actPrint # RS model name
+        return msg
+
+    def resetPrintInfo(self, msg):
+        msg['printInfo'] = None
+        return msg
+
+    def pushAllMsgToFront(self):
+        for item in self.botData['bot']['messageID']:
+            with botThreads.threadLock:
+                item['newMessageID'] = True
+
+    def ThreadManager(self):
+        threadItem = threading.current_thread()
+        self.threadWishState("active",threadItem)
+        if self.botData['bot']['actConv'] != None:
+            botConvActive = True
+            slug = self.botData['bot']['actConv']['slug']
+            function = self.botData['bot']['actConv']['function']
+            loggerWS.debug("Conversation handler is active for: %s/%s" % (slug,function))
+        else: 
+             botConvActive = False
+             loggerWS.debug("Conversation handler is inactive")
+        printers = self.botData['printers']
+        for printer in printers.copy():
+            for functions in printers[printer]['threads']:
+                if botConvActive:
+                    if function == functions:
+                        if slug == printers[printer]['threads'][functions].slug:
+                            self.activateThreadState(thread=printers[printer]['threads'][functions], convAct=True, threadConv=True)
+                        else:
+                            self.activateThreadState(thread=printers[printer]['threads'][functions], convAct=True)
+                else:
+                    self.activateThreadState(thread=printers[printer]['threads'][functions])
+        threadList = self.botData['server']['threads']
+        for activities in threadList.copy():
+            if botConvActive:
+                if function == activities:
+                    self.activateThreadState(thread=threadList[activities], convAct=True, threadConv=True)
+                else:
+                    self.activateThreadState(thread=threadList[activities], convAct=True)
+            else:
+                self.activateThreadState(thread=threadList[activities])
+
+    def activateThreadState(self, thread, convAct=False, threadConv=False):
+        # Cycle pre defined types:
+        # THRDSLOW = 10, THRDSTANDBY = 5, THRDIDLE = 2, THRDACTIVE = 1, THRDNOW = 0, 
+        # THRDSEND = 2, THRDRECEIVE = 0.2, THRDORDERDATA = 1, 
+        # THRDBOTCOM = 1, THRDMANAGER = 1, THRDRESTART = 10, THRDMODELMAN = 2
+        # states: off, idle, active
+        #print("thread: %s ist convAct: %s, threadConv: %s, threadFlex: %s mit interval: %s"%(thread.name,convAct,threadConv,thread.threadFlex,thread.threadInterval))
+        if threadConv:
+            if thread.threadFlex:
+                thread.modifyInterval(THRDACTIVE)
+        else:
+            if convAct:
+                if thread.threadFlex:
+                    if thread.threadState == "off":
+                        thread.modifyInterval(THRDSLOW)
+                    else:
+                        thread.modifyInterval(THRDSTANDBY)
+            else:
+                if thread.threadFlex:
+                    if thread.threadState == "off":
+                        thread.modifyInterval(THRDSLOW)
+                    elif thread.threadState == "standby":
+                        thread.modifyInterval(THRDSTANDBY)
+                    elif thread.threadState == "idle":
+                        thread.modifyInterval(THRDIDLE)
+                    elif thread.threadState == "active":
+                        thread.modifyInterval(THRDACTIVE)
+                    elif thread.threadState == None:
+                        loggerWS.info("activateThreadState - Thread state: Waiting for first initialization %s/%s" % (thread.slug, thread.function))
+                    else:
+                        loggerWS.error("activateThreadState - Thread state: %s unknown for %s/%s" % (thread.threadState, thread.slug, thread.function))
+        
+    def threadWishState(self, state, thread):
+        thread.threadState = state
+        thread.updateReferenceTime()
+            
+    def isMyThreadActive(self, thread):
+        if self.botData['bot']['actConv'] != None:
+            slug = self.botData['bot']['actConv']['slug']
+            function = self.botData['bot']['actConv']['function']
+            if thread.slug==slug and thread.function==function:
+                loggerWS.debug("Conversation handler is active for: %s/%s" % (thread.slug, thread.function))
+                return True
+            else:
+                loggerWS.debug("Another conversation handler is active not: %s/%s" % (thread.slug, thread.function))
+                return False
+        else: 
+            loggerWS.debug("Conversation handler for %s/%s is inactive" % (thread.slug, thread.function))
+            return False
+            
+    def ThreadHdlBot(self):
+        threadItem = threading.current_thread()
+        msgDebugIn = None
+        msgToSend = None
+        msgToDel = None
+        msgFromPrio = False
+        msgBot = self.botData['bot']['messageBot']
+        msgPrio = self.botData['bot']['prioMessages']
+        msgDel = self.botData['bot']['toDelete']
+        msgNormal = self.botData['bot']['messages']
+        if len(msgBot) > 0:
+            with self.threadLock:
+                loggerWS.debug("ThreadHdlBot msgBot length: %d"%len(msgBot))
+                msgToSend = msgBot.pop(0)
+        elif len(msgDel) > 0:
+            with self.threadLock:
+                loggerWS.debug("ThreadHdlBot msgDel length: %d"%len(msgDel))
+                msgToDel = msgDel.pop(0)
+                loggerWS.debug("ThreadHdlBot msgToDel id: %s"%msgToDel['message_id'])
+        elif len(msgPrio) > 0:
+            with self.threadLock:
+                loggerWS.debug("ThreadHdlBot msgPrio length: %d"%len(msgPrio))
+                msgToSend = msgPrio.pop(0)
+            msgFromPrio = True
+        elif len(msgNormal) > 0:
+            with self.threadLock:
+                loggerWS.debug("ThreadHdlBot msgNormal length: %d"%len(msgNormal))
+                if self.botData['server']['websocket']['timeout'] == None:
+                    msgToSend = msgNormal.pop(0)
+        else:
+            loggerWS.debug("No message to send to bot")
+            self.threadWishState("idle",threadItem)
+        if msgToSend != None: #messageID
+            msgDebugIn = msgToSend
+            if msgToSend['singleMsg']:
+                if msgToSend['delTime'] == 0:
+                    fdback = telegramSendMsg(msg=msgToSend['msg'], 
+                                             reply_markup=None, 
+                                             chat_id=CHATID, 
+                                             token=MY_TELEGRAM_TOKEN, 
+                                             parse_mode=telegram.ParseMode.HTML)
+                else:
+                    timeDelThread(feedbackMsg=telegramSendMsg(msgToSend['msg'],
+                                                              reply_markup=None, 
+                                                              chat_id=CHATID, 
+                                                              token=MY_TELEGRAM_TOKEN
+                                                              ),
+                                  delayTimeSelect=msgToSend['delTime'])
+            elif msgToSend['vidPic'] != None: # video = "vid" / pic = "pic" / gif = "gif" / file = "file"
+                if msgToSend['vidPic'] == "vid":
+                    telegramSendVideo(video=msgToSend['msg']['path'], 
+                                      caption=msgToSend['msg']['caption'], 
+                                      chat_id=CHATID, token=MY_TELEGRAM_TOKEN, 
+                                      parse_mode=telegram.ParseMode.HTML)
+                    loggerWS.info("Video send: %s/%s" % (msgToSend['slug'], msgToSend['function'])) 
+                if msgToSend['vidPic'] == "pic":
+                    telegramSendPic(pic=msgToSend['msg']['path'], 
+                                    caption=msgToSend['msg']['caption'], 
+                                    chat_id=CHATID, token=MY_TELEGRAM_TOKEN, 
+                                    parse_mode=telegram.ParseMode.HTML)
+                    loggerWS.info("Picture send: %s/%s" % (msgToSend['slug'], msgToSend['function'])) 
+                if msgToSend['vidPic'] == "gif":
+                    telegramSendAnimation(anim=msgToSend['msg']['path'], 
+                                          caption=msgToSend['msg']['caption'], 
+                                          chat_id=CHATID, token=MY_TELEGRAM_TOKEN, 
+                                          parse_mode=telegram.ParseMode.HTML)
+                    loggerWS.info("Gif send: %s/%s" % (msgToSend['slug'], msgToSend['function']))
+                if msgToSend['vidPic'] == "file":
+                    telegramSendDocument(file=msgToSend['msg']['path'], 
+                                         caption=msgToSend['msg']['caption'], 
+                                         chat_id=CHATID, token=MY_TELEGRAM_TOKEN, 
+                                         parse_mode=telegram.ParseMode.HTML)
+                    loggerWS.info("File send: %s/%s" % (msgToSend['slug'], msgToSend['function']))
+            else:
+                msgID = self.botData['bot']['messageID']
+                msgInList = False
+                msgLongShort = ""
+                if self.botData['bot']['actConv'] != None:
+                    if self.botData['bot']['actConv']['slug'] == msgToSend['slug'] and self.botData['bot']['actConv']['function'] == msgToSend['function']:
+                        msgLongShort = msgToSend['msg']['msgLong']
+                    else:
+                        msgLongShort = msgToSend['msg']['msgShort']
+                else:
+                    msgLongShort = msgToSend['msg']['msgShort']
+                for message in msgID:
+                    if message['slug'] == msgToSend['slug'] and message['function'] == msgToSend['function']:
+                        msgInList = True
+                        with self.threadLock:
+                            if msgFromPrio:
+                                if msgToSend['modMsg'] == "reply_markup":
+                                    message['reply_markup'] = msgToSend['reply_markup']
+                                    msgToSend['printInfo'] = message['printInfo']
+                                if msgToSend['modMsg'] == "print_pic":
+                                    try:
+                                        if msgToSend['msg']['id'] != None:
+                                            msgToSend = self.setNewPrintInfo(msgToSend, id=msgToSend['msg']['id'], actPrint=msgToSend['msg']['actPrint'])
+                                        else:
+                                            msgToSend = self.resetPrintInfo(msgToSend)
+                                    except:
+                                        loggerWS.critical("Mod message with wrong msg dataset: %s/%s with message ID: %s/%s" % (message['slug'], message['function'], message['message_id'],msgToSend))
+                                    msgToSend['reply_markup'] = message['reply_markup']
+                                    msgToSend['msg'] = message['msg']
+                                    message['newMessageID'] = True
+                                else:
+                                    msgToSend['printInfo'] = message['printInfo']
+                                    loggerWS.info("Message from Prio without modMsg: %s/%s with message ID: %s" % (message['slug'], message['function'], message['message_id']))
+                                loggerWS.info("Prio messsage with mod: %s/%s"%(msgToSend['modMsg'],msgToSend['printInfo']))
+                            if message['newMessageID']:
+                                loggerWS.info("Message to renew: %s/%s with message ID: %s modMsg: %s/%s" % (message['slug'], 
+                                                                                                                message['function'], 
+                                                                                                                message['message_id'],
+                                                                                                                msgToSend['modMsg'], 
+                                                                                                                msgToSend['printInfo']))
+                                if msgToSend['printInfo'] != None:
+                                    try:
+                                        msgID.append(self.setNewMsgToMsgID(msgToSend, 
+                                                                            telegramSendPic(pic=msgToSend['printInfo']['actPrint'],
+                                                                            caption=msgLongShort, 
+                                                                            reply_markup=msgToSend['reply_markup'], # telegram conversation has to modify message reply markup
+                                                                            chat_id=CHATID, 
+                                                                            token=MY_TELEGRAM_TOKEN, 
+                                                                            parse_mode=telegram.ParseMode.HTML)))
+                                        loggerWS.info("Message renewed: %s/%s id: %s" % (msgToSend['slug'], msgToSend['function'],msgToSend['message_id']))
+                                        self.botData['bot']['toDelete'].append(message)
+                                        self.botData['bot']['messageID'].remove(message)
+                                    except:
+                                        loggerWS.error("ThreadHdlBot - Picture could not be renewed: %s/%s" % (message['slug'], message['function']))
+                                else:
+                                    try:
+                                        msgID.append(self.setNewMsgToMsgID(msgToSend, 
+                                                                            telegramSendMsg(msg=msgLongShort, 
+                                                                            reply_markup=msgToSend['reply_markup'], # telegram conversation has to modify message reply markup
+                                                                            chat_id=CHATID, 
+                                                                            token=MY_TELEGRAM_TOKEN, 
+                                                                            parse_mode=telegram.ParseMode.HTML)))
+                                        loggerWS.info("Message renewed: %s/%s id: %s" % (msgToSend['slug'], msgToSend['function'],msgToSend['message_id']))
+                                        self.botData['bot']['toDelete'].append(message)
+                                        self.botData['bot']['messageID'].remove(message)
+                                    except:
+                                        loggerWS.error("ThreadHdlBot - Message could not be renewed: %s/%s" % (message['slug'], message['function'])) 
+                            else:
+                                loggerWS.debug("Message to edit: %s/%s id: %s" % (message['slug'], message['function'], message['message_id']))
+                                if message['printInfo'] != None:
+                                    try:
+                                        telegramEditCapt(caption=msgLongShort, 
+                                                        message_id=message['message_id'], 
+                                                        reply_markup=message['reply_markup'], # telegram conversation has to modify message reply markup
+                                                        chat_id=CHATID, 
+                                                        token=MY_TELEGRAM_TOKEN, 
+                                                        parse_mode=telegram.ParseMode.HTML)
+                                        message['updTime'] = msgToSend['updTime']
+                                        loggerWS.debug("Caption edited: %s/%s with message ID: %s" % (msgToSend['slug'], msgToSend['function'],message['message_id']))
+                                    except:
+                                        loggerWS.info("ThreadHdlBot - Caption could not be edited: %s/%s message_id: %s" % (message['slug'], message['function'], message['message_id']))
+                                else:
+                                    try:
+                                        telegramEditMsg(msg=msgLongShort, 
+                                                        message_id=message['message_id'], 
+                                                        reply_markup=message['reply_markup'], # telegram conversation has to modify message reply markup
+                                                        chat_id=CHATID, 
+                                                        token=MY_TELEGRAM_TOKEN, 
+                                                        parse_mode=telegram.ParseMode.HTML)
+                                        message['updTime'] = msgToSend['updTime']
+                                        loggerWS.debug("Message edited: %s/%s with message ID: %s" % (msgToSend['slug'], msgToSend['function'],message['message_id']))
+                                    except:
+                                        loggerWS.error("ThreadHdlBot - Message could not be edited: %s/%s message_id: %s" % (message['slug'], message['function'], message['message_id']))
+                        break
+                if msgInList == False:
+                    with self.threadLock:
+                        try:
+                            msgID.append(self.setNewMsgToMsgID(msgToSend, 
+                                                                telegramSendMsg(msg=msgLongShort, 
+                                                                reply_markup=msgToSend['reply_markup'], # telegram conversation has to modify message reply markup
+                                                                chat_id=CHATID, 
+                                                                token=MY_TELEGRAM_TOKEN, 
+                                                                parse_mode=telegram.ParseMode.HTML)))
+                            loggerWS.debug("Message send: %s/%s and placed for edit to database" % (msgToSend['slug'], msgToSend['function']))
+                        except:
+                            loggerWS.error("setNewMsgToMsgID - Message could not be added: %s/%s" % (msgToSend['slug'], msgToSend['function']))
+        elif msgToDel != None:
+            msgDebugIn = msgToDel
+            timeDelThread(messageID=msgToDel['message_id'],
+                          delayTimeSelect=0)
+        self.checkCleanDatabase()
+        #self.debugMsgID(msgDebugIn) # ,slug=,function=) # to change for detail debug
+        self.threadWishState("active",threadItem)
+
+    def debugMsgID(self, msgDebugIn, slug=None, function=None):
+        if msgDebugIn != None:
+            loggerWS.info("START")
+            loggerWS.info("debugMsg: %s" % (msgDebugIn))
+            for message in self.botData['bot']['messageID']:
+                if slug == None and function == None:
+                    loggerWS.info("debugMsg - Message in database: %s/%s id: %s" % (message['slug'], message['function'], message['message_id']))
+                elif slug == msgDebugIn['slug'] and function == msgDebugIn['function']:
+                    loggerWS.info("debugMsg - Message in database, special for: %s/%s id: %s" % (message['slug'], message['function'], message['message_id']))
+            loggerWS.info("END")
+            
+    def checkCleanDatabase(self):
+        actTime = arrow.now()
+        timeLimit = actTime.shift(minutes=-10)
+        for msg in self.botData['bot']['messageID']:
+            if msg['updTime'] < timeLimit:
+                loggerWS.critical("checkCleanDatabase - Remove in database: %s/%s with time %s and limit %s" % (msg['slug'], 
+                                                                                                                   msg['function'], 
+                                                                                                                   msg['updTime'], 
+                                                                                                                   timeLimit)) 
+                with self.threadLock:
+                    self.botData['bot']['toDelete'].append(msg)
+                    self.botData['bot']['messageID'].remove(msg)
+        if self.nextMsgRenew < actTime:
+            self.nextMsgRenew = self.nextMsgRenew.shift(days=1)
+            self.addMsgToBot(slug="Bot",
+                             function="renewMessages",
+                             msg="⚠️♻️ <b>" + _("Renew message now. Next renew of messages") + " %s</b> ‼️" % self.nextMsgRenew.format('DD.MM.YYYY - HH:mm'),
+                             reply_markup=None,
+                             vidPic=None,
+                             priority=True,
+                             botMsg=True,
+                             singleMsg=True, 
+                             delTime=20
+                             ) 
+            loggerWS.info("Update all long term messages. Next update at: %s" % self.nextMsgRenew.format('DD.MM.YYYY - HH:mm'))
+            for item in self.botData['bot']['messageID']:
+                with self.threadLock:
+                    item['newMessageID'] = True
+
+    def checkPrinterInMessageID(self, slug):
+        for printer in self.botData['bot']['messageID']:
+            if printer['slug'] == slug and printer['function'] == "printer":
+                return True
+        return False
+
+    def msgPrinter(self):
+        threadItem = threading.current_thread()
+        slug = threadItem.slug
+        listPrinters = self.getPrinterDataStorage(slug, "listPrinter")
+        if listPrinters != "Error":
+            if listPrinters['online'] == 0 or listPrinters['active'] == False:
+                msgShort = "<b>/%s" % slug + "</b>\n"
+                if listPrinters['active'] == False:
+                    msgShort = "<s>/%s" % slug + "</s>\n"
+                msgShort += "<code>" + _("Update: %s at %s") % (arrow.now().format('DD.MM.YYYY'), arrow.now().format('HH:mm:ss')) + "</code>\n"
+                msgShort += "<pre><code>💤 " + _("Switched off") + "</code></pre>"
+                msgLong = msgShort
+                self.threadWishState("off",threadItem)
+            else:
+                msgBasis = "<b>/%s" % slug + "</b>\n"
+                msgBasis += "<code>" + _("Update: %s at %s") % (arrow.now().format('DD.MM.YYYY'), arrow.now().format('HH:mm:ss')) + "</code>\n"
+                msgLong = ""
+                msgShort = msgBasis
+                stateLists = self.getPrinterDataStorage(slug, "stateList")
+                if stateLists != "Error":
+                    if listPrinters['job'] == "none":
+                        statExtr, msgExtr = self.getExtruderStatus(slug, stateLists)
+                        statHeatb, msgHeatb = self.getHeatbedStatus(slug, stateLists)
+                        if statExtr or statHeatb:
+                            msgShort += msgExtr
+                            msgShort += msgHeatb
+                        else:
+                            msgShort += "<i>🅿️ " + _("Standby") + "</i>"
+                        msgLong = msgShort
+                        self.threadWishState("idle",threadItem)
+                    else:
+                        msgF = self.checkFanssStatus(stateLists['fans'])
+                        statusC, msgC = self.checkChambersStatus(stateLists['heatedChambers'])
+                        statusHB, msgHB = self.checkHeatedBedsStatus(stateLists['heatedBeds'])
+                        statusE, msgE = self.checkExtrudersStatus(stateLists['extruder'])
+                        msgLong = msgBasis 
+                        if statusC and statusHB and statusE:
+                            msgLong += "<u><b>" + _("Print file") + ":</b></u>\n"
+                            msgLong += "<b>\"%s\"</b>\n" % listPrinters['job'] 
+                            msgLong += "<b>" + _("is at") + "</b> <i>%.1f</i>%%\n" % listPrinters['done']
+                            msgLong += "<b>" + _("Layer:") + "</b> <i>%s/%s</i> <b>" % (stateLists['layer'], listPrinters['ofLayer']) + _("at Z:") + "</b> <i>%.3fmm</i>\n" % stateLists['z']
+                            msgLong += "<b>" + _("Expected end at") + ":</b> <i>%s</i>\n" % arrow.get(int(listPrinters['start']) + int(listPrinters['printTime'])).format('DD.MM.YYYY - HH:mm')
+                            msgLong += "<b>" + _("Print was started") + ":</b> <i>%s</i>\n" % arrow.get(int(listPrinters['start'])).format('DD.MM.YYYY - HH:mm') # getTimeGone(int(listPrinters['start']))
+                            msgLong += "\n<u><b>" + _("Printer state") + ":</b></u>\n"
+                            msgLong += "<b>⚙️ " + _("Print speed") + ":</b> <i>%s%%</i> " % (stateLists['speedMultiply']) + "💧 <b>" + _("Flow") + ":</b> <i>%s%%</i>\n" % (stateLists['flowMultiply'])
+                            msgLong += msgF
+                            if len(stateLists['heatedChambers']) > 0:
+                                msgLong += msgC
+                            if len(stateLists['heatedBeds']) > 0:
+                                msgLong += msgHB
+                            if len(stateLists['extruder']) > 0:
+                                msgLong += msgE
+                        else:
+                            msgLong += "<u><b>🔥 " + _("Heat up phase:") + ":</b></u>\n"
+                            msgLong += msgF
+                            if len(stateLists['heatedChambers']) > 0:
+                                msgLong += msgC
+                            if len(stateLists['heatedBeds']) > 0:
+                                msgLong += msgHB
+                            if len(stateLists['extruder']) > 0:
+                                msgLong += msgE
+                        if statusC and statusHB and statusE:
+                            msgShort += "<b>🖨 " + _("Printing") + ": \"%s\"</b>\n<i>%.1f%%</i> ~ <i>%s</i>" % (listPrinters['job'], listPrinters['done'], arrow.get(int(listPrinters['start']) + int(listPrinters['printTime'])).format('DD.MM.YYYY - HH:mm')) + "\n"
+                        else:
+                            msgShort += "<u><b>🔥 " + _("Heat up phase:") + ":</b></u>\n" + msgC + msgHB + msgE
+                        self.threadWishState("active",threadItem)
+                else:
+                    loggerWS.error("Could not run msgPrinter stateList. No datas available for %s" % threadItem.name)
+            msg = {}
+            msg['msgLong'] = msgLong
+            msg['msgShort'] = msgShort
+            loggerWS.debug("msgPrinter msg long and short only for debug purpose. have to remove...\n%s" % msg)
+            self.addMsgToBot(slug=slug,
+                             function=threadItem.function,
+                             msg=msg,
+                             reply_markup=None,
+                             vidPic=None,
+                             priority=False,
+                             botMsg=False,
+                             singleMsg=False, 
+                             delTime=1)
+        else:
+            loggerWS.error("Could not run msgPrinter listPrinters. No datas available for %s" % threadItem.name)
+        return True
+        
+    def checkFanssStatus(self, fans):
+        feedbackMsg = ""
+        if len(fans) > 0:
+            for i in range(0, len(fans)):
+                fan = fans[i]
+                if fan['on']:
+                    fanSpeed = 100 * fan['voltage'] / 255
+                    feedbackMsg += "<b>🌬 " + _("Fan") + " %d:</b> <i>%.0f%%</i>\n" % (i+1, fanSpeed)
+                else:
+                    feedbackMsg += "<b>🌬 " + _("Fan") + " %d:</b> <i>" % (i+1) + _("Off")  + "</i>\n"
+        return feedbackMsg
+
+    def checkChambersStatus(self, chambers):
+        feedbackMsg = ""
+        feedback = True
+        if len(chambers) > 0:
+            for i in range(0, len(chambers)):
+                chamber = chambers[i]
+                if chamber['tempRead'] > (chamber['tempSet'] - 10) and chamber['tempRead'] < (chamber['tempSet'] + 10):
+                    feedbackMsg += "<b>🔆 " + _("Chamber") + " %d:</b> <i>%.1f °C<b>/</b> %.1f °C</i>\n" % (i+1, chamber['tempRead'], chamber['tempSet'])
+                else:
+                    feedbackMsg += "<b>🔆 " + _("Chamber") + " %d:</b> <i>%.1f °C<b>/</b> %.1f °C</i>\n" % (i+1, chamber['tempRead'], chamber['tempSet'])
+                    feedback = False
+        return feedback, feedbackMsg
+
+    def checkHeatedBedsStatus(self, heatBeds):
+        feedbackMsg = ""
+        feedback = True
+        if len(heatBeds) > 0:
+            for i in range(0, len(heatBeds)):
+                heatBed = heatBeds[i]
+                if heatBed['tempRead'] > (heatBed['tempSet'] - 10) and heatBed['tempRead'] < (heatBed['tempSet'] + 10):
+                    feedbackMsg += "<b>♨️ " + _("Heatbed") + " %d:</b> <i>%.1f °C<b>/</b> %.1f °C</i>\n" % (i+1, heatBed['tempRead'], heatBed['tempSet'])
+                else:
+                    feedbackMsg += "<b>♨️ " + _("Heatbed") + " %d:</b> <i>%.1f °C<b>/</b> %.1f °C</i>\n" % (i+1, heatBed['tempRead'], heatBed['tempSet'])
+                    feedback = False
+        return feedback, feedbackMsg
+
+    def checkExtrudersStatus(self, extruders):
+        feedbackMsg = ""
+        feedback = True
+        if len(extruders) > 0:
+            for i in range(0, len(extruders)):
+                extruder = extruders[i]
+                if extruder['tempRead'] > (extruder['tempSet'] - 10) and extruder['tempRead'] < (extruder['tempSet'] + 10):
+                    feedbackMsg += "<b>🔥 " + _("Extruder") + " %d:</b> <i>%.1f °C<b>/</b> %.1f °C</i>\n" % (i+1, extruder['tempRead'], extruder['tempSet'])
+                else:
+                    feedbackMsg += "<b>🔥 " + _("Extruder") + " %d:</b> <i>%.1f °C<b>/</b> %.1f °C</i>\n" % (i+1, extruder['tempRead'], extruder['tempSet'])
+                    feedback = False
+        
+        return feedback, feedbackMsg
+
+    def getExtruderStatus(self, slug, stateList):
+        messageBuffer = ""
+        printerConfig = self.botData['printers'][slug]['config']
+        extrTempLimit = printerConfig['extrCoolTemp']
+        extrAboveTempLimit = False
+        extrHeating = False
+        for i in range(0, len(stateList['extruder'])):
+            statHotCold = True
+            extruder = stateList['extruder'][i]
+            if extruder['tempRead'] >= extrTempLimit or extruder['tempSet'] != 0:
+                if extruder['tempSet'] != 0:
+                    messageBuffer += "<b>" + _("Extruder") + " %d:</b> <i>%.1f °C<b>/</b> %.1f °C</i>\n" % (i+1, extruder['tempRead'], extruder['tempSet'])
+                    extrHeating = True
+                else:
+                    messageBuffer += "<b>" + _("Extruder") + " %d:</b> <i>%.1f °C</i>\n" % (i+1, extruder['tempRead'])
+                extrAboveTempLimit = True
+        if extrAboveTempLimit:
+            if extrHeating:
+                if len(stateList['extruder']) > 1:
+                    messageBuffer += "<b>🔥 " + _("Extruders heating up") + "</b>\n"
+                else:
+                    messageBuffer += "<b>🔥 " + _("Extruder heating up") + "</b>\n"
+            else:
+                if len(stateList['extruder']) > 1:
+                    messageBuffer += "<b>🆒 " + _("Extruders cooling down") + "</b>\n"
+                else:
+                    messageBuffer += "<b>🆒 " + _("Extruder cooling down") + "</b>\n"
+        else:
+            statHotCold = False
+            messageBuffer += "<i>❄️ " + _("Extruder(s) cold") + "</i>\n"
+        return statHotCold, messageBuffer
+
+    def getHeatbedStatus(self, slug, stateList):
+        messageBuffer = ""
+        printerConfig = self.botData['printers'][slug]['config']
+        heatbTempLimit = printerConfig['heatbCoolTemp']
+        heatbAboveTempLimit = False
+        heatbHeating = False
+        for i in range(0, len(stateList['heatedBeds'])):
+            statHotCold = True
+            heatbed = stateList['heatedBeds'][i]
+            if heatbed['tempRead'] >= heatbTempLimit or heatbed['tempSet'] != 0:
+                if heatbed['tempSet'] != 0:
+                    messageBuffer += "<b>" + _("Heatbed") + " %d:</b> <i>%.1f °C<b>/</b> %.1f °C</i>\n" % (i+1, heatbed['tempRead'], heatbed['tempSet'])
+                    heatbHeating = True
+                else:
+                    messageBuffer += "<b>" + _("Heatbed") + " %d:</b> <i>%.1f °C</i>\n" % (i+1, heatbed['tempRead'])
+                heatbAboveTempLimit = True
+        if heatbAboveTempLimit or heatbHeating:
+            if heatbHeating:
+                if len(stateList['heatedBeds']) > 1:
+                    messageBuffer += "<b>♨️ " + _("Heatbeds heating up") + "</b>"
+                else:
+                    messageBuffer += "<b>♨️ " + _("Heatbed heating up") + "</b>"
+            else:
+                if len(stateList['heatedBeds']) > 1:
+                    messageBuffer += "<b>🆒 " + _("Heatbeds cooling down") + "</b>"
+                else:
+                    messageBuffer += "<b>🆒 " + _("Heatbed cooling down") + "</b>"
+        else:
+            statHotCold = False
+            messageBuffer += "<i>❄️ " + _("Heatbed(s) cold") + "</i>\n"
+        return statHotCold, messageBuffer
+
+    def webcamHandler(self):
+        threadItem = threading.current_thread()
+        slug = threadItem.slug
+        type = threadItem.type
+        queryData = threadItem.queryData
+        webcamSelect = threadItem.webcamSelect
+        captionSelect = threadItem.captionSelect
+        captionText = threadItem.captionText
+        if queryData != None:
+            cam = int(queryData.split()[2])
+            cam = cam-1
+        else:
+            cam = webcamSelect-1
+        listPrinters = self.getPrinterDataStorage(slug, "listPrinter")
+        printerConfig = self.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+        webcam = printerConfig['webcams'][cam]
+        if type == "pic":
+            pngDir = os.path.join(PNGFILEFOLDER, slug)
+            filePathPng = pathlib.Path(pngDir)
+            filePathPng.mkdir(parents=True, exist_ok=True)
+            loggerWS.info("Starting getting picture for %s" % slug)
+            for eachFileInPath in pathlib.Path(pngDir).glob('*.png'):
+                loggerWS.debug("Delete %s" % eachFileInPath)
+                eachFileInPath.unlink()
+            telegramChatAction(action=telegram.ChatAction.RECORD_VIDEO, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+            pathToVidGif = self.get_img(webcam, slug, pngDir)
+            if pathToVidGif == "Error":
+                loggerWS.error("Could not retrieve picture filename for %s" % slug)
+                self.abortVidGif(slug)
+                return
+            loggerWS.info("Png received for %s" % slug)        
+        elif type == "gif":
+            gifDir = os.path.join(GIFFILEFOLDER, slug)
+            filePathGif = pathlib.Path(gifDir)
+            filePathGif.mkdir(parents=True, exist_ok=True)
+            for eachFileInPath in pathlib.Path(gifDir).glob('*.png'):
+                loggerWS.debug("Delete %s" % eachFileInPath)
+                eachFileInPath.unlink()
+            for eachFileInPath in pathlib.Path(gifDir).glob('*.gif'):
+                loggerWS.debug("Delete %s" % eachFileInPath)
+                eachFileInPath.unlink()
+            telegramChatAction(action=telegram.ChatAction.RECORD_VIDEO, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+            pathToVidGif = self.get_gif(webcam, slug, gifDir)
+            if pathToVidGif == "Error":
+                loggerWS.error("Could not retrieve gif filename for %s" % slug)
+                self.abortVidGif(slug)
+                return
+            loggerWS.info("Gif received for %s" % slug)
+            for eachFileInPath in pathlib.Path(gifDir).glob('*.png'):
+                eachFileInPath.unlink()
+        elif type == "vid":
+            vidDir = os.path.join(VIDFILEFOLDER, slug)
+            filePathVid = pathlib.Path(vidDir)
+            filePathVid.mkdir(parents=True, exist_ok=True)
+            for eachFileInPath in pathlib.Path(vidDir).glob('*.avi'):
+                loggerWS.debug("Delete %s" % eachFileInPath)
+                eachFileInPath.unlink()
+            telegramChatAction(action=telegram.ChatAction.RECORD_VIDEO, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+            pathToVidGif = self.get_vid(webcam, slug, vidDir)
+            if pathToVidGif == "Error":
+                loggerWS.error("Could not retrieve video filename for %s" % slug)
+                self.abortVidGif(slug)
+                return
+            loggerWS.info("Video received for %s" % slug)
+        else:
+            loggerWS.error("Requested webcam process unknown: %s" % type)
+            return
+        caption='<b>/%s</b>' % slug 
+        if type == "pic":
+            caption+= " 📸\n"
+        elif type == "gif":
+            caption+= " 📽\n"
+        elif type == "vid":
+            caption+= " 🎦\n"
+        if queryData == None:
+            if captionSelect == "endOfPrint":
+                caption += "📣🏁 <i>" + _("Finished print of") + " <b>\"%s\" </b>" % captionText['textField1']+ " - %s</i>" % arrow.now().format('DD.MM.YYYY - HH:mm')
+            if captionSelect == "startOfPrint":
+                caption += "📣🎬 <i>" + _("Starting print of") + " <b>\"%s\" </b>" % captionText['textField1']+ " - %s</i>" % arrow.now().format('DD.MM.YYYY - HH:mm')
+        else:
+            if listPrinters['job'] != "none":
+                caption += "<i>🖨 " + _("Prints") + " <b>\"%s\"</b> " % listPrinters['job'] + _("at") + " %.1f%%" % listPrinters['done'] + "</i>" 
+            else:
+                if listPrinters['online'] == 1:
+                    caption += "<i>🅿️ " + _("Standby") + "</i>" 
+                else:
+                    caption += "<i>😴 " + _("Switched off") + "</i>"
+        loggerWS.info("Caption ready for %s in path: %s" % (slug, pathToVidGif))
+        msg = {}
+        msg['path'] = pathToVidGif
+        msg['caption'] = caption
+        self.addMsgToBot(slug=slug,
+                            function=type+"Request",
+                            msg=msg,
+                            reply_markup=None,
+                            vidPic=type,
+                            priority=False,
+                            botMsg=True,
+                            singleMsg=False,
+                            ) 
+        loggerWS.info("%s send for %s" % (type, slug))
+        self.pushAllMsgToFront()
+  
+    def get_img(self, webcam, slug, pngDir):
+        try:
+            realUrlServer = self.getUrl(webcam['staticUrl'])
+        except:
+            loggerWS.error("Request error in getUrl of get_image for printer: %s" % slug)
+            self.abortVidGif(slug)
+            return "Error"
+        imageName = slug + ".png"
+        try:
+            image = requests.get(realUrlServer)
+        except OSError:  
+            loggerWS.error("Request error in requests of get_image for printer: %s" % slug)
+            return "Error"
+        if image.status_code == 200:  # we could have retrieved error page
+            with open(os.path.join(pngDir, imageName), "wb") as f:
+                f.write(image.content)
+            if webcam['orientation'] != 0:
+                img = cv2.imread(os.path.join(pngDir, imageName))
+                if webcam['orientation'] == 90:
+                    img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+                elif webcam['orientation'] == 270:
+                    img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                elif webcam['orientation'] == 180:
+                    img = cv2.rotate(img, cv2.ROTATE_180)
+                status = cv2.imwrite(os.path.join(pngDir, imageName),img)
+            return os.path.join(pngDir, imageName)
+        else:
+            loggerWS.error("Bad http request in get_image for printer: %s" % slug)
+            self.abortVidGif(slug)
+            return "Error"
+
+    def get_gif(self, webcam, slug, gifDir):
+        try:
+            realUrlServer = self.getUrl(webcam['staticUrl'])
+        except:
+            loggerWS.error("Request error in getUrl of get_image for printer: %s" % slug)
+            self.abortVidGif(slug)
+            return "Error"
+        for i in range(0,20):
+            imageName = slug + str(i)+".png" 
+            try:
+                image = requests.get(realUrlServer)
+            except OSError:  
+                loggerWS.error("Request error in requests of get_gif for printer: %s" % slug)
+                return "Error"
+            if image.status_code == 200:  # we could have retrieved error page
+                with open(os.path.join(gifDir, imageName), "wb") as f:
+                    f.write(image.content)
+                if webcam['orientation'] != 0:
+                    img = cv2.imread(os.path.join(gifDir, imageName))
+                    if webcam['orientation'] == 90:
+                        img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+                    elif webcam['orientation'] == 270:
+                        img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                    elif webcam['orientation'] == 180:
+                        img = cv2.rotate(img, cv2.ROTATE_180)
+                    status = cv2.imwrite(os.path.join(gifDir, imageName),img)
+                time.sleep(0.25)
+        telegramChatAction(action=telegram.ChatAction.RECORD_VIDEO_NOTE, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+        gifName = slug + ".gif"
+        try:
+            with imageio.get_writer(os.path.join(gifDir, gifName), mode='I') as writer:
+                for fileName in os.listdir(gifDir):
+                    if fileName.endswith('.png'):
+                        filePathPng = os.path.join(gifDir, fileName)
+                        cv2.imwrite(filePathPng, cv2.resize(cv2.imread(filePathPng), (350, 290), interpolation = cv2.INTER_AREA))
+                        writer.append_data(imageio.imread(filePathPng))
+        except:
+            loggerWS.error("Gif creation in imageio.mimsave in buildGif for printer: %s failed" % slug)
+            self.abortVidGif(slug)
+            return "Error"
+        try:
+            optimize(os.path.join(gifDir, gifName))
+            return os.path.join(gifDir, gifName)
+        except TypeError as err:
+            loggerWS.error("TypeError at gifsicle in buildGif: %s" % err)
+        except:
+            loggerWS.error("Could not optimize in buildGif gifsicle for printer: %s" % slug)
+        return "Error"
+
+    def get_vid(self, webcam, slug, vidDir):
+        try:
+            realUrlServer = self.getUrl(webcam['dynamicUrl'])
+        except:
+            loggerWS.error("Request error in getUrl of get_image for printer: %s" % slug)
+            return "Error"
+        fps = 24
+        width = 320
+        height = 270
+        videoCodec = cv2.VideoWriter_fourcc(*'XVID')
+        videoName = slug + ".avi"
+        cap = cv2.VideoCapture(realUrlServer)
+        ret = cap.set(3, width)
+        ret = cap.set(4, height)
+        videoFile = os.path.join(vidDir, videoName)
+        vidWriter = cv2.VideoWriter(
+                                videoFile, 
+                                videoCodec, 
+                                fps, 
+                                (int(cap.get(3)), int(cap.get(4)))
+                                )
+        vidStart = time.time()
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if webcam['orientation'] != 0:
+                if webcam['orientation'] == 90:
+                    frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                elif webcam['orientation'] == 270:
+                    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                elif webcam['orientation'] == 180:
+                    frame = cv2.rotate(frame, cv2.ROTATE_180)
+            if ret == True:
+                if time.time() - vidStart > 20:
+                    break 
+                vidWriter.write(frame)
+            else:
+                loggerWS.error("Stream could not be read in get_Vid for printer: %s" % slug)
+                return "Error"
+        cap.release()
+        return videoFile
+        
+    def getUrl(self, url):
+        repetierUrl = urlparse(url)
+        realUrlServer = repetierUrl._replace(netloc=RepetierServerIP + ":" + str(repetierUrl.port))
+        realUrlServer = realUrlServer.geturl()
+        return realUrlServer
+
+    def abortVidGif(self, slug):
+        self.addMsgToBot(slug=slug,
+                            function="vidGifAbort",
+                            msg="📵 <b>" + _("Error on the picture/video request") % slug + "</b>",
+                            reply_markup=None,
+                            vidPic=None,
+                            priority=False,
+                            botMsg=True,
+                            singleMsg=True,
+                            ) 
+
+    def modelManager(self): 
+        # MODELFILEFOLDER = os.path.join(os.getcwd(), 'mod') 
+        # # self.botData['printers'][slug]
+        # # self.botData['bot']['messageID']....['vidPic'] 
+        # # setNewPrintInfo(self, msg, id=None, actPrint=None) 
+        # # resetPrintInfo(self, msg) -> msg['printInfo']['id'] -> msg['printInfo']['actPrint']
+        # listModels
+        threadItem = threading.current_thread()
+        for slug in self.botData['printers']:
+            filePathModel= pathlib.Path(os.path.join(MODELFILEFOLDER, slug))
+            filePathModel.mkdir(parents=True, exist_ok=True)
+            listModels = self.getPrinterDataStorage(slug, "listModels")
+            listPrinters = self.getPrinterDataStorage(slug, "listPrinter")
+            newRenderImage = self.getPrinterDataStorage(slug, "newRenderImage")
+            newRenderImageID = newRenderImage['id']
+            data = {}
+            data['id'] = None
+            self.setPrinterData(slug, "newRenderImage", data)
+            for model in listModels['data']:
+                if model['analysed'] == 1:
+                    loggerWS.debug("modelManager - listModels - Printer: %s, model: %s analysed" % (slug,model['name']))
+                    filename = str(model['id']) + '.png'
+                    fileIDToCheck = os.path.join(filePathModel, filename)                    
+                    if not os.path.exists(fileIDToCheck) or model['id'] == newRenderImageID:
+                        if not self.getModelPic(slug, model['id'], fileIDToCheck, "models", "m"):
+                            loggerWS.error("modelManager - listModels - Printer: %s, model: %s file not downloaded: %s" % (slug,model['name'], fileIDToCheck))
+                            continue
+                        if model['id'] == newRenderImageID:
+                            msg = "<i>" + _("Model") + " \"%s\" " % (model['name'])  + _("finished rendering for printer %s.") %(listPrinters['name']) + "</i>"
+                            self.addMsgToBot(slug="Bot",
+                                             function="newModelRendered",
+                                             msg=msg,
+                                             reply_markup=None,
+                                             vidPic=None,
+                                             priority=False,
+                                             botMsg=True,
+                                             singleMsg=True, 
+                                             delTime=5
+                                             )
+                        else:
+                            msg = "<i>" + _("Model") + " \"%s\" " % (model['name'])  + _("uploaded to printer %s.") %(listPrinters['name']) + "</i>"
+                            self.addMsgToBot(slug="Bot",
+                                             function="newModelAdded",
+                                             msg=msg,
+                                             reply_markup=None,
+                                             vidPic=None,
+                                             priority=False,
+                                             botMsg=True,
+                                             singleMsg=True, 
+                                             delTime=5
+                                             )
+                else:
+                    loggerWS.info("modelManager - listModels - Printer: %s, model: %s not analysed till now" % (slug,model['name']))
+            for eachFileInPath in pathlib.Path(filePathModel).glob('*.png'):
+                fileToDelete = True
+                for model in listModels['data']:
+                    if model['id'] == int(os.path.splitext(os.path.basename(eachFileInPath))[0]): 
+                        fileToDelete = False
+                if fileToDelete:
+                    eachFileInPath.unlink()
+                    msg = "<i>" + _("Model removed from printer %s.") %(listPrinters['name']) + "</i>"
+                    self.addMsgToBot(slug="Bot",
+                                    function="delModelAdded",
+                                    msg=msg,
+                                    reply_markup=None,
+                                    vidPic=None,
+                                    priority=False,
+                                    botMsg=True,
+                                    singleMsg=True, 
+                                    delTime=5
+                                    )
+            if listPrinters['job'] != "none" and self.checkPrinterInMessageID(slug):
+                filePathPrint= pathlib.Path(os.path.join(filePathModel, 'print'))
+                filePathPrint.mkdir(parents=True, exist_ok=True)
+                if listPrinters['analysed'] == 1:
+                    loggerWS.debug("modelManager - listJobs - Printer: %s, model: %s analysed" % (slug, listPrinters['jobid']))
+                    filename = str(listPrinters['job']) + '.png'
+                    fileIDToCheck = os.path.join(filePathPrint, filename)
+                    if not os.path.exists(fileIDToCheck) or listPrinters['jobid'] == newRenderImageID:
+                        if not self.getModelPic(slug, listPrinters['jobid'], fileIDToCheck, "jobs", "m"):
+                            loggerWS.error("modelManager - listJobs - Printer: %s, model: %s file not downloaded: %s" % (slug, listPrinters['jobid'], fileIDToCheck))
+                            continue
+                        msgSwitchOver = "<i>" + _("Load preview picture") + ".....</i>"
+                        msg = {}
+                        msg['msgLong'] = msgSwitchOver
+                        msg['msgShort'] = msgSwitchOver
+                        msg['id'] = listPrinters['jobid']
+                        msg['actPrint'] = fileIDToCheck
+                        self.addMsgToBot(slug=slug,
+                                        function="printer",
+                                        msg=msg,
+                                        reply_markup=None,
+                                        vidPic=None,
+                                        priority=True,
+                                        botMsg=False,
+                                        singleMsg=False, 
+                                        delTime=5,
+                                        modMsg="print_pic")
+                        loggerWS.info("modelManager - send new print preview picture - Printer: %s, model id: %s not analysed till now" % (slug, listPrinters['jobid']))
+                else:
+                    loggerWS.info("modelManager - listJobs - Printer: %s, model: %s not analysed till now" % (slug, listPrinters['jobid']))
+            else:
+                filePathPrint= pathlib.Path(os.path.join(filePathModel, 'print'))
+                filePathPrint.mkdir(parents=True, exist_ok=True)
+                for eachFileInPath in pathlib.Path(filePathPrint).glob('*.png'):
+                    eachFileInPath.unlink()
+                    msgSwitchOver = "<i>" + _("Delete preview picture") + ".....</i>"
+                    msg = {}
+                    msg['msgLong'] = msgSwitchOver
+                    msg['msgShort'] = msgSwitchOver
+                    msg['id'] = None
+                    self.addMsgToBot(slug=slug,
+                                    function="printer",
+                                    msg=msg,
+                                    reply_markup=None,
+                                    vidPic=None,
+                                    priority=True,
+                                    botMsg=False,
+                                    singleMsg=False, 
+                                    delTime=1,
+                                    modMsg="print_pic")
+                    loggerWS.info("modelManager - listJobs - print pic file removed %s." % (eachFileInPath))
+        self.threadWishState("idle",threadItem)
+
+    def getModelPic(self, slug, id, file, type, size):
+        try:
+            realUrlServer = self.getModelUrl(slug, id, type, size) # http://192.168.100.44/dyn/render_image?q=models&id=72&slug=Anycubic_i3_Mega_S&t=s
+        except:
+            loggerWS.error("getModelPic - URL request error for printer: %s/id: %d" % (slug,id))
+            return False
+        try:
+            image = requests.get(realUrlServer)
+        except OSError:  
+            loggerWS.error("getModelPic - Request requests error for printer: %s/id: %d" % (slug,id))
+            return False
+        if image.status_code == 200:  # we could have retrieved error page
+            with open(file, "wb") as f:
+                f.write(image.content)
+        else:
+            loggerWS.error("getModelPic - Writing file error for printer: %s/id: %d" % (slug,id))
+            return False
+        return True
+
+    def getModelUrl(self, slug, id, type, size):
+        # Model http://192.168.100.44/dyn/render_image?q=models&id=72&slug=Anycubic_i3_Mega_S&t=m -> small t=l / medium t=m / t=l -> large 
+        # Print http://192.168.100.44/dyn/render_image?q=jobs&id=11&slug=Anycubic_i3_Mega_S&t=m
+        realUrlServer = "http://" + RepetierServerIP + "/dyn/render_image?q=" + type + "&id=" + str(id) + "&slug=" + slug + "&t=" + size
+        return realUrlServer
+
+    def getModelFileLocation(self, slug, id):
+        filePathModel= pathlib.Path(os.path.join(MODELFILEFOLDER, slug))
+        filename = str(id) + '.png'
+        fileLocation = os.path.join(filePathModel, filename)
+        return fileLocation
+
+    def ThreadSend(self):
+        threadItem = threading.current_thread()
+        webs = self.botData['server']['websocket']
+        if not webs['actWS'].connected:
+            with self.threadLock:
+                if self.wsWebsocket() == 'Error':
+                    loggerWS.error("ThreadSend: Could not reestablish websocket")
+                    return
+                else:
+                    loggerWS.info("ThreadSend: Could reestablish websocket")
+        if webs['actWS'].connected:
+            try:
+                result = webs['actWS'].send(self.sendCommand)
+                result = webs['actWS'].send(self.encCommand(action = "listPrinter", callback_id = self.messageCntHndl(None, "listPrinter"), printer = "", data = {}))
+                result = webs['actWS'].send(self.encCommand(action = "stateList", callback_id = self.messageCntHndl(None, "stateList"), printer = "", data = {}))
+            except:
+                loggerWS.error("ThreadSend: %s - unexpected error: %s" % (RepetierServerIP, sys.exc_info()[0]))
+                return "Error"
+            with self.threadLock:
+                for sendCom in self.botData['server']['websocket']['dataSendBuffer']:
+                    try:
+                        result = webs['actWS'].send(sendCom)
+                        self.botData['server']['websocket']['dataSendBuffer'].remove(sendCom)
+                    except:
+                        loggerWS.error("ThreadSend: %s/%s - unexpected error: %s" % (RepetierServerIP, sendCom, sys.exc_info()[0]))
+            loggerWS.debug("Thread Send aktiv")
+        self.threadWishState("active",threadItem)
+        
+    def ThreadRec(self):
+        threadItem = threading.current_thread()
+        webs = self.botData['server']['websocket']
+        if webs['actWS'].connected:
+            try:
+                resServ = webs['actWS'].recv()  
+            except:
+                loggerWS.error("ThreadRec unexpected error: %s" % sys.exc_info()[0])
+                webs['actWS'].close()
+                return "Error"
+            with self.threadLock:
+                self.botData['server']['websocket']['dataReceiveBuffer'].append(resServ)
+            loggerWS.debug("Thread Rec aktiv")
+        self.threadWishState("active",threadItem)            
+        
+    def messageCntHndl(self, slug, action):
+        webs = self.botData['server']['websocket']
+        webs['msgCnt']
+        webs['msgCnt'] += 1    
+        if webs['msgCnt'] >= 20000:
+            webs['msgCnt'] = 10000
+        dataSet = {}
+        dataSet['callback_id'] = webs['msgCnt']
+        dataSet['slug'] = slug
+        dataSet['action'] = action
+        with self.threadLock:
+            self.botData['server']['websocket']['msgCntHandler'].append(dataSet)
+        loggerWS.debug("msgCntHndl - Request %s/%s with ID: %s" % (slug,action,webs['msgCnt']))
+        return webs['msgCnt']
+
+    def getMessageCntAction(self, callback_id):
+        webs = self.botData['server']['websocket']
+        slug = None
+        action = None
+        for cntAction in webs['msgCntHandler']:
+            if callback_id == cntAction['callback_id']:
+                slug = cntAction['slug']
+                action = cntAction['action']
+                with self.threadLock:
+                    webs['msgCntHandler'].remove(cntAction)
+        for cntCheck in webs['msgCntHandler']:
+            if webs['msgCnt'] - cntCheck['callback_id'] == 100 or webs['msgCnt'] - cntCheck['callback_id'] == -9900 :
+                loggerWS.debug("getMessageCntAction - CallbackID was deleted. Request was not answered by the server: %s" % cntCheck)
+                with self.threadLock:
+                    webs['msgCntHandler'].remove(cntCheck)
+        if slug == None and action == None:
+            loggerWS.debug("getMessageCntAction - CallbackID not found: %s" % callback_id)
+        return slug, action
+
+    def setPrinterDataStorage(self, dataset):
+        slug, action = self.getMessageCntAction(dataset['callback_id'])
+        if slug == None:
+            data = dataset['data']
+            if action == "listPrinter":
+                for printers in data:
+                    self.checkForAddPrinter(printers)
+                    loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\"" % (action, printers['slug']))
+                    self.setPrinterData(printers['slug'], action, printers)
+                    loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\" stored" % (action, printers['slug']))
+                self.checkForDelPrinters(data)
+            elif action == "stateList":
+                for printers in data:
+                    loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\"" % (action, printers))
+                    self.setPrinterData(printers, action, data[printers])
+                    loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\" stored" % (action, printers))
+            else:
+                loggerWS.error("setPrinterDataStorage - New %s dataset not recognized" % (action))
+        else:
+            loggerWS.debug("setPrinterDataStorage - New %s dataset for server/printer \"%s\"" % (action, slug))
+            data = dataset['data']
+            if action == "getPrinterConfig":
+                self.setPrinterData(slug, action, data)
+            elif action == "listExternalCommands":
+                self.setServerData(data, action)
+                sendMsgToBot(slug=slug, 
+                                function="listExternalCommands", 
+                                msg="<i>" + _("Checked for external Commands") + "</i>", 
+                                reply_markup=None,
+                                singleMsg=True,
+                                delTime=5)
+            elif action == "sendQuickCommand":
+                if data == {}:
+                    sendMsgToBot(slug=slug, 
+                                    function="sendQuickCommand", 
+                                    msg="<b>" + _("Quick command failed") + "</b>", 
+                                    reply_markup=None,
+                                    singleMsg=True,
+                                    delTime=5)
+                else:
+                    sendMsgToBot(slug=slug, 
+                                    function="sendQuickCommand", 
+                                    msg="<i>" + _("Quick command successful") + "</i>", 
+                                    reply_markup=None,
+                                    singleMsg=True,
+                                    delTime=5)
+            elif action == "runExternalCommand":
+                sendMsgToBot(slug=slug, 
+                                function="runExternalCommand", 
+                                msg="<i>" + _("External command successful") + "</i>", 
+                                reply_markup=None,
+                                singleMsg=True,
+                                delTime=5)
+            elif action == "messages":
+                self.setServerData(data, action)
+                if len(data) != 0:
+                    if self.botData['bot']['actConv'] != None:
+                        if self.botData['bot']['actConv']['slug'] == _("Messages") and self.botData['bot']['actConv']['function'] == "messages":
+                            sendMsgToBot(slug=_("Messages"), 
+                                            function="messages", 
+                                            msg="<b>" + _("Update messages required") + "...</b>", 
+                                            reply_markup=getMsgKeyboard())
+                        else: 
+                            sendMsgToBot(slug=_("Messages"), 
+                                            function="messages", 
+                                            msg="<b>" + _("Update messages required") + "...</b>", 
+                                            reply_markup=None)
+                    else: 
+                        sendMsgToBot(slug=_("Messages"), 
+                                        function="messages", 
+                                        msg="<b>" + _("Update messages required") + "...</b>", 
+                                        reply_markup=None)
+                    self.checkAddThread(threadPlace="server", thread=_("Messages"), function="messages", hdlType="messages", execute=self.servMsgAction)
+                else:
+                    self.removeThread(threadPlace="server", thread=_("Messages"), function="messages", hdlType="messages", msgAvail=True)
+                    sendMsgToBot(slug=_("Messages"), 
+                                    function="messages", 
+                                    msg="<i>" + _("Removing server info messages") + "</i>", 
+                                    reply_markup=None,
+                                    singleMsg=True,
+                                    delTime=5)
+            elif action == "removeMessage":
+                self.sendRecExtendedData(action="messages", slug="server", messageCntItem="messages")
+                sendMsgToBot(slug=slug, 
+                                function="removeMessage", 
+                                msg="<i>" + _("Message removed") + "</i>", 
+                                reply_markup=None,
+                                singleMsg=True,
+                                delTime=5)
+            elif action == "listModels":
+                loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\"" % (action, slug))
+                buffer = {}
+                buffer['data'] = data['data']
+                self.setPrinterData(slug, action, buffer)
+                loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data['data']))
+            elif action == "listJobs":
+                buffer = {}
+                buffer['data'] = data['data']
+                self.setPrinterData(slug, action, buffer)  
+                loggerWS.info("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data['data']))
+            else:
+                loggerWS.info("setPrinterDataStorage - New unknown dataset \"%s\" for printer %s: %s" % (action, slug, dataset))
+            loggerWS.debug("setPrinterDataStorage - New %s data set for printer \"%s\" stored" % (action, slug))
+     
+    def checkForAddPrinter(self, checkPrinter):
+        addPrinter = True
+        for printer in self.botData['printers']:
+            if checkPrinter['slug'] == printer:
+                self.checkAddThread(threadPlace='printers', 
+                                    thread=checkPrinter['slug'], 
+                                    function="printer", 
+                                    hdlType="printer", 
+                                    execute=self.msgPrinter)
+                addPrinter = False
+        if addPrinter:
+            loggerWS.info("checkForAddPrinter - Printer %s was added to the data base" % (checkPrinter['slug']))
+            newPrinterConfig = self.setPrinterRoot(checkPrinter['slug'], getNewPrinterConfig(slug = checkPrinter['slug'], name = checkPrinter['name']))
+            with self.threadLock:
+                self.botData['printers'].update(newPrinterConfig)
+            self.savePrinterConfigFile()
+            self.checkAddThread(threadPlace='printers', 
+                                thread=checkPrinter['slug'], 
+                                function="printer", 
+                                hdlType="printer", 
+                                execute=self.msgPrinter)
+            self.initPrinterActions(checkPrinter['slug'])
+
+    def setPrinterRoot(self, slug, config):
+        initPrinters = {}
+        initPrinters[slug] = {}
+        initPrinters[slug]['config'] = config
+        initPrinters[slug]['threads'] = {}
+        initPrinters[slug]['dataRepetier'] = {}
+        return initPrinters
+
+    def checkForDelPrinters(self, data):
+        for printer in self.botData['printers'].copy():
+            delPrinter = True
+            for avPrinters in data:
+                if avPrinters['slug'] == printer:
+                    delPrinter = False
+            if delPrinter:
+                with self.threadLock:
+                    try:
+                        element = self.botData['printers'].pop(printer)
+                        loggerWS.info("checkForDelPrinters - Printer %s was deleted from data base" % (element['dataRepetier']['listPrinter']['slug']))
+                        self.savePrinterConfigFile()
+                        self.removeThread(threadPlace='printers', 
+                                          thread=element['dataRepetier']['listPrinter']['slug'], 
+                                          function="printer", 
+                                          hdlType="printer")
+                    except KeyError:
+                        loggerWS.info("checkForDelPrinters - Could not delete printer %s from data base" % (printer))
+
+    def getPrinterDataStorage(self, slug, action):
+        try:
+            datas = self.botData['printers'][slug]['dataRepetier'][action] 
+            return datas
+        except:
+            loggerWS.error("getPrinterDataStorage - Dataset %s for printer \"%s\" not available" % (action, slug))
+            return "Error"
+
+    def getServerDataStorage(self, action):
+        try:
+            datas = self.botData['server']['dataRepetier'][action]
+            return datas
+        except:
+            loggerWS.error("getServerDataStorage - Server dataset %s is not available" % (action))
+            return "Error"
+
+    def getPrinterDataConfig(self, slug):
+        try:
+            datas = self.botData['printers'][slug]['config']
+            return datas
+        except:
+            loggerWS.error("getPrinterDataConfig - Config for printer \"%s\" not available" % (slug))
+            return "Error"
+
+    def setPrinterData(self, slug, action, data):
+        with self.threadLock:
+            try:
+                self.botData['printers'][slug]['dataRepetier'][action] = data
+                self.botData['printers'][slug]['dataRepetier'][action]['updTime'] = time.time()
+            except:
+                loggerWS.error("setPrinterData - Server dataset killed me: %s/%s - \ninside: %s" % (slug, action, data))
+        return data
+
+    def setServerData(self, data, action):
+        with self.threadLock:
+            self.botData['server']['dataRepetier'][action] = data
+        return data
+
+    def sendRecExtendedData(self, action="ping", slug="Plastich Bomber", data={}, messageCntItem=None):
+        # messageCntHndl(self, slug, action)
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = action, 
+                                                                                        callback_id = self.messageCntHndl(messageCntItem, action), 
+                                                                                        printer = slug, 
+                                                                                        data = data))
+        loggerWS.info("sendRecExtendedData - Sending request to Repetier-Server: %s/%s/%s" % (action,slug,data))
+        
+    def initPrinterActions(self, slug):
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "getPrinterConfig", 
+                                                                                        callback_id = self.messageCntHndl(slug, "getPrinterConfig"), 
+                                                                                        printer = slug, 
+                                                                                        data = {}))
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "listModels", 
+                                                                                        callback_id = self.messageCntHndl(slug, "listModels"), 
+                                                                                        printer = slug, 
+                                                                                        data = {}))
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "listJobs", 
+                                                                                        callback_id = self.messageCntHndl(slug, "listJobs"), 
+                                                                                        printer = slug, 
+                                                                                        data = {}))
+        loggerWS.info("initPrinterActions - Sending request to Repetier-Server")
+
+    def initServerActions(self):
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "listExternalCommands", 
+                                                                                        callback_id = self.messageCntHndl("listExternalCommands", "listExternalCommands"), 
+                                                                                        printer = "server", 
+                                                                                        data = {}))
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "messages", 
+                                                                                        callback_id = self.messageCntHndl("messages", "messages"), 
+                                                                                        printer = "server", 
+                                                                                        data = {}))
+        loggerWS.info("initServerActions - Sending request to Repetier-Server")
+    
+    def initPrinterConfigActions(self):
+        for slug in self.botData['printers']:
+            self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "getPrinterConfig", 
+                                                                                        callback_id = self.messageCntHndl(slug, "getPrinterConfig"), 
+                                                                                        printer = slug, 
+                                                                                        data = {}))
+            self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "listModels", 
+                                                                                        callback_id = self.messageCntHndl(slug, "listModels"), 
+                                                                                        printer = slug, 
+                                                                                        data = {}))
+            self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "listJobs", 
+                                                                                        callback_id = self.messageCntHndl(slug, "listJobs"), 
+                                                                                        printer = slug, 
+                                                                                        data = {}))
+        loggerWS.info("initPrinterConfigActions - Sending request to Repetier-Server")
+
+    def checkAddThread(self, threadPlace, thread, function, hdlType, execute):
+        threadActive = False
+        if threadPlace == "printers":
+            threadList = self.botData['printers'][thread]['threads']            
+        elif threadPlace == "server":
+            threadList = self.botData['server']['threads']
+        else:
+            threadActive = True
+            loggerWS.critical("checkAddThread - Thread request %s unknown for %s/%s" % (threadPlace, thread, function))
+        with self.threadLock:
+            try:
+                for threadItem in threadList:
+                    if threadItem == function:
+                        if not threadList[threadItem].is_alive():
+                            loggerWS.critical("checkAddThread - Restart dead thread %s/%s" % (thread, threadItem))
+                            threadList.pop(threadItem)
+                            newThread = {}
+                            newThread[function] = self.startActionThread(name=thread, 
+                                                                            slug=thread, 
+                                                                            execute=execute, 
+                                                                            function=function, 
+                                                                            interval=THRDIDLE, 
+                                                                            addData = None) 
+                            threadList.update(newThread)
+                        threadActive = True
+            except:
+                loggerWS.critical("checkAddThread - Something went wrong during the loop -> thread died, like message thread")
+        if not threadActive:
+            newThread = {}
+            newThread[function] = self.startActionThread(name=thread, 
+                                                            slug=thread, 
+                                                            execute=execute, 
+                                                            function=function, 
+                                                            interval=THRDIDLE, 
+                                                            addData = None)
+            with self.threadLock:
+                loggerWS.info("checkAddThread - Start thread %s/%s and add handler %s" % (thread, function, thread))
+                threadList.update(newThread)
+            self.addHandler(item=thread,hdlType=hdlType)
+            
+    def removeThread(self, threadPlace, thread, function, hdlType=None, msgAvail=True):
+        threadActive = False
+        if threadPlace == "printers":
+            threadList = self.botData['printers'][thread]['threads']            
+        elif threadPlace == "server":
+            threadList = self.botData['server']['threads']
+        with self.threadLock:
+            for threadItem in threadList.copy():
+                if threadItem == function:
+                    loggerWS.info("removeThread - Remove thread %s/%s" % (thread, threadItem))
+                    toRemove = threadList.pop(threadItem)
+                    self.removeHandler(item=thread, hdlType=hdlType) # item, hdlType=None
+                    if msgAvail:
+                        self.remMsgFromBuffer(thread, function)
+                        self.remMsgFromBot(thread, function)
+                        loggerWS.info("removeThread - Removed message %s/%s" % (thread, function))
+                    threadActive = True
+                    loggerWS.info("removeThread - Removed %s/%s and handler %s" % (thread, function, thread))
+        if not threadActive:
+            loggerWS.info("removeThread - Could not find %s/%s and handler %s" % (thread, function, thread))
+           
+    def ThreadHdlOrderData(self):
+        threadItem = threading.current_thread()
+        startTime = arrow.now()
+        #check for printer change in Repetier Server
+        with self.threadLock:
+            orderDataRaw = self.botData['server']['websocket']['dataReceiveBuffer']
+            self.botData['server']['websocket']['dataReceiveBuffer'] = []
+        for orderDataRawItem in orderDataRaw:
+            try:
+                dataSetItems = json.loads(orderDataRawItem)                
+            except:
+                loggerWS.error("ThreadHdlOrderData - JSON load failed")
+                continue
+            if dataSetItems['callback_id'] == -1:
+                try:
+                    dataSets = dataSetItems['data']
+                except:
+                    loggerWS.error("ThreadHdlOrderData - Data structure missing \"data\"-key")
+                    continue
+                for dataSet in dataSets:
+                    try:
+                        eventType = dataSet['event']                    
+                    except:
+                        loggerWS.error("ThreadHdlOrderData - Event key missing in: " % dataSet)
+                        continue
+                    loggerWS.debug("ThreadHdlOrderData looking up for event: " + str(eventType))
+                    if eventType == "jobFinished":
+                    # Payload: {start:unixTime,duration:seconds,end:unixTime,lines:linesOfJob} / Gets send after a normal job has finished. 
+                    # # {'duration': 5507, 'end': 5507, 'lines': 117373, 'start': 1603207724}, 'event': 'jobFinished', 'printer': 'Anycubic_Mega_X1'}
+                        printerConfig = self.getPrinterDataConfig(dataSet['printer'])
+                        present = arrow.now()
+                        future = present.shift(seconds=dataSet['data']['duration'])                                
+                        messageBuffer = "%s" % (printerConfig['name']) + _(" has finished the print.") 
+                        loggerWS.info("eventType: jobFinished: %s" % messageBuffer)
+                        self.addMsgToBot(slug="Bot",
+                                         function="jobFinished",
+                                         msg="<b>%s</b>" % messageBuffer,
+                                         reply_markup=None,
+                                         vidPic=None,
+                                         priority=False,
+                                         botMsg=True,
+                                         singleMsg=True, 
+                                         delTime=20
+                                         )
+                        if printerConfig['extrCoolTempExtComm'] != None:
+                            self.startActionThread(name=printerConfig['name'], 
+                                                    slug=printerConfig['slug'], 
+                                                    execute=self.coolDownAction, 
+                                                    function="coolDownActionExtr", 
+                                                    interval=THRDSLOW)
+                        if printerConfig['heatbCoolTempExtComm'] != None:
+                            self.startActionThread(name=printerConfig['name'], 
+                                                    slug=printerConfig['slug'], 
+                                                    execute=self.coolDownAction, 
+                                                    function="coolDownActionHeatb", 
+                                                    interval=THRDSLOW)
+                        buffer = {}
+                        buffer['printerConfig'] = printerConfig
+                        buffer['listPrinters'] = self.getPrinterDataStorage(printerConfig['slug'], "listPrinter")
+                        if printerConfig['AfterPrintPicCamSelect'] != None:
+                            self.startActionThread(name=printerConfig['name'], 
+                                                    slug=printerConfig['slug'], 
+                                                    execute=self.sendPicAfterPrint, 
+                                                    function="sendPicAfterPrint", 
+                                                    interval=printerConfig['delayTimeAfterPrintPic'],
+                                                    addData=buffer)
+
+                    elif eventType == "messagesChanged":
+                        loggerWS.info("eventType: messagesChanged detected")
+                        self.sendRecExtendedData(action="messages", slug="server", messageCntItem="messages")
+                        #self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "messages", 
+                        #                                                                callback_id = self.messageCntHndl("messages", "messages"), 
+                        #                                                                printer = "server", 
+                        #                                                                data = {}))
+
+                    elif eventType == "jobKilled":
+                    # Payload: {start:unixTime,duration:seconds,end:unixTime,lines:linesOfJob} / Gets send after a normal job has been killed.
+                        listPrinter = self.getPrinterDataStorage(dataSet['printer'],"listPrinter")
+                        present = arrow.now()
+                        past = present.shift(seconds=dataSet['data']['duration'])                                          
+                        messageBuffer = _("Print from %s was aborted after %s") % (listPrinter['name'], past.humanize(present,locale='de', only_distance=True, granularity=["minute","second"])) 
+                        loggerWS.info("eventTyp: jobKilled: %s" % messageBuffer)
+                        self.addMsgToBot(slug="Bot",
+                                         function="jobKilled",
+                                         msg="<b>%s</b>" % messageBuffer,
+                                         reply_markup=None,
+                                         vidPic=None,
+                                         priority=False,
+                                         botMsg=True,
+                                         singleMsg=True, 
+                                         delTime=20
+                                         )
+                        
+                    elif eventType == "jobStarted":
+                    # Payload: {start:unixTime} / Gets send after a normal job has been started. {'data': {'start': 1603036621}, 'event': 'jobStarted', 'printer': 'Anycubic_i3_Mega_S'}
+                        loggerWS.info("eventTyp: jobStarted detected")
+                        #test2 = {}
+                        #test2['textField1'] = _("START GUT, ALLES GUT")
+                        #botThreads.startWebcamThread(slug=botGetTracking(context),
+                        #                            name="test_start", 
+                        #                            type="pic", 
+                        #                            webcamSelect=1,
+                        #                            captionSelect="startOfPrint",
+                        #                            captionText=test2)# <-- captionText['textField1']
+                        listPrinter = self.getPrinterDataStorage(dataSet['printer'],"listPrinter")
+                        jobTitle = listPrinter['job']
+                        messageBuffer = _("%s has started printing at %s.") % (listPrinter['name'], 
+                                                                        arrow.get(dataSet['data']['start']).format('DD.MM.YYYY - HH:mm'))
+                                                                         
+                        loggerWS.info("eventTyp: jobStarted: %s" % messageBuffer)
+                        self.addMsgToBot(slug="Bot",
+                                         function="jobStarted",
+                                         msg="<b>%s</b>" % messageBuffer,
+                                         reply_markup=None,
+                                         vidPic=None,
+                                         priority=False,
+                                         botMsg=True,
+                                         singleMsg=True, 
+                                         delTime=20
+                                         )
+                        
+                    elif eventType == "changeFilamentRequested":
+                    # Payload: none / Firmware requested a filament change on server side.
+                        loggerWS.info("eventTyp: changeFilamentRequested detected")
+                        #timeDelThread(feedbackMsg = telegramSendMsg("Drucker Filament Ende" + str(dataSet[k]),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN))
+
+                    elif eventType == "config": # general slug
+                        self.sendRecExtendedData(action="getPrinterConfig", slug=dataSet['printer'], messageCntItem=dataSet['printer'])
+
+                    elif eventType == "printqueueChanged": # {'slug': 'Anycubic_i3_Mega_S'}
+                        slug = dataSet['data']['slug']
+                        self.sendRecExtendedData(action="listJobs", slug=slug, data={}, messageCntItem=slug)
+
+                    elif eventType == "jobsChanged": # {'slug': 'Anycubic_Mega_X1'}
+                        slug = dataSet['data']['slug']
+                        self.sendRecExtendedData(action="listModels", slug=slug, data={}, messageCntItem=slug)
+                        self.sendRecExtendedData(action="listJobs", slug=slug, data={}, messageCntItem=slug)
+
+                    elif eventType == "newRenderImage": # {'id': 94, 'list': 'models', 'slug': 'Anycubic_Mega_X1'}
+                        slug = dataSet['data']['slug']
+                        id = dataSet['data']['id']
+                        with self.threadLock:
+                            self.botData['printers'][slug]['dataRepetier']['newRenderImage']['id'] = id
+                    else:
+                        # ignored messages
+                        if eventType == "userCredentials":
+                            doNothing = True
+                        elif eventType == "timer60": 
+                            doNothing = True
+                        elif eventType == "timer30": 
+                            doNothing = True
+                        elif eventType == "timer300": 
+                            doNothing = True
+                        elif eventType == "timer1800": 
+                            doNothing = True
+                        elif eventType == "timer3600": 
+                            doNothing = True
+                        elif eventType == "wifiChanged":
+                            doNothing = True
+                        elif eventType == "hardwareInfo":
+                            doNothing = True
+                        elif eventType == "modelGroupListChanged":
+                            doNothing = True
+                        elif eventType == "jobsChanged":
+                            loggerWS.info("eventTyp: %s - %s" % (eventType, dataSet['data']))
+                            doNothing = True
+                        elif eventType == "temp":
+                            doNothing = True
+                        elif eventType == "printerListChanged": # [{'active': True, 'job': 'none', 'name': 'Anycubic Mega X', 'online': 2, 'pauseState': 0, 'paused': False, 'slug': 'Anycubic_Mega_X1'}, 
+                                                                # {'active': True, 'job': 'none', 'name': 'Anycubic i3 Mega S', 'online': 0, 'pauseState': 0, 'paused': False, 'slug': 'Anycubic_i3_Mega_S'}]
+                            doNothing = True
+                        elif eventType == "timelapseChanged":
+                            doNothing = True
+                        elif eventType == "prepareJob": # {}
+                            doNothing = True
+                        elif eventType == "gcodeInfoUpdated": # {'modelId': 10, 'modelPath': '/var/lib/Repetier-Server/printer/Anycubic_i3_Mega_S/jobs/00000010_AI3M_201215_Ausstecher_Ana v1.u', 'slug': 'Anycubic_i3_Mega_S'}
+                            doNothing = True
+                        elif eventType == "prepareJobFinished": # {}
+                            doNothing = True
+                        elif eventType == "dispatcherCount": # {'count': 1}
+                            doNothing = True
+                        elif eventType == "workerFinished": # {'id': 1, 'message': '', 'type': 'lua'}
+                            doNothing = True
+                        #elif eventType == "prepareJob": #
+                        #    doNothing = True
+                        else:
+                            try:
+                                loggerWS.info("eventTyp: %s - %s" % (eventType, dataSet['data']))
+                            except:
+                                loggerWS.debug("eventTyp (except): %s - %s" % (eventType, dataSet))
+            else:
+                self.setPrinterDataStorage(dataSetItems)                
+        stopTime = arrow.now() 
+        runTime = stopTime - startTime        
+        loggerWS.debug("Order Storage Runtime: %ssek." % runTime)
+        self.threadWishState("active",threadItem)
+
+    def coolDownAction(self):
+        threadItem = threading.current_thread()
+        slug = threadItem.slug
+        function = threadItem.function
+        state = self.getPrinterDataStorage(slug, "stateList")
+        if state != "Error":
+            printerConfig = self.botData['printers'][slug]['config']
+            belowLimit = True
+            if function == "coolDownActionExtr":
+                tempLimit = printerConfig['extrCoolTemp']
+                for extruder in state['extruder']:
+                    if extruder['tempRead'] > float(tempLimit):
+                        belowLimit = False
+            elif function == "coolDownActionHeatb":
+                tempLimit = printerConfig['heatbCoolTemp']
+                for heatbed in state['heatedBeds']:
+                    if heatbed['tempRead'] > float(tempLimit):
+                        belowLimit = False
+            if belowLimit == True:
+                packOrder = {}
+                if function == "coolDownActionExtr":
+                    if printerConfig['extrCoolTempExtComm'] == None:
+                        return False
+                    packOrder['id'] = printerConfig['extrCoolTempExtComm']
+                    messageBuffer = "❄️<b>" + _("Extruder cool down external command execute for printer %s") % printerConfig['name'] + "</b>❄️"
+                elif function == "coolDownActionHeatb":
+                    if printerConfig['heatbCoolTempExtComm'] == None:
+                        return False
+                    packOrder['id'] = printerConfig['heatbCoolTempExtComm']
+                    messageBuffer = "❄️<b>" + _("Heatbed cool down external command execute for printer %s") % printerConfig['name'] + "</b>❄️"
+                self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "runExternalCommand", 
+                                                                            callback_id = self.messageCntHndl(slug, "runExternalCommand"), 
+                                                                            printer = slug, 
+                                                                            data = packOrder))
+                self.addMsgToBot(slug="Bot",
+                                         function="coolDownAction",
+                                         msg="<b>%s</b>" % messageBuffer,
+                                         reply_markup=None,
+                                         vidPic=None,
+                                         priority=False,
+                                         botMsg=True,
+                                         singleMsg=True, 
+                                         delTime=20
+                                         )
+                return False
+        self.threadWishState("off",threadItem)
+        return True
+    
+    def sendPicAfterPrint(self):
+        threadItem = threading.current_thread()
+        slug = threadItem.slug
+        buffer = threadItem.addData
+        printerConfig = buffer['printerConfig']
+        listPrinter = buffer['listPrinters']
+        picText = {}
+        if listPrinter['job'] != None:
+            picText['textField1'] = listPrinter['job']
+        else:
+            picText['textField1'] = _("unknown print")
+        botThreads.startWebcamThread(slug=printerConfig['slug'],
+                                    name="endOfPrint", 
+                                    type="pic", 
+                                    webcamSelect=printerConfig['AfterPrintPicCamSelect']+1,
+                                    captionSelect="endOfPrint",
+                                    captionText=picText)# <-- captionText['textField1']
+        return False
+    
+    def servMsgAction(self):
+        threadItem = threading.current_thread()
+        slug = threadItem.slug
+        msg = botThreads.getServerDataStorage(action="messages")
+        if len(msg) == 0:
+            self.removeThread(threadPlace="server", 
+                              thread=_("Messages"), 
+                              function="messages", 
+                              hdlType="messages", 
+                              msgAvail=True)
+            loggerWS.info("servMsgAction: terminating messages thread")
+            return False
+        msgBasis = "<b>/" + _("Messages") + "</b>\n"
+        msgBasis += "<code>" + _("Update: %s at %s") % (arrow.now().format('DD.MM.YYYY'), arrow.now().format('HH:mm:ss')) + "</code>\n"
+        msgLong = msgBasis
+        msgShort = msgBasis
+        for message in msg:
+            name = "server"
+            for item in self.botData['printers']:
+                if message['slug'] == item:
+                    name = self.botData['printers'][item]['config']['name']
+            msgLong += "<b>[%s]: %s, %s</b>\n<code>%s</code>\n\n" % (message['id'],arrow.get(message['date']).format('DD.MM.YYYY - HH:mm'),
+                                                                            name,
+                                                                            message['msg'])
+        lastMsg = len(msg)-1
+        message = msg[lastMsg]
+        name = "server"
+        for item in self.botData['printers']:
+            if message['slug'] == item:
+                name = self.botData['printers'][item]['config']['name']
+        msgShort += "<b><i>" + _("Last message") + "</i> [%s]: %s, %s</b>\n<code>%s</code>" % (message['id'],arrow.get(message['date']).format('DD.MM.YYYY - HH:mm'),
+                                                                                                        name,
+                                                                                                        message['msg'])
+        msg = {}
+        msg['msgLong'] = msgLong
+        msg['msgShort'] = msgShort
+        self.addMsgToBot(slug=slug,
+                            function=threadItem.function,
+                            msg=msg,
+                            reply_markup=None,
+                            vidPic=None,
+                            priority=False,
+                            botMsg=False,
+                            singleMsg=False, 
+                            delTime=1)
+        self.threadWishState("standby",threadItem)
+        return True
+                
+    def ThreadHdlRestart(self):
+        hdlRestartThread = threading.current_thread()
+        loggerWS.debug("Threads Alive:\nwsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, botCommunicator: %s, threadManager: %s, modelManager: %s,wsThreadRestart: %s" % (
+                                                                                self.wsThreadSend.is_alive(), 
+                                                                                self.wsThreadRec.is_alive(),
+                                                                                self.wsThreadOrderData.is_alive(),
+                                                                                self.botCommunicator.is_alive(),
+                                                                                self.threadManager.is_alive(),
+                                                                                self.modelManager.is_alive(),
+                                                                                self.wsThreadRestart.is_alive()
+                                                                                )
+                       )
+        loggerWS.debug("Threads Restarts:\nRestarts websocket send: %d, restarts websocket receive: %d, restarts order data: %d, restarts thread manager: %d, restarts model manager: %d,restarts bot communicator: %d" % (
+                                                                                self.restartWsSend, 
+                                                                                self.restartWsReceive,
+                                                                                self.restartOrderData,
+                                                                                self.restartThdMan,
+                                                                                self.restartModelManager,
+                                                                                self.restartbotCom
+                                                                                )
+                       )
+        if not self.wsThreadSend.is_alive():
+            if self.restartWsSend >= 100000:
+                loggerWS.info("wsThreadSend reset restart counter")
+                self.restartWsSend = 0
+            self.restartWsSend += 1
+            self.wsThreadSend = dataHdlThread(interval=THRDSEND, execute=self.ThreadSend, name="Repetier-Server-Send")
+            self.wsThreadSend.start()
+            loggerWS.info("wsThreadSend restartet. Counter: %d" % self.restartWsSend)
+        if  not self.wsThreadRec.is_alive():
+            if self.restartWsReceive >= 100000:
+                loggerWS.info("wsThreadRec reset restart counter")
+                self.restartWsReceive = 0
+            self.restartWsReceive += 1
+            self.wsThreadRec = dataHdlThread(interval=THRDRECEIVE, execute=self.ThreadRec, name="Repetier-Server-Receive")
+            self.wsThreadRec.start()
+            loggerWS.info("wsThreadRec restartet. Counter: %d" % self.restartWsReceive)
+        if not self.wsThreadOrderData.is_alive():
+            if self.restartOrderData >= 100000:
+                loggerWS.info("wsThreadOrderData reset restart counter")
+                self.restartOrderData = 0
+            self.restartOrderData += 1
+            self.wsThreadOrderData = dataHdlThread(interval=THRDORDERDATA, execute=self.ThreadHdlOrderData, name="Repetier-Server-Order-Data")
+            self.wsThreadOrderData.start()
+            loggerWS.info("wsThreadOrderData restartet. Counter: %s" % self.restartOrderData)
+        if not self.threadManager.is_alive():
+            if self.restartThdMan >= 100000:
+                loggerWS.info("threadManager reset restart counter")
+                self.restartThdMan = 0
+            self.restartThdMan += 1
+            self.threadManager = dataHdlThread(interval=THRDMANAGER, execute=self.ThreadManager, name="Repetier-Server-Thread-Manager")
+            self.threadManager.start()
+            loggerWS.info("threadManager restartet. Counter: %s" % self.restartThdMan)
+        if not self.modelManager.is_alive():
+            if self.restartModelManager >= 100000:
+                loggerWS.info("ModelManager reset restart counter")
+                self.restartModelManager = 0
+            self.restartModelManager += 1
+            self.modelManager = dataHdlThread(interval=THRDMODELMAN, execute=self.modelManager, name="Repetier-Server-Model-Manager")
+            self.modelManager.start()
+            loggerWS.info("threadManager restartet. Counter: %s" % self.restartThdMan)
+        if  not self.botCommunicator.is_alive():
+            if self.restartbotCom >= 100000:
+                loggerWS.info("botCommunicator reset restart counter")
+                self.restartbotCom = 0
+            self.restartbotCom += 1
+            self.botCommunicator = dataHdlThread(interval=THRDBOTCOM, execute=self.ThreadHdlBot, name="Repetier-Server-Bot-Communication-Threads")
+            self.botCommunicator.start()
+            loggerWS.info("botCommunicator restartet. Counter: %d" % self.restartbotCom)
+        loggerWS.debug("Amount of active threads. Value: %d" % threading.active_count())
+        listThreads = threading.enumerate()
+        for threads in listThreads:
+            loggerWS.debug("Thread: %s" % threads)
+        if self.botData['server']['websocket']['timeout'] != None:
+            actTimeout = self.botData['server']['websocket']['timeout']
+            if self.nextRSTimeoutMsg == None:
+                self.nextRSTimeoutMsg = actTimeout.shift(minutes=15)
+                loggerWS.error("Repetier Server webserver timeout. Started: %s" % self.botData['server']['websocket']['timeout'])
+            elif self.nextRSTimeoutMsg < arrow.now():
+                self.nextRSTimeoutMsg = arrow.now().shift(minutes=15)
+                msg = "🛑<b>" + _("Repetier Server connection timeout. Started at: %s") % actTimeout.format('DD.MM.YYYY - HH:mm') + " ‼️</b>"
+                self.addMsgToBot(slug="Bot",
+                             function="timeoutRSWS",
+                             msg=msg,
+                             reply_markup=None,
+                             vidPic=None,
+                             priority=False,
+                             botMsg=True,
+                             singleMsg=True, 
+                             delTime=30
+                             )
+        self.threadWishState("active",hdlRestartThread)
+
+    def printThreadStatsInLogger(self):
+        loggerWS.info("Bot thread counter statistic:\nSend: %d\nReceive: %d\nOrder-Data: %d\nBot Communication: %d\nThread Manager: %d\nModel Manager: %d" % (self.restartWsSend,
+                                                            self.restartWsReceive,
+                                                            self.restartOrderData,
+                                                            self.restartbotCom,
+                                                            self.restartThdMan,
+                                                            self.restartModelManager))
+
+
+# 🏁 Ziel / 💯 100% #   🇬🇧 🇺🇸 Fahnen  # 📣 Horn # 🔔 🔕 soung/no sound  # 🖕 Stinkefinger # 🔥 Flame  # ♨️ hot # 🔆 sun
+# ❄️ cold 🆒 cool # 🌬 blow  🌪 Tornado # ⛔️ 💤 Stop # 🚽 💩 abort # 🚧 warning # 🅿️ park  # 💡 hint  # ⚙️ gear # 💧 multiplier
+# 📵 no phone 🎦 📽 Movie # 📸 picture # 🤷‍♂️ what do you want? # 🖨 printing
+
+### Main code
+if __name__ == "__main__":
+    threading.current_thread().name = FILENAME_NO_EXTENSION
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+    logger = setup_logger("Main Thread",formatter,logging.INFO,LOGFILENAME)
+    loggerWS = setup_logger("WS Thread",formatter,logging.INFO,LOGFILENAMEWS)
+    
+    changeLang(None)
+    presLan.install()
+    _ = presLan.gettext
+
+    logger.info("########### Repetier-Server Bot ###########")
+    logger.info("Software Version: %s" % SW_VERSION)
+    logger.info("Thread Name: %s" % threading.current_thread().getName())
+    logger.info("########### Geräte and Python Information ###########")
+    logger.info("Python Version: %s" % platform.python_version())
+    logger.info("OS: %s" % platform.system())
+    logger.info("OS Version: %s" % platform.platform())
+    username = getpass.getuser()
+    logger.info("Active User: %s" % username)
+    logger.info("####################################")
+
+    # Import Konfigurationsdatei
+    configFile = impConfig()
+    presLan.install()
+    _ = presLan.gettext
+    
+    # Bot
+    updater = Updater(MY_TELEGRAM_TOKEN, use_context=True)
+    dp = updater.dispatcher
+    
+    # Websocket - Repetier-Server Testumgebung
+    botThreads = botThreadHdl(dp, configFile)
+    botThreads.start()
+    
+    dp.add_handler(CommandHandler('reset', resetMsgs))
+    addDebugHandler(dp)
+    
+    dp.add_error_handler(error_callback) 
+    
+    updater.start_polling()
+    updater.idle()
+
+    # Programm wird beendet
+    botThreads.printThreadStatsInLogger()
+    botThreads.stop()
+    numActiveThread = threading.active_count()
+    numActiveThreadbefore = numActiveThread - 1
+    timeDelThread(feedbackMsg=telegramSendMsg(_("Bot is going offline"),
+                                                reply_markup=None, 
+                                                chat_id=CHATID, 
+                                                token=MY_TELEGRAM_TOKEN
+                                                ),
+                    delayTimeSelect=10)
+    botThreads.delPrinterMsg()
+    time.sleep(5)
+    while threading.active_count() != 1:
+        time.sleep(1)
+        numActiveThread = threading.active_count()
+        if numActiveThread != numActiveThreadbefore:
+            logger.info("Python programm was stopped. Active threads: %d / %s" % (threading.active_count(), threading.enumerate()))
+            numActiveThreadbefore = numActiveThread
+    sys.exit()
+
+
+

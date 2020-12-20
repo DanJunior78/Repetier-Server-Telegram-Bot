@@ -1,0 +1,1369 @@
+# Repetier-Server_Telegram_Bot.
+# Copyright (C) 2020 Repetier Server Bot
+# Daniel Glock <daniel.g.aus.g@gmail.com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Repetier-Server_Telegram_Bot\n"
+"POT-Creation-Date: 2020-12-19 21:17+0100\n"
+"PO-Revision-Date: 2020-12-19 21:19+0100\n"
+"Last-Translator: Daniel Glock <daniel.g.aus.g@gmail.com>\n"
+"Language-Team: en <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 2.4.2\n"
+
+#: D:\temp\python\RepetierBot.py:482
+msgid "BOT Error!!! Please try again."
+msgstr "BOT Error!!! Please try again."
+
+#: D:\temp\python\RepetierBot.py:519 D:\temp\python\RepetierBot.py:528
+#: D:\temp\python\RepetierBot.py:540
+msgid "End"
+msgstr "End"
+
+#: D:\temp\python\RepetierBot.py:527
+msgid "Back"
+msgstr "Back"
+
+#: D:\temp\python\RepetierBot.py:553
+msgid "ExtCommands"
+msgstr "ExtCommands"
+
+#: D:\temp\python\RepetierBot.py:555
+msgid "Webcam %s"
+msgstr "Webcam %s"
+
+#: D:\temp\python\RepetierBot.py:557 D:\temp\python\RepetierBot.py:681
+msgid "Quick Commands"
+msgstr "Quick Commands"
+
+#: D:\temp\python\RepetierBot.py:558
+msgid "Settings"
+msgstr "Settings"
+
+#: D:\temp\python\RepetierBot.py:591
+msgid "OK"
+msgstr "OK"
+
+#: D:\temp\python\RepetierBot.py:610
+msgid "Send Video Camera %s"
+msgstr "Send Video Camera %s"
+
+#: D:\temp\python\RepetierBot.py:612
+msgid "Sende Gif Camera %s"
+msgstr "Sende Gif Camera %s"
+
+#: D:\temp\python\RepetierBot.py:613
+msgid "Sende Png Camera %s"
+msgstr "Sende Png Camera %s"
+
+#: D:\temp\python\RepetierBot.py:632
+msgid "Extr. cool down: %s°C"
+msgstr "Extr. cool down: %s°C"
+
+#: D:\temp\python\RepetierBot.py:637
+msgid "ExtCom: %s"
+msgstr "ExtCom: %s"
+
+#: D:\temp\python\RepetierBot.py:639
+msgid "ExtCom temp. dis."
+msgstr "ExtCom temp. dis."
+
+#: D:\temp\python\RepetierBot.py:640
+msgid "Heatb. cool down: %s°C"
+msgstr "Heatb. cool down: %s°C"
+
+#: D:\temp\python\RepetierBot.py:645
+msgid "HeatbCom: %s"
+msgstr "HeatbCom: %s"
+
+#: D:\temp\python\RepetierBot.py:647
+msgid "HeatbCom temp. dis."
+msgstr "HeatbCom temp. dis."
+
+#: D:\temp\python\RepetierBot.py:648
+msgid "Pic after print: %ss"
+msgstr "Pic after print: %ss"
+
+#: D:\temp\python\RepetierBot.py:650
+msgid "From Cam: %s"
+msgstr "From Cam: %s"
+
+#: D:\temp\python\RepetierBot.py:652
+msgid "Pic disabled"
+msgstr "Pic disabled"
+
+#: D:\temp\python\RepetierBot.py:657
+msgid "disable ExtCom"
+msgstr "disable ExtCom"
+
+#: D:\temp\python\RepetierBot.py:662
+msgid "disable Pic"
+msgstr "disable Pic"
+
+#: D:\temp\python\RepetierBot.py:672
+msgid "Send Png Camera %s"
+msgstr "Send Png Camera %s"
+
+#: D:\temp\python\RepetierBot.py:692
+msgid "Quick command handling aborted"
+msgstr "Quick command handling aborted"
+
+#: D:\temp\python\RepetierBot.py:707
+msgid "Please input new extruder cool down temperature. Actual value: %d°C"
+msgstr "Please input new extruder cool down temperature. Actual value: %d°C"
+
+#: D:\temp\python\RepetierBot.py:715 D:\temp\python\RepetierBot.py:781
+msgid "ExtCom disabled. Choose new action."
+msgstr "ExtCom disabled. Choose new action."
+
+#: D:\temp\python\RepetierBot.py:719 D:\temp\python\RepetierBot.py:785
+msgid "Could not connect to the server."
+msgstr "Could not connect to the server."
+
+#: D:\temp\python\RepetierBot.py:722 D:\temp\python\RepetierBot.py:788
+msgid "ExtCom active: %s"
+msgstr "ExtCom active: %s"
+
+#: D:\temp\python\RepetierBot.py:734 D:\temp\python\RepetierBot.py:757
+#: D:\temp\python\RepetierBot.py:800 D:\temp\python\RepetierBot.py:823
+#: D:\temp\python\RepetierBot.py:844 D:\temp\python\RepetierBot.py:868
+msgid "Configuration saved"
+msgstr "Configuration saved"
+
+#: D:\temp\python\RepetierBot.py:741 D:\temp\python\RepetierBot.py:764
+#: D:\temp\python\RepetierBot.py:807 D:\temp\python\RepetierBot.py:830
+#: D:\temp\python\RepetierBot.py:851 D:\temp\python\RepetierBot.py:875
+msgid "Configuration saving failed"
+msgstr "Configuration saving failed"
+
+#: D:\temp\python\RepetierBot.py:773
+msgid "Please input new heatbed cool down temperature. Actual value: %d°C"
+msgstr "Please input new heatbed cool down temperature. Actual value: %d°C"
+
+#: D:\temp\python\RepetierBot.py:884
+msgid "Please input new delay time. Actual value: %ds"
+msgstr "Please input new delay time. Actual value: %ds"
+
+#: D:\temp\python\RepetierBot.py:892
+msgid "Pic after print disabled. Choose camera"
+msgstr "Pic after print disabled. Choose camera"
+
+#: D:\temp\python\RepetierBot.py:894
+msgid "Webcam %s active"
+msgstr "Webcam %s active"
+
+#: D:\temp\python\RepetierBot.py:999 D:\temp\python\RepetierBot.py:1034
+#: D:\temp\python\RepetierBot.py:1466
+msgid "Access denied!"
+msgstr "Access denied!"
+
+#: D:\temp\python\RepetierBot.py:1011
+msgid "Server %s selected"
+msgstr "Server %s selected"
+
+#: D:\temp\python\RepetierBot.py:1046
+msgid "Printer %s selected"
+msgstr "Printer %s selected"
+
+#: D:\temp\python\RepetierBot.py:1054
+msgid "Opening external commands"
+msgstr "Opening external commands"
+
+#: D:\temp\python\RepetierBot.py:1062
+msgid "Back to main menu..."
+msgstr "Back to main menu..."
+
+#: D:\temp\python\RepetierBot.py:1077
+msgid "Opening external command confirmation"
+msgstr "Opening external command confirmation"
+
+#: D:\temp\python\RepetierBot.py:1089
+msgid "Going back to external commands"
+msgstr "Going back to external commands"
+
+#: D:\temp\python\RepetierBot.py:1101
+msgid "Opening webcams"
+msgstr "Opening webcams"
+
+#: D:\temp\python\RepetierBot.py:1114
+msgid "Generate video file. Closing keyboard"
+msgstr "Generate video file. Closing keyboard"
+
+#: D:\temp\python\RepetierBot.py:1127
+msgid "Generate gif file. Closing keyboard"
+msgstr "Generate gif file. Closing keyboard"
+
+#: D:\temp\python\RepetierBot.py:1140
+msgid "Get pic. Closing keyboard"
+msgstr "Get pic. Closing keyboard"
+
+#: D:\temp\python\RepetierBot.py:1148
+msgid "Opening quick commands"
+msgstr "Opening quick commands"
+
+#: D:\temp\python\RepetierBot.py:1169 D:\temp\python\RepetierBot.py:1177
+#: D:\temp\python\RepetierBot.py:1207 D:\temp\python\RepetierBot.py:1235
+#: D:\temp\python\RepetierBot.py:1259 D:\temp\python\RepetierBot.py:1287
+#: D:\temp\python\RepetierBot.py:1311 D:\temp\python\RepetierBot.py:1339
+msgid "Opening settings"
+msgstr "Opening settings"
+
+#: D:\temp\python\RepetierBot.py:1191
+msgid "Opening extruder set limit"
+msgstr "Opening extruder set limit"
+
+#: D:\temp\python\RepetierBot.py:1218
+msgid "Opening extruder command at set limit"
+msgstr "Opening extruder command at set limit"
+
+#: D:\temp\python\RepetierBot.py:1243
+msgid "Opening heatbed set limit"
+msgstr "Opening heatbed set limit"
+
+#: D:\temp\python\RepetierBot.py:1270
+msgid "Opening heatbed command at set limit"
+msgstr "Opening heatbed command at set limit"
+
+#: D:\temp\python\RepetierBot.py:1295
+msgid "Opening after print send picture time delay"
+msgstr "Opening after print send picture time delay"
+
+#: D:\temp\python\RepetierBot.py:1322
+msgid "Opening after print send picture select webcam"
+msgstr "Opening after print send picture select webcam"
+
+#: D:\temp\python\RepetierBot.py:1346 D:\temp\python\RepetierBot.py:1358
+#: D:\temp\python\RepetierBot.py:1375 D:\temp\python\RepetierBot.py:1389
+#: D:\temp\python\RepetierBot.py:1401
+msgid "Closing keyboard"
+msgstr "Closing keyboard"
+
+#: D:\temp\python\RepetierBot.py:1362
+msgid "Didn´t get ya, maaaaan...What is"
+msgstr "Didn´t get ya, maaaaan...What is"
+
+#: D:\temp\python\RepetierBot.py:1379 D:\temp\python\RepetierBot.py:1405
+msgid "Don´t sleep, please...wake up"
+msgstr "Don´t sleep, please...wake up"
+
+#: D:\temp\python\RepetierBot.py:1421
+msgid "Reset, reset"
+msgstr "Reset, reset"
+
+#: D:\temp\python\RepetierBot.py:1421
+msgid "everyone comes back"
+msgstr "everyone comes back"
+
+#: D:\temp\python\RepetierBot.py:1421
+msgid "hopefully"
+msgstr "hopefully"
+
+#: D:\temp\python\RepetierBot.py:1477
+msgid "Please choose file to upload :"
+msgstr "Please choose file to upload :"
+
+#: D:\temp\python\RepetierBot.py:1488
+msgid "Actual system configuration"
+msgstr "Actual system configuration"
+
+#: D:\temp\python\RepetierBot.py:1488
+msgid ""
+"Please check the system configuration. Otherwise modify or delete items "
+"which you won´t distribute to third persons!"
+msgstr ""
+"Please check the system configuration. Otherwise modify or delete items "
+"which you won´t distribute to third persons!"
+
+#: D:\temp\python\RepetierBot.py:1488
+msgid "Please send files to telegram group for support: "
+msgstr "Please send files to telegram group for support: "
+
+#: D:\temp\python\RepetierBot.py:1630
+msgid "Message: %s"
+msgstr "Message: %s"
+
+#: D:\temp\python\RepetierBot.py:1719
+msgid "Version: "
+msgstr "Version: "
+
+#: D:\temp\python\RepetierBot.py:1719
+msgid "Welcome to Repetier-Server telegram bot!"
+msgstr "Welcome to Repetier-Server telegram bot!"
+
+#: D:\temp\python\RepetierBot.py:1719
+msgid "from"
+msgstr "from"
+
+#: D:\temp\python\RepetierBot.py:1824
+msgid "Language set to"
+msgstr "Language set to"
+
+#: D:\temp\python\RepetierBot.py:1957
+msgid "Messages"
+msgstr "Messages"
+
+#: D:\temp\python\RepetierBot.py:2443
+msgid "Renew message now. Next renew of messages"
+msgstr "Renew message now. Next renew of messages"
+
+#: D:\temp\python\RepetierBot.py:2471 D:\temp\python\RepetierBot.py:2477
+#: D:\temp\python\RepetierBot.py:3715
+msgid "Update: %s at %s"
+msgstr "Update: %s at %s"
+
+#: D:\temp\python\RepetierBot.py:2472 D:\temp\python\RepetierBot.py:2749
+msgid "Switched off"
+msgstr "Switched off"
+
+#: D:\temp\python\RepetierBot.py:2489 D:\temp\python\RepetierBot.py:2747
+msgid "Standby"
+msgstr "Standby"
+
+#: D:\temp\python\RepetierBot.py:2499
+msgid "Print file"
+msgstr "Print file"
+
+#: D:\temp\python\RepetierBot.py:2501
+msgid "is at"
+msgstr "is at"
+
+#: D:\temp\python\RepetierBot.py:2502
+msgid "Layer:"
+msgstr "Layer:"
+
+#: D:\temp\python\RepetierBot.py:2502
+msgid "at Z:"
+msgstr "at Z:"
+
+#: D:\temp\python\RepetierBot.py:2503
+msgid "Expected end at"
+msgstr "Expected end at"
+
+#: D:\temp\python\RepetierBot.py:2504
+msgid "Print was started"
+msgstr "Print was started"
+
+#: D:\temp\python\RepetierBot.py:2505
+msgid "Printer state"
+msgstr "Printer state"
+
+#: D:\temp\python\RepetierBot.py:2506
+msgid "Flow"
+msgstr "Flow"
+
+#: D:\temp\python\RepetierBot.py:2506
+msgid "Print speed"
+msgstr "Print speed"
+
+#: D:\temp\python\RepetierBot.py:2515 D:\temp\python\RepetierBot.py:2526
+msgid "Heat up phase:"
+msgstr "Heat up phase:"
+
+#: D:\temp\python\RepetierBot.py:2524
+msgid "Printing"
+msgstr "Printing"
+
+#: D:\temp\python\RepetierBot.py:2554 D:\temp\python\RepetierBot.py:2556
+msgid "Fan"
+msgstr "Fan"
+
+#: D:\temp\python\RepetierBot.py:2556
+msgid "Off"
+msgstr "Off"
+
+#: D:\temp\python\RepetierBot.py:2566 D:\temp\python\RepetierBot.py:2568
+msgid "Chamber"
+msgstr "Chamber"
+
+#: D:\temp\python\RepetierBot.py:2579 D:\temp\python\RepetierBot.py:2581
+#: D:\temp\python\RepetierBot.py:2642 D:\temp\python\RepetierBot.py:2645
+msgid "Heatbed"
+msgstr "Heatbed"
+
+#: D:\temp\python\RepetierBot.py:2592 D:\temp\python\RepetierBot.py:2594
+#: D:\temp\python\RepetierBot.py:2610 D:\temp\python\RepetierBot.py:2613
+msgid "Extruder"
+msgstr "Extruder"
+
+#: D:\temp\python\RepetierBot.py:2618
+msgid "Extruders heating up"
+msgstr "Extruders heating up"
+
+#: D:\temp\python\RepetierBot.py:2620
+msgid "Extruder heating up"
+msgstr "Extruder heating up"
+
+#: D:\temp\python\RepetierBot.py:2623
+msgid "Extruders cooling down"
+msgstr "Extruders cooling down"
+
+#: D:\temp\python\RepetierBot.py:2625
+msgid "Extruder cooling down"
+msgstr "Extruder cooling down"
+
+#: D:\temp\python\RepetierBot.py:2628
+msgid "Extruder(s) cold"
+msgstr "Extruder(s) cold"
+
+#: D:\temp\python\RepetierBot.py:2650
+msgid "Heatbeds heating up"
+msgstr "Heatbeds heating up"
+
+#: D:\temp\python\RepetierBot.py:2652
+msgid "Heatbed heating up"
+msgstr "Heatbed heating up"
+
+#: D:\temp\python\RepetierBot.py:2655
+msgid "Heatbeds cooling down"
+msgstr "Heatbeds cooling down"
+
+#: D:\temp\python\RepetierBot.py:2657
+msgid "Heatbed cooling down"
+msgstr "Heatbed cooling down"
+
+#: D:\temp\python\RepetierBot.py:2660
+msgid "Heatbed(s) cold"
+msgstr "Heatbed(s) cold"
+
+#: D:\temp\python\RepetierBot.py:2739
+msgid "Finished print of"
+msgstr "Finished print of"
+
+#: D:\temp\python\RepetierBot.py:2741
+msgid "Starting print of"
+msgstr "Starting print of"
+
+#: D:\temp\python\RepetierBot.py:2744
+msgid "Prints"
+msgstr "Prints"
+
+#: D:\temp\python\RepetierBot.py:2744
+msgid "at"
+msgstr "at"
+
+#: D:\temp\python\RepetierBot.py:2896
+msgid "Error on the picture/video request"
+msgstr "Error on the picture/video request"
+
+#: D:\temp\python\RepetierBot.py:2932
+msgid "finished rendering for printer %s."
+msgstr "finished rendering for printer %s."
+
+#: D:\temp\python\RepetierBot.py:2932 D:\temp\python\RepetierBot.py:2944
+msgid "Model"
+msgstr "Model"
+
+#: D:\temp\python\RepetierBot.py:2944
+msgid "uploaded to printer %s."
+msgstr "uploaded to printer %s."
+
+#: D:\temp\python\RepetierBot.py:2964
+msgid "Model removed from printer %s."
+msgstr "Model removed from printer %s."
+
+#: D:\temp\python\RepetierBot.py:2986
+msgid "Load preview picture"
+msgstr "Load preview picture"
+
+#: D:\temp\python\RepetierBot.py:3010
+msgid "Delete preview picture"
+msgstr "Delete preview picture"
+
+#: D:\temp\python\RepetierBot.py:3163
+msgid "Checked for external Commands"
+msgstr "Checked for external Commands"
+
+#: D:\temp\python\RepetierBot.py:3171
+msgid "Quick command failed"
+msgstr "Quick command failed"
+
+#: D:\temp\python\RepetierBot.py:3178
+msgid "Quick command successful"
+msgstr "Quick command successful"
+
+#: D:\temp\python\RepetierBot.py:3185
+msgid "External command successful"
+msgstr "External command successful"
+
+#: D:\temp\python\RepetierBot.py:3196 D:\temp\python\RepetierBot.py:3201
+#: D:\temp\python\RepetierBot.py:3206
+msgid "Update messages required"
+msgstr "Update messages required"
+
+#: D:\temp\python\RepetierBot.py:3213
+msgid "Removing server info messages"
+msgstr "Removing server info messages"
+
+#: D:\temp\python\RepetierBot.py:3221
+msgid "Message removed"
+msgstr "Message removed"
+
+#: D:\temp\python\RepetierBot.py:3470
+msgid " has finished the print."
+msgstr " has finished the print."
+
+#: D:\temp\python\RepetierBot.py:3518
+msgid "Print from %s was aborted after %s"
+msgstr "Print from %s was aborted after %s"
+
+#: D:\temp\python\RepetierBot.py:3544
+msgid "%s has started printing at %s."
+msgstr "%s has started printing at %s."
+
+#: D:\temp\python\RepetierBot.py:3659
+msgid "Extruder cool down external command execute for printer %s"
+msgstr "Extruder cool down external command execute for printer %s"
+
+#: D:\temp\python\RepetierBot.py:3664
+msgid "Heatbed cool down external command execute for printer %s"
+msgstr "Heatbed cool down external command execute for printer %s"
+
+#: D:\temp\python\RepetierBot.py:3693
+msgid "unknown print"
+msgstr "unknown print"
+
+#: D:\temp\python\RepetierBot.py:3732
+msgid "Last message"
+msgstr "Last message"
+
+#: D:\temp\python\RepetierBot.py:3830
+msgid "Repetier Server connection timeout. Started at: %s"
+msgstr "Repetier Server connection timeout. Started at: %s"
+
+#: D:\temp\python\RepetierBot.py:3905
+msgid "Bot is going offline"
+msgstr "Bot is going offline"
+
+#~ msgid "Zurück"
+#~ msgstr "Back"
+
+#~ msgid "Config Datei (JSON) Eintrag: %s mit Inhalt: %s"
+#~ msgstr "Config File (JSON) Entry: %s with content: %s"
+
+#~ msgid "Config Datei (JSON) Eintrag: %s mit Standardwert \"%s\" geladen"
+#~ msgstr "Config File (JSON) Entry: %s loaded with default value \"%s\""
+
+#~ msgid ""
+#~ "Config Datei (JSON) upgrade Datei Version von %s mit Standardwert \"%s\" "
+#~ "geladen"
+#~ msgstr ""
+#~ "Config File (JSON) upgrade File Version of %s loaded with default value "
+#~ "\"%s\""
+
+#~ msgid "Config Datei (JSON) Eintrag: %s mit Inhalt: %s akzeptiert"
+#~ msgstr "Config File (JSON) Entry: %s with content: %s accepted"
+
+#~ msgid "Sprachedateipfad: %s"
+#~ msgstr "Language file path: %s"
+
+#~ msgid "Sprache OS: %s/%s"
+#~ msgstr "Language OS: %s/%s"
+
+#~ msgid "Sprache auf Ausweichsprache englisch umgestellt"
+#~ msgstr "Language switched to alternative language English"
+
+#~ msgid "Sprache auf \"%s\" umgestellt"
+#~ msgstr "Changed language to \"%s\""
+
+#~ msgid "Sprachedateiinfo: %s"
+#~ msgstr "Language file info: %s"
+
+#~ msgid "Logger: %s wurde im Debug Modus(%s) aktiviert. Level: %s"
+#~ msgstr "Logger: %s has been activated in debug mode (%s). Level: %s"
+
+#~ msgid "Konfigurationsdatei nicht gefunden - impConfig - : %s"
+#~ msgstr "Configuration file not found - impConfig - : %s"
+
+#~ msgid "Konfigurationsversion stimmt überein: %s"
+#~ msgstr "Configuration Version matches: %s"
+
+#~ msgid "Konfigurationsdatei Versionskonflikt: %s, anstatt: %s"
+#~ msgstr "Configuration file Version conflict: %s, instead of: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element CFG_VERSION nicht"
+#~ msgstr "Configuration file does not contain item CFG_VERSION"
+
+#~ msgid "Sprache Repetier Server: %s"
+#~ msgstr "Language Repetier Server: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element LANGUAGE nicht"
+#~ msgstr "Configuration file does not contain element LANGUAGE"
+
+#~ msgid "API Key Repetier Server: %s"
+#~ msgstr "API Key Repetier Server: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element MY_REPETIER_SERVER_API_KEY nicht"
+#~ msgstr "Configuration file does not contain item MY_REPETIER_SERVER_API_KEY"
+
+#~ msgid "Repetier Server IP: %s"
+#~ msgstr "Repetier Server IP: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element RepetierServerIP nicht"
+#~ msgstr "Configuration file does not contain item RepetierServerIP"
+
+#~ msgid "Repetier Server IP2: %s"
+#~ msgstr "Repetier Server IP2: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element RepetierServerIP2 nicht"
+#~ msgstr "Configuration file does not contain item RepetierServerIP2"
+
+#~ msgid "Konfigurationsdatei enthält Element RepetierServerPort nicht"
+#~ msgstr "Configuration file does not contain item RepetierServerPort"
+
+#~ msgid "Telegram Token: %s"
+#~ msgstr "Telegram Token: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element MY_TELEGRAM_TOKEN nicht"
+#~ msgstr "Configuration file does not contain item TELEGRAM_TOKEN"
+
+#~ msgid "Administrator Telegram ID: %s"
+#~ msgstr "Administrator Telegram ID: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element MY_TELEGRAM_ID nicht"
+#~ msgstr "Configuration file does not contain item MY_TELEGRAM_ID"
+
+#~ msgid "LogFileName: %s"
+#~ msgstr "LogFileName: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element LOGFILENAME nicht"
+#~ msgstr "Configuration file does not contain element LOGFILENAME"
+
+#~ msgid "LogFileNameWS: %s"
+#~ msgstr "LogFileNameWS: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element LOGFILENAMEWS nicht"
+#~ msgstr "Configuration file does not contain element LOGFILENAMEWS"
+
+#~ msgid "PNGFileFolder: %s"
+#~ msgstr "PNGFileFolder: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element PNGFILEFOLDER nicht"
+#~ msgstr "Configuration file does not contain element PNGFILEFOLDER"
+
+#~ msgid "GIFFileFolder: %s"
+#~ msgstr "GIFFileFolder: %s"
+
+#~ msgid "Konfigurationsdatei enthält Element GIFFILEFOLDER nicht"
+#~ msgstr "Configuration file does not contain element GIFFILEFOLDER"
+
+#~ msgid "VIDFileFolder: %s"
+#~ msgstr "VIDFileFolder: %s"
+
+#~ msgid "Konfigurationsdatei konnte nicht beschrieben werden"
+#~ msgstr "Configuration file could not be written"
+
+#~ msgid "Konfigurationsdatei erfolgreich eingelesen: %s"
+#~ msgstr "Configuration file read successful: %s"
+
+#~ msgid ""
+#~ "BOT Fehler!!! Versuch es noch einmal.\n"
+#~ " %s"
+#~ msgstr ""
+#~ "BOT fault!!! Please try again.\n"
+#~ " %s"
+
+#~ msgid "Bot Bad Request \"%s\""
+#~ msgstr "Bot Bad Request \"%s\""
+
+#~ msgid "Bot TimedOut \"%s\""
+#~ msgstr "Bot TimedOut \"%s\""
+
+#~ msgid "Bot Error \"%s\""
+#~ msgstr "Bot Error \"%s\""
+
+#~ msgid "Schnellbefehle"
+#~ msgstr "Quick commands"
+
+#~ msgid "Einstellungen"
+#~ msgstr "Settings"
+
+#~ msgid ""
+#~ "Anfragefehler getPrinterConfig in getQuickCommandsButton für Drucker: %s"
+#~ msgstr ""
+#~ "Request error getPrinterConfig in getQuickCommandsButton for printers: %s"
+
+#~ msgid "Extruder abgekühlt: %s°C"
+#~ msgstr "Extruder cooling: %s°C"
+
+#~ msgid "ExtCom bei temp. limit inaktiv"
+#~ msgstr "ExtCom at temp. limit inactive"
+
+#~ msgid "Bild nach Druck: %ss"
+#~ msgstr "Picture after print: %ss"
+
+#~ msgid "Bild: %s"
+#~ msgstr "Photo: %s"
+
+#~ msgid "Bild inaktiv"
+#~ msgstr "Image inactive"
+
+#~ msgid "ExtCom deaktivieren"
+#~ msgstr "Disable ExtCom"
+
+#~ msgid "Bild deaktivieren"
+#~ msgstr "Turn off image"
+
+#~ msgid "Anfragefehler getPrinterConfig in sendQuickCommand für Drucker: %s"
+#~ msgstr "Request error getPrinterConfig in sendQuickCommand for printer: %s"
+
+#~ msgid "Schnellbefehl bearbeiten fehlgeschlagen"
+#~ msgstr "Edit quick command failed"
+
+#~ msgid "Schnellbefehl senden fehlgeschlagen"
+#~ msgstr "Send quick command failed"
+
+#~ msgid "Schnellbefehl gesendet"
+#~ msgstr "Quick command sent"
+
+#~ msgid "Bitte neuen Extruder Abkühlwert eingeben. Aktueller Wert: %d°C"
+#~ msgstr "Please enter new extruder cooling value. Current value: %d°C"
+
+#~ msgid ""
+#~ "ExtCom bei temp. limit inaktiv. Wähle einen Befehl aus oder gebe ein "
+#~ "Buchstabe ein um die Funktion abzuwählen"
+#~ msgstr ""
+#~ "ExtCom at temp. limit inactive. Select a command or enter a letter to "
+#~ "deselect the function"
+
+#~ msgid "Konnte keine Verbindung zum Server aufbauen."
+#~ msgstr "Could not connect to the server."
+
+#~ msgid "Bitte neue Verzögerungszeit eingeben. Aktueller Wert: %ds"
+#~ msgstr "Please enter a new delay time. Current value: %ds"
+
+#~ msgid ""
+#~ "Bild nach Druck inaktiv. Wähle einen Befehl aus oder gebe ein Buchstabe "
+#~ "ein um die Funktion abzuwählen"
+#~ msgstr ""
+#~ "Image inactive after printing. Select a command or enter a letter to "
+#~ "deselect the function"
+
+#~ msgid "Befehl fehlgeschlagen"
+#~ msgstr "Command failed"
+
+#~ msgid "Befehl ausgeführt"
+#~ msgstr "Command successful"
+
+#~ msgid "Nachricht nicht gelöscht"
+#~ msgstr "Message not deleted"
+
+#~ msgid "Nachricht gelöscht"
+#~ msgstr "Message deleted"
+
+#~ msgid "updatePrinterMsgReplayMarkup: Drucker %s löscht MessageID: %s"
+#~ msgstr "updatePrinterMsgReplayMarkup: Printer %s deletes MessageID: %s"
+
+#~ msgid "updateServerMsgReplayMarkup: große Anzeige: %s"
+#~ msgstr "updateServerMsgReplayMarkup: large display: %s"
+
+#~ msgid "removeServerMsgReplayMarkup: minimiere Anzeige"
+#~ msgstr "removeServerMsgReplayMarkup: minimize display"
+
+#~ msgid "Bot antwortet auf unbekannten client: %s / %s: %s, %s"
+#~ msgstr "Bot answers to unknown client: %s / %s: %s, %s"
+
+#~ msgid "Unbefugter Zugriff (ID: %s) durch Nutzer %s, %s %s"
+#~ msgstr "Unauthorized access (ID: %s) by users %s, %s %s"
+
+#~ msgid "Kein Zugriff!"
+#~ msgstr "No Access!"
+
+#~ msgid "mainServerMenu starte telegram Konversation: %s / messageID: %s"
+#~ msgstr "mainServerMenu start telegram conversation: %s / messageID: %s"
+
+#~ msgid "mainMenu starte telegram Konversation: %s / messageID: %s"
+#~ msgstr "mainMenu start telegram Conversation: %s / messageID: %s"
+
+#~ msgid "Bot beendet Konversation: %s (%s): %s, %s"
+#~ msgstr "Bot conversation ends: %s (%s): %s, %s"
+
+#~ msgid "Ich nix versteh %s, %s."
+#~ msgstr "Speak english to me %s, %s."
+
+#~ msgid "unknownCommand: Bot kennt Antwort nicht: %s"
+#~ msgstr "unknownCommand: Bot does not know answer: %s"
+
+#~ msgid "Du warst zu langsam, %s. Jetzt darfst nochmal drücken!!!"
+#~ msgstr "You´ve been too slow, %s. Try again!!!"
+
+#~ msgid "Konversations-Timeout"
+#~ msgstr "Conversation timeout"
+
+#~ msgid "Konversations-Timeout-Messages"
+#~ msgstr "Conversation timeout messages"
+
+#~ msgid "Antwort öffnen des Websocket: %s, Unerwarteter Fehler: %s"
+#~ msgstr "Answer opening the Webesocket: %s, unexpected error: %s"
+
+#~ msgid "Antwort auf: %s, Websocket Rückmeldung: %s : Unerwarteter Fehler: %s"
+#~ msgstr "Answer to: %s, Websocket feedback: %s : Unexpected error: %s"
+
+#~ msgid "Über Websocket gesendet: %s"
+#~ msgstr "Send via Websocket: %s"
+
+#~ msgid "Unerwarteter Fehler bei Antwort des Websocket: %s"
+#~ msgstr "Unexpected error to the answer of Websocket: %s"
+
+#~ msgid "Vom Websocket erhalten: %s"
+#~ msgstr "Websocket response: %s"
+
+#~ msgid "JSON: %s : Unerwarteter Fehler: %s"
+#~ msgstr "JSON: %s : Unexpected error: %s"
+
+#~ msgid "Server Meldung nicht die angeforderten: %s : Kein nutzbarer Inhalt"
+#~ msgstr "Server message not requested once: %s : No usable data"
+
+#~ msgid "Thread initialisiert: %s"
+#~ msgstr "Thread initialized: %s"
+
+#~ msgid "Thread %s beendet: Ident: %s / ID: %s"
+#~ msgstr "Thread %s ends: Ident: %s / ID: %s"
+
+#~ msgid ""
+#~ "timeDelThread: Thread (keine ID vorhanden) initialisiert für Nachricht "
+#~ "\"%s\" und MessageID: %s mit er Laufzeit: %ss"
+#~ msgstr ""
+#~ "timeDelThread: Thread (no ID available) initialized for message \"%s\" "
+#~ "and MessageID: %s with Runtime: %ss"
+
+#~ msgid ""
+#~ "timeDelThread: Thread initialisiert für Drucker: %s und MessageID: %s mit "
+#~ "er Laufzeit: %ss"
+#~ msgstr ""
+#~ "timeDelThread: Thread initialized for printer: %s and MessageID: %s with "
+#~ "runtime: %ss"
+
+#~ msgid ""
+#~ "timeDelThread: Thread initialisiert für MessageID: %s mit er Laufzeit: %ss"
+#~ msgstr ""
+#~ "timeDelThread: Thread initialized for MessageID: %s with runtime: %ss"
+
+#~ msgid ""
+#~ "timeDelThread: Thread Nachricht löschen für MessageID %s beendet: Ident: "
+#~ "%s / ID: %s"
+#~ msgstr ""
+#~ "timeDelThread: Delete thread message for MessageID %s terminated: Ident: "
+#~ "%s / ID: %s"
+
+#~ msgid ""
+#~ "Konnte in delMessage Methode keine telegramDelMsg senden auf messageID: %s"
+#~ msgstr ""
+#~ "Couldn´t do delMessage Method no telegramDelMsg sending to messageID: %s"
+
+#~ msgid "delMessage: MessageID %s von der chatID %s wurde gelöscht"
+#~ msgstr "delMessage: MessageID %s from the chatID %s has been deleted"
+
+#~ msgid "msgThread: Drucker Thread initialisiert: %s"
+#~ msgstr "msgThread: Printer Thread Initialized: %s"
+
+#~ msgid "msgThread: Thread %s beendet: Ident: %s / ID: %s"
+#~ msgstr "msgThread: Thread %s terminated: Ident: %s / ID: %s"
+
+#~ msgid "vidGifThread: Thread initialisiert: %s"
+#~ msgstr "vidGifThread: Thread initialized: %s"
+
+#~ msgid "vidGifThread: Thread %s beendet: Ident: %s / ID: %s"
+#~ msgstr "vidGifThread: Thread %s terminated: Ident: %s / ID: %s"
+
+#~ msgid "Action thread initialisiert: %s / %s"
+#~ msgstr "Action thread initialized: %s / %s"
+
+#~ msgid "Action thread %s / %s beendet: Ident: %s / ID: %s"
+#~ msgstr "Action thread %s / %s finished: Ident: %s / ID: %s"
+
+#~ msgid "serverMsgThread: Server thread initialisiert: %s / %s"
+#~ msgstr "serverMsgThread: Server thread initialized: %s / %s"
+
+#~ msgid ""
+#~ "serverMsgThread: Konnte Thread %s nicht in Join setzen, Unexpected Error: "
+#~ "%s"
+#~ msgstr "serverMsgThread: Couldn't join Thread %s, Unexpected Error: %s"
+
+#~ msgid "serverMsgThread: Server thread %s / %s beendet: Ident: %s / ID: %s"
+#~ msgstr ""
+#~ "serverMsgThread: Server thread %s / %s terminated: Ident: %s / ID: %s"
+
+#~ msgid "Threads %s gestartet"
+#~ msgstr "Threads %s started"
+
+#~ msgid "Threads %s beendet"
+#~ msgstr "Threads %s ended"
+
+#~ msgid ""
+#~ "stopByThread: Kann Thread nicht aus Liste printerActiveThreads löschen. "
+#~ "Drucker: %s"
+#~ msgstr ""
+#~ "stopByThread: Cannot delete thread from printerActiveThreads list. "
+#~ "Printer: %s"
+
+#~ msgid "stopByThread: Thread %s beendet"
+#~ msgstr "stopByThread: Thread %s terminated"
+
+#~ msgid "stopSingleThread: Thread %s beendet"
+#~ msgstr "stopSingleThread: Thread %s terminated"
+
+#~ msgid ""
+#~ "stopSingleThread: Kann Thread nicht aus Thread Liste löschen. Drucker: %s"
+#~ msgstr ""
+#~ "stopSingleThread: Cannot delete thread from thread list. Printer: %s"
+
+#~ msgid "stopSingleThread: Thread für %s / %s beendet"
+#~ msgstr "stopSingleThread: Thread for %s/%s terminated"
+
+#~ msgid ""
+#~ "removeSingleThreadOfList: Thread %s wird aus der angeforderten Thread "
+#~ "Liste gelöscht"
+#~ msgstr ""
+#~ "removeSingleThreadOfList: Thread %s is deleted from the requested thread "
+#~ "list"
+
+#~ msgid ""
+#~ "removeSingleThreadOfList: Kann Thread nicht aus Thread Liste löschen. "
+#~ "Drucker: %s"
+#~ msgstr ""
+#~ "removeSingleThreadOfList: Cannot delete thread from thread list. Printer: "
+#~ "%s"
+
+#~ msgid "addHandler: Handler %s hinzugefügt"
+#~ msgstr "addHandler: Handler %s added"
+
+#~ msgid "Benachrichtigung"
+#~ msgstr "Notification"
+
+#~ msgid "Handler %s hinzugefügt"
+#~ msgstr "Added Handler %s"
+
+#~ msgid "removeMsgHandler: Handler %s entfernt"
+#~ msgstr "removeMsgHandler: Handler %s removed"
+
+#~ msgid "Keine Server Rückmeldung in Methode checkForMsgThreads"
+#~ msgstr "No server Feedback in Methode checkForMsgThreads"
+
+#~ msgid "Beende in Methode checkServerConfigChange Thread: %s"
+#~ msgstr "Stop thread in Methode checkServerConfigChange: %s"
+
+#~ msgid "checkBotToServerConfig: Bot Teilnehmer hinzugefügt: %s"
+#~ msgstr "checkBotToServerConfig: Bot Participants added: %s"
+
+#~ msgid "botData: Teilnehmer hinzugefügt: %s"
+#~ msgstr "botData: Participants added: %s"
+
+#~ msgid "Konfigurationsdatei in botData enthält keine Telegram Datenablage"
+#~ msgstr "Configuration file in botData does not contain Telegram data"
+
+#~ msgid "Bot Data angelegt"
+#~ msgstr "Added bot data"
+
+#~ msgid "Bot Data Initialisierung fehlgeschlagen"
+#~ msgstr "Bot data init failed"
+
+#~ msgid "rConfigFile: Konfigurationsdatei nicht gefunden in botData: %s"
+#~ msgstr "rConfigFile: Configuration file not found in botData: %s"
+
+#~ msgid "wConfigFile: Konfigurationsdatei konnte nicht beschrieben werden"
+#~ msgstr "wConfigFile: Configuration file could not be written"
+
+#~ msgid "checkMsgID: Drucker %s fordert neue MessageID für MessageID an: %s"
+#~ msgstr "checkMsgID: Printer %s requests new MessageID for MessageID: %s"
+
+#~ msgid "Ausgeschaltet"
+#~ msgstr "Switched off"
+
+#~ msgid "Konnte keepBasicPrinterInfo keine Bot Nachricht senden an %s"
+#~ msgstr "Couldn´t send bot message in keepBasicPrinterInfo to %s"
+
+#~ msgid "keepBasicPrinterInfo: Drucker %s erzeugt neue MessageID: %s"
+#~ msgstr "keepBasicPrinterInfo: Printer %s generates new MessageID: %s"
+
+#~ msgid ""
+#~ "Konnte keepBasicPrinterInfo keinen telegramEditMsg senden an %s auf "
+#~ "messageID: %s"
+#~ msgstr ""
+#~ "Couldn´t send in keepBasicPrinterInfo a telegramEditMsg to %s and "
+#~ "messageID: %s"
+
+#~ msgid "Printer %s not found in method getPrinterSetting!"
+#~ msgstr "Printer %s not found in method getPrinterSetting!"
+
+#~ msgid "Printer %s stateLists wrong in getExtruderStatus in data: %s"
+#~ msgstr "Printer %s stateLists wrong in getExtruderStatus in data: %s"
+
+#~ msgid "Error!!!"
+#~ msgstr "Error!!!"
+
+#~ msgid "Extruder %d: %.1f °C / %.1f °C"
+#~ msgstr "Extruder %d: %.1f °C/ %.1f °C"
+
+#~ msgid "Extruder %d: %.1f °C"
+#~ msgstr "Extruder %d: %.1f °C"
+
+#~ msgid "Extruder heizt/heizen auf"
+#~ msgstr "Extruder heats/heats up"
+
+#~ msgid "Einsatzbereit"
+#~ msgstr "Ready for use"
+
+#~ msgid "unbekannt"
+#~ msgstr "unknown"
+
+#~ msgid "getServerMessages startet Benachrichtigungs Thread"
+#~ msgstr "getServerMessages launches notification thread"
+
+#~ msgid "getServerMessages beende Benachrichtigungs Thread"
+#~ msgstr "getServerMessages delete Notification Thread"
+
+#~ msgid "Response to open threading websocket: %s, Unexpected Error: %s"
+#~ msgstr "Response to open threading websocket: %s, Unexpected Error: %s"
+
+#~ msgid "Websocket established to: %s"
+#~ msgstr "Websocket established to: %s"
+
+#~ msgid "Druck der Datei"
+#~ msgstr "Prints file"
+
+#~ msgid "ist bei %.1f"
+#~ msgstr "is at %.1f"
+
+#~ msgid "Layer: %s/%s bei Z: %.3fmm"
+#~ msgstr "Layer: %s/%s at Z: %.3fmm"
+
+#~ msgid "Fertigstellung %s"
+#~ msgstr "Completion %s"
+
+#~ msgid "Druck wurde %s begonnen"
+#~ msgstr "Print was started %s"
+
+#~ msgid "Vorraussichtliches Ende: %s"
+#~ msgstr "Estimated finish: %s"
+
+#~ msgid "Drucker Status:"
+#~ msgstr "Printer state:"
+
+#~ msgid "Druckgeschwindigkeit: %s%% Fluss: %s%%"
+#~ msgstr "Printing speed: %s%% Flow: %s%%"
+
+#~ msgid "Aufheizvorgang:"
+#~ msgstr "Heating up:"
+
+#~ msgid "Konnte msgPrinter keine Bot Nachricht senden an %s"
+#~ msgstr "Couldn´t send bot message in msgPrinter to %s"
+
+#~ msgid "msgPrinter: Drucker %s erzeugt neue MessageID: %d"
+#~ msgstr "msgPrinter: Printer %s renew MessageID: %d"
+
+#~ msgid ""
+#~ "Konnte msgPrinter keinen telegramEditMsg senden an %s auf messageID: %s"
+#~ msgstr ""
+#~ "Couldn´t send in msgPrinter the telegramEditMsg to %s in messageID: %s"
+
+#~ msgid "Konnte msgPrinter nicht ausführen. Keine Daten vom Server für %s"
+#~ msgstr "Couldn´t execute msgPrinter. No data from server for %s"
+
+#~ msgid "Lüfter %d: %.0f%%"
+#~ msgstr "Fan %d: %.0f%%"
+
+#~ msgid "Lüfter %d: Aus"
+#~ msgstr "Fan %d: off"
+
+#~ msgid "Chamber %d: %.1f °C/ %.1f °C\n"
+#~ msgstr "Chamber %d: %.1f °C/ %.1f °C\n"
+
+#~ msgid "Heatbed %d: %.1f °C/ %.1f °C\n"
+#~ msgstr "Heatbed %d: %.1f °C/ %.1f °C\n"
+
+#~ msgid "Extruder %d: %.1f °C/ %.1f °C\n"
+#~ msgstr "Extruder %d: %.1f °C/ %.1f °C\n"
+
+#~ msgid "Anfragefehler getPrinterConfig in buildPng für Drucker: %s"
+#~ msgstr "Request error in getPrinterConfig buildPng for printer: %s"
+
+#~ msgid "Png Erstellung startet für %s"
+#~ msgstr "Png creation started for %s"
+
+#~ msgid "Lösche %s"
+#~ msgstr "Delete %s"
+
+#~ msgid "Png Erstellung beendet für %s"
+#~ msgstr "Creating Png finished for %s"
+
+#~ msgid "/%s druckt \"%s\" bei %.1f%%"
+#~ msgstr "/%s prints \"%s\" at %.1f%%"
+
+#~ msgid "/%s - eingeschaltet"
+#~ msgstr "/%s - switched on"
+
+#~ msgid "/%s - ausgeschaltet"
+#~ msgstr "/%s - switched off"
+
+#~ msgid "Png Caption Erstellung beendet für %s"
+#~ msgstr "Creating Png Caption finished for %s"
+
+#~ msgid "Sendefehler telegramSendPic in buildGif für Drucker: %s"
+#~ msgstr "Error sending telegramSendPic in buildGif for printer: %s"
+
+#~ msgid "Png versendet für %s"
+#~ msgstr "Png send for %s"
+
+#~ msgid "Anfragefehler getWebcamStaticUrl in get_image für Drucker: %s"
+#~ msgstr "Error sending getWebcamStaticUrl in get_image for printer: %s"
+
+#~ msgid "Anfragefehler requests in get_image für Drucker: %s"
+#~ msgstr "Request error requests in get_image for printer: %s"
+
+#~ msgid ""
+#~ "Verzeichnis/Datei konnte nicht in get_image für Drucker erstellt werden: "
+#~ "%s"
+#~ msgstr "Folder/File couldn´t be created in get_image for printer: %s"
+
+#~ msgid "Anfragefehler getPrinterConfig in buildGif für Drucker: %s"
+#~ msgstr "Request error getPrinterConfig in buildGif for printer: %s"
+
+#~ msgid "Gif Erstellung startet für %s"
+#~ msgstr "Gif creation starts for %s"
+
+#~ msgid "Erstellungsfehler imageio.mimsave in buildGif für Drucker: %s"
+#~ msgstr "Creation errror in imageio.mimsave in buildGif for printer: %s"
+
+#~ msgid "TypeError bei gifsicle in buildGif: %s"
+#~ msgstr "TypeError in gifsicle in buildGif: %s"
+
+#~ msgid "Optimierungsfehler optimize von gifsicle in buildGif für Drucker: %s"
+#~ msgstr ""
+#~ "Optimization error in optimize for gifsicle in buildGif for printer: %s"
+
+#~ msgid "Gif Erstellung beendet für %s"
+#~ msgstr "Gif creation finished for %s"
+
+#~ msgid "Gif Caption Erstellung beendet für %s"
+#~ msgstr "Gif Caption creation finished for %s"
+
+#~ msgid "Sendefehler telegramSendAnimation in buildGif für Drucker: %s"
+#~ msgstr "Error sending telegramSendAnimation in buildGif for printer: %s"
+
+#~ msgid "Gif versendet für %s"
+#~ msgstr "Gif send for %s"
+
+#~ msgid "Anfragefehler requests in get_gif für Drucker: %s"
+#~ msgstr "Request error in requests in get_gif for printer: %s"
+
+#~ msgid "Anfragefehler getPrinterConfig in buildVid für Drucker: %s"
+#~ msgstr "Request error in getPrinterConfig in buildVid for printer: %s"
+
+#~ msgid "Vid Erstellung startet für %s"
+#~ msgstr "Vid creation started for %s"
+
+#~ msgid "removing %s"
+#~ msgstr "removing %s"
+
+#~ msgid "Vid Erstellung beendet für %s"
+#~ msgstr "Vid creation finished for %s"
+
+#~ msgid "Vid Caption Erstellung beendet für %s"
+#~ msgstr "Vid Caption creation finished for %s"
+
+#~ msgid "Vid versendet für %s"
+#~ msgstr "Vid sended for %s"
+
+#~ msgid "Anfragefehler getWebcamDynamicUrl in get_Vid für Drucker: %s"
+#~ msgstr "Request error in getWebcamDynamicUrl in get_Vid for printer: %s"
+
+#~ msgid "Stream konnte nicht in get_Vid für Drucker gelesen werden: %s"
+#~ msgstr "Stream couldn´t been read in get_Vid for printer: %s"
+
+#~ msgid "Antwort: %s - Unerwarteter Fehler: %s"
+#~ msgstr "Response: %s - Unexpected error: %s"
+
+#~ msgid "Thread Send aktiv"
+#~ msgstr "Thread send active"
+
+#~ msgid "Antwort unerwarteter Fehler: %s"
+#~ msgstr "Response unexpected error: %s"
+
+#~ msgid "Thread Rec aktiv"
+#~ msgstr "Thread Rec active"
+
+#~ msgid ""
+#~ "getMessageCntAction - CallbackID wurde gelöscht. Es wurde nicht "
+#~ "zurückgemeldet: %s"
+#~ msgstr ""
+#~ "getMessageCntAction - CallbackID has been deleted. It was not returned: %s"
+
+#~ msgid "Thread lock gestartet"
+#~ msgstr "Thread lock started"
+
+#~ msgid "Thread lock freigegeben"
+#~ msgstr "Thread lock released"
+
+#~ msgid "Event - JSON laden fehlgeschlagen: %s"
+#~ msgstr "Event - JSON load fault: %s"
+
+#~ msgid "Event - Struktur data nicht erreichbar: %s"
+#~ msgstr "Event - structure data not available: %s"
+
+#~ msgid "Event - Loggen nicht möglich: %s"
+#~ msgstr "Event - Logging not possible: %s"
+
+#~ msgid "eventTyp: jobFinished detected"
+#~ msgstr "eventType: jobFinished detected"
+
+#~ msgid "%s hat nach %s den Druck beendet."
+#~ msgstr "%s has finished the print %s."
+
+#~ msgid "eventTyp: jobFinished: %s"
+#~ msgstr "eventTyp: jobFinished: %s"
+
+#~ msgid "eventTyp: messagesChanged detected"
+#~ msgstr "eventType: messagesChanged detected"
+
+#~ msgid "eventTyp: messagesChanged"
+#~ msgstr "eventType: messagesChanged"
+
+#~ msgid "Neue Nachricht!"
+#~ msgstr "New message!"
+
+#~ msgid "eventTyp: jobKilled detected"
+#~ msgstr "eventType: jobKilled detected"
+
+#~ msgid "Druck von %s wurde nach %s abgebrochen"
+#~ msgstr "Print from %s has been aborted after %s"
+
+#~ msgid "eventTyp: jobKilled: %s"
+#~ msgstr "eventTyp: jobKilled: %s"
+
+#~ msgid "eventTyp: jobStarted detected"
+#~ msgstr "eventType: jobStarted detected"
+
+#~ msgid "%s hat um %s den Druck %s gestartet und endet vorraussichtlich %s."
+#~ msgstr "%s has started printing at %s of %s and will be finished at %s."
+
+#~ msgid "eventTyp: jobStarted: %s"
+#~ msgstr "eventTyp: jobStarted: %s"
+
+#~ msgid "eventTyp: changeFilamentRequested detected"
+#~ msgstr "eventType: changeFilamentRequested detected"
+
+#~ msgid "Order Storage Runtime: %ssek."
+#~ msgstr "Order storage runtime: %ssek."
+
+#~ msgid "Drucker Befehl nach Abkühlvorgang fehlgeschlagen"
+#~ msgstr "Printer command failed after cooling operation"
+
+#~ msgid "Drucker Befehl nach Abkühlvorgang ausgeführt"
+#~ msgstr "Printer command executed after cooling operation"
+
+#~ msgid "Letzte Nachricht"
+#~ msgstr "Last message"
+
+#~ msgid "servMsgAction erzeuge telegram Nachricht: %s / messageID: %s"
+#~ msgstr "servMsgAction generates telegram message: %s / messageID: %s"
+
+#~ msgid "servMsgAction erneuert telegram Nachricht: %s / messageID: %s"
+#~ msgstr "servMsgAction renews telegram message: %s / messageID: %s"
+
+#~ msgid ""
+#~ "servMsgAction editiert telegram Nachricht fehlgeschlagen: %s / messageID: "
+#~ "%s"
+#~ msgstr "servMsgAction editing telegram message failed: %s / messageID: %s"
+
+#~ msgid "servMsgAction editiert telegram Nachricht: %s / messageID: %s"
+#~ msgstr "servMsgAction edited telegram message: %s / messageID: %s"
+
+#~ msgid ""
+#~ "Threads Alive:\n"
+#~ "wsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, "
+#~ "wsThreadRestart: %s, Restarts Websocket/Send/Receive: %d, Restarts Order "
+#~ "Data: %d"
+#~ msgstr ""
+#~ "Threads Alive:\n"
+#~ "wsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, "
+#~ "wsThreadRestart: %s, Restarts Websocket/Send/Receive: %d, Restarts Order "
+#~ "Data: %d"
+
+#~ msgid "wsThreadSend und wsThreadRec restart Zähler zurückgesetzt"
+#~ msgstr "wsThreadSend and wsThreadRec restart counter reseted"
+
+#~ msgid "wsThreadSend und wsThreadRec nachgestartet. Zähler: %d"
+#~ msgstr "wsThreadSend and wsThreadRec restarted. Counter: %d"
+
+#~ msgid "wsThreadOrderData restart Zähler zurückgesetzt"
+#~ msgstr "wsThreadOrderData restart counter reseted"
+
+#~ msgid "wsThreadOrderData nachgestartet. Zähler: %s"
+#~ msgstr "wsThreadOrderData restarted. Counter: %s"
+
+#~ msgid "Auflistung aller aktiven Threads. Zähler: %d"
+#~ msgstr "List of all active threads. Counter: %d"
+
+#~ msgid "Thread: %s"
+#~ msgstr "Thread: %s"
+
+#~ msgid "########### Repetier-Server Bot ###########"
+#~ msgstr "########### Repetier-Server Bot ###########"
+
+#~ msgid "Software Version: %s"
+#~ msgstr "Software Version: %s"
+
+#~ msgid "Thread Name: %s"
+#~ msgstr "Thread name: %s"
+
+#~ msgid "########### Geräte and Python Information ###########"
+#~ msgstr "########### Device and Python information ###########"
+
+#~ msgid "Python Version: %s"
+#~ msgstr "Python version: %s"
+
+#~ msgid "OS: %s"
+#~ msgstr "OS: %s"
+
+#~ msgid "Active User: %s"
+#~ msgstr "Active user: %s"
+
+#~ msgid "Python Programm wurde beendet. Aktive Threads: %d/ %s"
+#~ msgstr "Python program was stopped. Active threads: %d/ %s"
+
+#~ msgid "%s hat um %s den Druck gestartet."
+#~ msgstr "%s started the pressure around %s."
+
+#~ msgid "Drucker %s hat %s versendet"
+#~ msgstr "Printer %s has send %s"
+
+#~ msgid " ist aktiviert "
+#~ msgstr " is activated "
+
+#~ msgid "und eingeschaltet"
+#~ msgstr "and switched on"
+
+#~ msgid " Druckt: "
+#~ msgstr " Prints: "
+
+#~ msgid "und ausgeschaltet."
+#~ msgstr "and switched off."
+
+#~ msgid "Drucker hinzugefügt: %s"
+#~ msgstr "Added printer: %s"
+
+#~ msgid " hinzugefügt"
+#~ msgstr " added"
+
+#~ msgid "%s hinzugefügt"
+#~ msgstr "added %s"
+
+#~ msgid "Druckauftrag %s wurde geändert"
+#~ msgstr "Print quoe changed for %s"
+
+#~ msgid "Druckerwarteschlange %s wurde geändert"
+#~ msgstr "Printer quoe %s was changed"
+
+#~ msgid "Drucker Einstellung %s Fluss: %d%% Druckgeschwindigkeit: %d%%"
+#~ msgstr "Printer setting %s flow: %d%% print speed: %d%%"
+
+#~ msgid "Druckauftrag für %s wird bearbeitet"
+#~ msgstr "Printer quoe for %s is modified"
+
+#~ msgid "Druckauftragsbearbeitung für %s wurde fertiggestellt"
+#~ msgstr "Printer quoe modification for %s was finished"
