@@ -1,5 +1,5 @@
 # Repetier-Server-Telegram-Bot - Python
-## Version: 1.0.3 - 20.12.2020
+## Version: 1.0.4 - 20.12.2020
 Telegram Bot connecting your Repetier Server and your Telegram bot account.
 
 It updates frequently your bot and you´ll have latest information about your prints and printer status.
@@ -19,7 +19,6 @@ Please visit the wiki for helpful information related to this program: [Main Wik
 _If you want to support me with a fresh coffee and if you think it´s worthing what i'm doing, donate something, to get a fresh coffee_
 [Push here :love_letter:](https://paypal.me/DanielGlock78)
 
-# !For updating your existing installation, please refer Version History section below!
 # Images/Pictures
 
 ### New in V1.0.2:
@@ -99,23 +98,6 @@ German, English, Spanish
 Please be aware of differences in the platform (Windows and Linux).
 
 You can reduce the program size by deleting languages in the folder ./locale (But i would not recommend it, there are still only 3 languages inside...a few kB of your HD)
-
-# Version History:
-Use always the new Python file and the latest JSON configuration file ( if version < V1.0.2). Please download always locale Folder (language files) too. 
-
-V03: First Release
-
-V04: Bugfixes, New functions for showing messages, quick commands, command to ExtCommand after printing and cooling down the extruder, reduced messages
-  Please use new Configuration JSON or if you know how to modifiy your existing. Check for differences.
-  
-V05.000: Bugfixes, implemented FR001: Send picture after print finished, removed telegram message - repetier server message due to exceeding telegram bot limits, which will be fixed in V1.0.0, which will be the next version of my software.
-
-V1.0.2:
-Exchange of the core. new functions, better user experience, more stability, easy handling for debug information (and sending it to the support), setup tool for windows.
-Please exchange all files if you have used a former version of this program. In future it will auto update the config file without renewing this file (nothing lasts as long as each change, lol)
-
-V1.0.3:
-Bugfix for Gifs on a linux machine. Otimization of the Gif on Linux not possible.
 
 # Additional information & support request
 
