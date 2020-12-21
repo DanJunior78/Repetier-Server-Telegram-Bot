@@ -65,8 +65,8 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.5" 
-CFG_VERSION = "V1.0"
+SW_VERSION = "1.0.9" 
+CFG_VERSION = "V1.1"
 EX_DEBUG = False
 
 LANGUAGE = "de"
@@ -74,6 +74,7 @@ LANGUAGE = "de"
 # Repetier-Server
 RepetierServerIP = ""
 RepetierServerPort = ""
+RepetierServerWebcamIP = ""
 MY_REPETIER_SERVER_API_KEY = ""
 MessCnt = 0
 
@@ -155,6 +156,7 @@ def getServerConfig(): # Program configuration dataset for the bot, including in
     mainConfig['MY_REPETIER_SERVER_API_KEY'] = ""
     mainConfig['RepetierServerIP'] = ""
     mainConfig['RepetierServerPort'] = ""
+    mainConfig['RepetierServerWebcamIP'] = ""
     mainConfig['MY_TELEGRAM_ID'] = ""
     mainConfig['MY_TELEGRAM_TOKEN'] = ""
     return mainConfig
@@ -252,7 +254,8 @@ def checkFileImport(data):
 
 def impConfig():
     global LANGUAGE,MY_REPETIER_SERVER_API_KEY,RepetierServerIP
-    global RepetierServerIP2,RepetierServerPort,MY_TELEGRAM_TOKEN,CHATID
+    global RepetierServerPort,MY_TELEGRAM_TOKEN,CHATID
+    global RepetierServerWebcamIP
     global LOGFILENAME,LOGFILENAMEWS,PNGFILEFOLDER,GIFFILEFOLDER,VIDFILEFOLDER
     global presLan
     try:
@@ -305,6 +308,15 @@ def impConfig():
         logger.error("Configuration file does not contain RepetierServerPort element")
         sys.exit()
     try:
+        RepetierServerWebcamIP = serverData['RepetierServerWebcamIP']
+        logger.info("Repetier Server Webcam IP: %s" % RepetierServerWebcamIP)        
+    except:
+        logger.error("Configuration file does not contain RepetierServerWebcamIP element")
+        sys.exit()
+    if RepetierServerWebcamIP == "":
+        RepetierServerWebcamIP = RepetierServerIP
+    data['server']['RepetierServerWebcamIP'] = RepetierServerWebcamIP
+    try:
         MY_TELEGRAM_TOKEN = serverData['MY_TELEGRAM_TOKEN']
         logger.info("Telegram Token: %s" % MY_TELEGRAM_TOKEN)        
     except:
@@ -337,7 +349,7 @@ def telegramSendMsg(msg, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TO
 def telegramSendPic(pic, caption, reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML):
     bot = telegram.Bot(token=token)
     return bot.send_photo(chat_id=chat_id, 
-                          photo=open(pic, 'rb'), 
+                          photo=open(pic, 'rb'), # .encode('utf-8')
                           timeout=100,
                           caption=caption,
                           reply_markup=reply_markup,
@@ -2304,6 +2316,7 @@ class botThreadHdl(dataHdlThread):
                                                               ),
                                   delayTimeSelect=msgToSend['delTime'])
             elif msgToSend['vidPic'] != None: # video = "vid" / pic = "pic" / gif = "gif" / file = "file"
+                loggerWS.info("In vidPic: \"%s\" - Info Path/Caption: %s / %s" % (msgToSend['vidPic'], msgToSend['msg']['path'], msgToSend['msg']['caption'])) 
                 if msgToSend['vidPic'] == "vid":
                     telegramSendVideo(video=msgToSend['msg']['path'], 
                                       caption=msgToSend['msg']['caption'], 
@@ -2311,6 +2324,10 @@ class botThreadHdl(dataHdlThread):
                                       parse_mode=telegram.ParseMode.HTML)
                     loggerWS.info("Video send: %s/%s" % (msgToSend['slug'], msgToSend['function'])) 
                 if msgToSend['vidPic'] == "pic":
+                    #################### TEST - To Remove START #####################################
+                    #telegramSendAnimation(anim=msgToSend['msg']['path'], caption=msgToSend['msg']['caption']+" TEST", chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML)
+                    #time.sleep(1)
+                    #################### TEST - To Remove END #####################################
                     telegramSendPic(pic=msgToSend['msg']['path'], 
                                     caption=msgToSend['msg']['caption'], 
                                     chat_id=CHATID, token=MY_TELEGRAM_TOKEN, 
@@ -2565,7 +2582,8 @@ class botThreadHdl(dataHdlThread):
                             msgLong += "<b>\"%s\"</b>\n" % listPrinters['job'] 
                             msgLong += "<b>" + _("is at") + "</b> <i>%.1f</i>%%\n" % listPrinters['done']
                             msgLong += "<b>" + _("Layer:") + "</b> <i>%s/%s</i> <b>" % (stateLists['layer'], listPrinters['ofLayer']) + _("at Z:") + "</b> <i>%.3fmm</i>\n" % stateLists['z']
-                            msgLong += "<b>" + _("Expected end at") + ":</b> <i>%s</i>\n" % arrow.get(int(listPrinters['start']) + int(listPrinters['printTime'])).format('DD.MM.YYYY - HH:mm')
+                            msgLong += "<b>" + _("Expected end at") + ":</b> <i>%s</i>\n" % arrow.get(int(listPrinters['start']) + int(listPrinters['printTime']) - int(listPrinters['printedTimeComp'])).format('DD.MM.YYYY - HH:mm')
+                            # stateTime + 1000*(active.status.printTime-active.status.printedTimeComp))
                             msgLong += "<b>" + _("Print was started") + ":</b> <i>%s</i>\n" % arrow.get(int(listPrinters['start'])).format('DD.MM.YYYY - HH:mm') # getTimeGone(int(listPrinters['start']))
                             msgLong += "\n<u><b>" + _("Printer state") + ":</b></u>\n"
                             msgLong += "<b>⚙️ " + _("Print speed") + ":</b> <i>%s%%</i> " % (stateLists['speedMultiply']) + "💧 <b>" + _("Flow") + ":</b> <i>%s%%</i>\n" % (stateLists['flowMultiply'])
@@ -2586,7 +2604,7 @@ class botThreadHdl(dataHdlThread):
                             if len(stateLists['extruder']) > 0:
                                 msgLong += msgE
                         if statusC and statusHB and statusE:
-                            msgShort += "<b>🖨 " + _("Printing") + ": \"%s\"</b>\n<i>%.1f%%</i> ~ <i>%s</i>" % (listPrinters['job'], listPrinters['done'], arrow.get(int(listPrinters['start']) + int(listPrinters['printTime'])).format('DD.MM.YYYY - HH:mm')) + "\n"
+                            msgShort += "<b>🖨 " + _("Printing") + ": \"%s\"</b>\n<i>%.1f%%</i> ~ <i>%s</i>" % (listPrinters['job'], listPrinters['done'], arrow.get(int(listPrinters['start']) + int(listPrinters['printTime']) - int(listPrinters['printedTimeComp'])).format('DD.MM.YYYY - HH:mm')) + "\n"
                         else:
                             msgShort += "<u><b>🔥 " + _("Heat up phase:") + ":</b></u>\n" + msgC + msgHB + msgE
                         self.threadWishState("active",threadItem)
@@ -2825,21 +2843,21 @@ class botThreadHdl(dataHdlThread):
                             botMsg=True,
                             singleMsg=False,
                             ) 
-        loggerWS.info("%s send for %s" % (type, slug))
+        loggerWS.info("%s send for %s with path: %s, caption: %s" % (type, slug, pathToVidGif, caption))
         self.pushAllMsgToFront()
   
     def get_img(self, webcam, slug, pngDir):
         try:
-            realUrlServer = self.getUrl(webcam['staticUrl'])
+            realUrlServer = self.getWebcamUrl(webcam['staticUrl'])
         except:
-            loggerWS.error("Request error in getUrl of get_image for printer: %s" % slug)
+            loggerWS.error("Request error in getWebcamUrl of get_image for printer: %s" % slug)
             self.abortVidGif(slug)
             return "Error"
         imageName = slug + ".png"
         try:
             image = requests.get(realUrlServer)
         except OSError:  
-            loggerWS.error("Request error in requests of get_image for printer: %s" % slug)
+            loggerWS.error("Request error in requests of get_image for printer: %s / %s" % (slug, realUrlServer))
             return "Error"
         if image.status_code == 200:  # we could have retrieved error page
             with open(os.path.join(pngDir, imageName), "wb") as f:
@@ -2861,9 +2879,9 @@ class botThreadHdl(dataHdlThread):
 
     def get_gif(self, webcam, slug, gifDir):
         try:
-            realUrlServer = self.getUrl(webcam['staticUrl'])
+            realUrlServer = self.getWebcamUrl(webcam['staticUrl'])
         except:
-            loggerWS.error("Request error in getUrl of get_image for printer: %s" % slug)
+            loggerWS.error("Request error in getWebcamUrl of get_gif for printer: %s " % slug)
             self.abortVidGif(slug)
             return "Error"
         for i in range(0,20):
@@ -2910,9 +2928,9 @@ class botThreadHdl(dataHdlThread):
 
     def get_vid(self, webcam, slug, vidDir):
         try:
-            realUrlServer = self.getUrl(webcam['dynamicUrl'])
+            realUrlServer = self.getWebcamUrl(webcam['dynamicUrl'])
         except:
-            loggerWS.error("Request error in getUrl of get_image for printer: %s" % slug)
+            loggerWS.error("Request error in getWebcamUrl of get_vid for printer: %s" % slug)
             return "Error"
         fps = 24
         width = 320
@@ -2949,10 +2967,18 @@ class botThreadHdl(dataHdlThread):
         cap.release()
         return videoFile
         
-    def getUrl(self, url):
-        repetierUrl = urlparse(url)
-        realUrlServer = repetierUrl._replace(netloc=RepetierServerIP + ":" + str(repetierUrl.port))
+    def getWebcamUrl(self, url):
+        loggerWS.info("getWebcamUrl - transfered URL request: %s" % url)
+        try:
+            repetierUrl = urlparse(url)
+        except:
+            loggerWS.error("getWebcamUrl - could not parse URL: %s" % url)
+        try:
+            realUrlServer = repetierUrl._replace(netloc=RepetierServerWebcamIP + ":" + str(repetierUrl.port))
+        except:
+            loggerWS.error("getWebcamUrl - could not replace URL: %s" % url)
         realUrlServer = realUrlServer.geturl()
+        loggerWS.info("getWebcamUrl - return URL request: %s" % realUrlServer)
         return realUrlServer
 
     def abortVidGif(self, slug):
@@ -3120,7 +3146,7 @@ class botThreadHdl(dataHdlThread):
     def getModelUrl(self, slug, id, type, size):
         # Model http://192.168.100.44/dyn/render_image?q=models&id=72&slug=Anycubic_i3_Mega_S&t=m -> small t=l / medium t=m / t=l -> large 
         # Print http://192.168.100.44/dyn/render_image?q=jobs&id=11&slug=Anycubic_i3_Mega_S&t=m
-        realUrlServer = "http://" + RepetierServerIP + "/dyn/render_image?q=" + type + "&id=" + str(id) + "&slug=" + slug + "&t=" + size
+        realUrlServer = "http://" + RepetierServerIP + ":" + RepetierServerPort + "/dyn/render_image?q=" + type + "&id=" + str(id) + "&slug=" + slug + "&t=" + size
         return realUrlServer
 
     def getModelFileLocation(self, slug, id):
