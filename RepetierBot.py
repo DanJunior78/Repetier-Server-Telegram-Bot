@@ -65,9 +65,9 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.3" 
+SW_VERSION = "1.0.4" 
 CFG_VERSION = "V1.0"
-EX_DEBUG = True
+EX_DEBUG = False
 
 LANGUAGE = "de"
 
@@ -1740,6 +1740,7 @@ class botThreadHdl(dataHdlThread):
         self.wsThreadRec.start()
         self.wsThreadOrderData.start()
         time.sleep(5)
+        self.initModels()
         self.threadManager.start()
         self.botCommunicator.start()
         time.sleep(2)
@@ -2943,10 +2944,16 @@ class botThreadHdl(dataHdlThread):
             listModels = self.getPrinterDataStorage(slug, "listModels")
             listPrinters = self.getPrinterDataStorage(slug, "listPrinter")
             newRenderImage = self.getPrinterDataStorage(slug, "newRenderImage")
-            newRenderImageID = newRenderImage['id']
-            data = {}
-            data['id'] = None
-            self.setPrinterData(slug, "newRenderImage", data)
+            if newRenderImage != "Error":
+                newRenderImageID = newRenderImage['id']
+                data = {}
+                data['id'] = None
+                self.setPrinterData(slug, "newRenderImage", data)
+            else:
+                newRenderImageID = None
+                data = {}
+                data['id'] = None
+                self.setPrinterData(slug, "newRenderImage", data)
             for model in listModels['data']:
                 if model['analysed'] == 1:
                     loggerWS.debug("modelManager - listModels - Printer: %s, model: %s analysed" % (slug,model['name']))
@@ -2970,6 +2977,7 @@ class botThreadHdl(dataHdlThread):
                                              )
                         else:
                             msg = "<i>" + _("Model") + " \"%s\" " % (model['name'])  + _("uploaded to printer %s.") %(listPrinters['name']) + "</i>"
+                            loggerWS.info("modelManager - listModels - Printer: %s, amount of models in print queue: %d" % (slug,len(listModels['data'])))
                             self.addMsgToBot(slug="Bot",
                                              function="newModelAdded",
                                              msg=msg,
@@ -2989,6 +2997,7 @@ class botThreadHdl(dataHdlThread):
                         fileToDelete = False
                 if fileToDelete:
                     eachFileInPath.unlink()
+                    loggerWS.info("modelManager - listModels - Printer: %s, amount of models in print queue: %d" % (slug,len(listModels)))
                     msg = "<i>" + _("Model removed from printer %s.") %(listPrinters['name']) + "</i>"
                     self.addMsgToBot(slug="Bot",
                                     function="delModelAdded",
@@ -3083,6 +3092,43 @@ class botThreadHdl(dataHdlThread):
         filename = str(id) + '.png'
         fileLocation = os.path.join(filePathModel, filename)
         return fileLocation
+
+    def initModels(self):
+        initStart = arrow.now()
+        for slug in self.botData['printers']:
+            filePathModel= pathlib.Path(os.path.join(MODELFILEFOLDER, slug))
+            filePathModel.mkdir(parents=True, exist_ok=True)
+            while True:
+                listModels = self.getPrinterDataStorage(slug, "listModels")
+                if listModels == "Error":
+                    loggerWS.info("initModels - listModels - Printer: %s not available. Waiting for server response" % (slug))
+                    time.sleep(1)
+                else:
+                    loggerWS.info("initModels - listModels - Printer: %s available" % (slug))
+                    break
+            listPrinters = self.getPrinterDataStorage(slug, "listPrinter")
+            for model in listModels['data']:
+                loggerWS.debug("initModels - listModels - Printer: %s, model: %s found" % (slug,model['name']))
+                filename = str(model['id']) + '.png'
+                fileIDToCheck = os.path.join(filePathModel, filename)                    
+                if not os.path.exists(fileIDToCheck):
+                    if not self.getModelPic(slug, model['id'], fileIDToCheck, "models", "m"):
+                        loggerWS.error("initModels - listModels - Printer: %s, model: %s file not downloaded: %s" % (slug,model['name'], fileIDToCheck))
+                        continue
+            msg = "<i>" + _("Found") + " %s " % (len(listModels['data']))  + _("models in print queue for printer %s.") %(slug) + "</i>"
+            self.addMsgToBot(slug="Bot",
+                                function="initModels_" + slug,
+                                msg=msg,
+                                reply_markup=None,
+                                vidPic=None,
+                                priority=False,
+                                botMsg=True,
+                                singleMsg=True, 
+                                delTime=10
+                                )
+            loggerWS.info("initModels - listModels - Printer: %s, models found: %s" % (slug,len(listModels['data'])))
+        initRuntime = arrow.now() - initStart
+        loggerWS.info("initModels Runtime: %ssek." % initRuntime)
 
     def ThreadSend(self):
         threadItem = threading.current_thread()
@@ -3831,12 +3877,12 @@ class botThreadHdl(dataHdlThread):
             loggerWS.info("threadManager restartet. Counter: %s" % self.restartThdMan)
         if not self.modelManager.is_alive():
             if self.restartModelManager >= 100000:
-                loggerWS.info("ModelManager reset restart counter")
+                loggerWS.info("modelManager reset restart counter")
                 self.restartModelManager = 0
             self.restartModelManager += 1
             self.modelManager = dataHdlThread(interval=THRDMODELMAN, execute=self.modelManager, name="Repetier-Server-Model-Manager")
             self.modelManager.start()
-            loggerWS.info("threadManager restartet. Counter: %s" % self.restartThdMan)
+            loggerWS.info("modelManager restartet. Counter: %s" % self.restartModelManager)
         if  not self.botCommunicator.is_alive():
             if self.restartbotCom >= 100000:
                 loggerWS.info("botCommunicator reset restart counter")
