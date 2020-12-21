@@ -65,7 +65,7 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.9" 
+SW_VERSION = "1.0.10" 
 CFG_VERSION = "V1.1"
 EX_DEBUG = False
 
@@ -443,6 +443,43 @@ def isInt(str):
 
 # Format day and time (arrow) for actual prints
 
+def getTimeDelta(deltaT = 0): # in seconds (datetime..timedelta.total_seconds())
+    seconds = int(deltaT)
+    seconds_in_day = 60 * 60 * 24
+    seconds_in_hour = 60 * 60
+    seconds_in_minute = 60
+
+    days = seconds // seconds_in_day
+    hours = (seconds - (days * seconds_in_day)) // seconds_in_hour
+    minutes = (seconds - (days * seconds_in_day) - (hours * seconds_in_hour)) // seconds_in_minute
+    second = seconds % 60
+
+    if second < 10:
+        secondStr = "0%s"%second
+    else:
+        secondStr = "%s"%second
+    if minutes < 10:
+        minutesStr = "0%s"%minutes
+    else:
+        minutesStr = "%s"%minutes
+    if hours < 10:
+        hoursStr = "0%s"%hours
+    else:
+        hoursStr = "%s"%hours
+
+    if days > 0:
+        message="%sd - %s:%s:%s" % (days,hoursStr,minutesStr,secondStr)
+        return message
+    elif hours > 0:
+        message="%s:%s:%s" % (hoursStr,minutesStr,secondStr)
+        return message
+    elif minutes > 0:
+        message="00:%s:%s" % (minutesStr,secondStr)
+        return message
+    else:
+        message="00:00:%s" % (secondStr)
+        return message
+
 def getGranularity(deltaT = 0): # in seconds (datetime..timedelta.total_seconds())
     seconds = int(deltaT)
     seconds_in_day = 60 * 60 * 24
@@ -454,7 +491,6 @@ def getGranularity(deltaT = 0): # in seconds (datetime..timedelta.total_seconds(
     minutes = (seconds - (days * seconds_in_day) - (hours * seconds_in_hour)) // seconds_in_minute
     second = seconds % 60
     if days > 0:
-        
         granularity=["day","hour", "minute","second"]
         return granularity
     elif hours > 0:
@@ -2578,13 +2614,16 @@ class botThreadHdl(dataHdlThread):
                         statusE, msgE = self.checkExtrudersStatus(stateLists['extruder'])
                         msgLong = msgBasis 
                         if statusC and statusHB and statusE:
+                            actTime = arrow.now()
+                            restOfPrintTime = int(listPrinters['printTime'])-int(listPrinters['printedTimeComp'])
                             msgLong += "<u><b>" + _("Print file") + ":</b></u>\n"
                             msgLong += "<b>\"%s\"</b>\n" % listPrinters['job'] 
                             msgLong += "<b>" + _("is at") + "</b> <i>%.1f</i>%%\n" % listPrinters['done']
                             msgLong += "<b>" + _("Layer:") + "</b> <i>%s/%s</i> <b>" % (stateLists['layer'], listPrinters['ofLayer']) + _("at Z:") + "</b> <i>%.3fmm</i>\n" % stateLists['z']
-                            msgLong += "<b>" + _("Expected end at") + ":</b> <i>%s</i>\n" % arrow.get(int(listPrinters['start']) + int(listPrinters['printTime']) - int(listPrinters['printedTimeComp'])).format('DD.MM.YYYY - HH:mm')
-                            # stateTime + 1000*(active.status.printTime-active.status.printedTimeComp))
-                            msgLong += "<b>" + _("Print was started") + ":</b> <i>%s</i>\n" % arrow.get(int(listPrinters['start'])).format('DD.MM.YYYY - HH:mm') # getTimeGone(int(listPrinters['start']))
+                            msgLong += "<b>" + _("Print was started") + ":</b> <i>%s</i>\n" % arrow.get(int(listPrinters['start'])).format('DD.MM.YYYY - HH:mm')
+                            msgLong += "<b>" + _("Expected end at") + ":</b> <i>%s</i>\n" % actTime.shift(seconds=restOfPrintTime).format('DD.MM.YYYY - HH:mm')
+                            msgLong += "<b>" + _("Actual print time") + ":</b> <i>%s</i>\n" % getTimeDelta(int(listPrinters['printedTimeComp']))
+                            msgLong += "<b>" + _("Time left to finish") + ":</b> <i>%s</i>\n" % getTimeDelta(int(listPrinters['printTime'])-int(listPrinters['printedTimeComp']))
                             msgLong += "\n<u><b>" + _("Printer state") + ":</b></u>\n"
                             msgLong += "<b>⚙️ " + _("Print speed") + ":</b> <i>%s%%</i> " % (stateLists['speedMultiply']) + "💧 <b>" + _("Flow") + ":</b> <i>%s%%</i>\n" % (stateLists['flowMultiply'])
                             msgLong += msgF
@@ -2604,7 +2643,9 @@ class botThreadHdl(dataHdlThread):
                             if len(stateLists['extruder']) > 0:
                                 msgLong += msgE
                         if statusC and statusHB and statusE:
-                            msgShort += "<b>🖨 " + _("Printing") + ": \"%s\"</b>\n<i>%.1f%%</i> ~ <i>%s</i>" % (listPrinters['job'], listPrinters['done'], arrow.get(int(listPrinters['start']) + int(listPrinters['printTime']) - int(listPrinters['printedTimeComp'])).format('DD.MM.YYYY - HH:mm')) + "\n"
+                            actTime = arrow.now()
+                            restOfPrintTime = int(listPrinters['printTime'])-int(listPrinters['printedTimeComp'])
+                            msgShort += "<b>🖨 " + _("Printing") + ": \"%s\"</b>\n<i>%.1f%%</i> ~ <i>%s</i>" % (listPrinters['job'], listPrinters['done'], actTime.shift(seconds=restOfPrintTime).format('DD.MM.YYYY - HH:mm')) + "\n"
                         else:
                             msgShort += "<u><b>🔥 " + _("Heat up phase:") + ":</b></u>\n" + msgC + msgHB + msgE
                         self.threadWishState("active",threadItem)
@@ -3976,7 +4017,7 @@ class botThreadHdl(dataHdlThread):
                              delTime=30
                              )
         self.threadWishState("active",hdlRestartThread)
-
+        
     def printThreadStatsInLogger(self):
         loggerWS.info("Bot thread counter statistic:\nSend: %d\nReceive: %d\nOrder-Data: %d\nBot Communication: %d\nThread Manager: %d\nModel Manager: %d" % (self.restartWsSend,
                                                             self.restartWsReceive,
