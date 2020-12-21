@@ -1,5 +1,5 @@
 # Repetier-Server-Telegram-Bot - Python
-## Version: 1.0.2 - 20.12.2020
+## Version: 1.0.3 - 20.12.2020
 Telegram Bot connecting your Repetier Server and your Telegram bot account.
 
 It updates frequently your bot and you´ll have latest information about your prints and printer status.
@@ -67,6 +67,8 @@ please check correct installation depending on your Python installation with: py
 
 and try if not properly installed via e.g. for Python 3.9: python3.9 -m pip install xxxxxxxxxx
 
+UPDATE ALL PIP PACKAGES. CHECK WITH: python3.9 -m pip list --outdated -> Update all what is possible. Some are not possible, leaf them.
+
 12/17/20: please don´t update single libraries via pip. known issues with: pip install numpy==1.19.4 -> program would not start as it is a problem on latest Windows 10 64bit installations.
 
 # How to update from an old version:
@@ -111,6 +113,9 @@ V05.000: Bugfixes, implemented FR001: Send picture after print finished, removed
 V1.0.2:
 Exchange of the core. new functions, better user experience, more stability, easy handling for debug information (and sending it to the support), setup tool for windows.
 Please exchange all files if you have used a former version of this program. In future it will auto update the config file without renewing this file (nothing lasts as long as each change, lol)
+
+V1.0.3:
+Bugfix for Gifs on a linux machine. Otimization of the Gif on Linux not possible.
 
 # Additional information & support request
 
