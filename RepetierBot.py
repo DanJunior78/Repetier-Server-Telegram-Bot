@@ -65,7 +65,7 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.4" 
+SW_VERSION = "1.0.5" 
 CFG_VERSION = "V1.0"
 EX_DEBUG = False
 
@@ -1421,13 +1421,12 @@ def resetMsgs(update, context):
                  message_id=update.message.message_id)
     for item in botThreads.botData['bot']['messageID']:
         with botThreads.threadLock:
-            item['newMessageID'] = True
+            item['dailyRenew'] = True
     sendMsgToBot(slug="bot", 
                  function="resetMsgs", 
                  msg= "<b>📣 " + _("Reset, reset") + "🎶...🎶 " + _("everyone comes back") + "🎵... 🎵" + _("hopefully") + ", %s</b>" % update.effective_chat.first_name, 
                  reply_markup=None,
                  singleMsg=True)
-    remAllExtraMsgs(botGetTracking(context))
     return ConversationHandler.END
 
 def remAllExtraMsgs(slug):
@@ -2150,6 +2149,7 @@ class botThreadHdl(dataHdlThread):
         newEntry['printInfo'] = printInfo
         newEntry['modMsg'] = modMsg
         newEntry['updTime'] = arrow.now()
+        newEntry['dailyRenew'] = False
         loggerWS.debug("setNewBotMsg - New Bot Message Entry: %s" % newEntry) 
         return newEntry
 
@@ -2362,39 +2362,75 @@ class botThreadHdl(dataHdlThread):
                                     msgToSend['printInfo'] = message['printInfo']
                                     loggerWS.info("Message from Prio without modMsg: %s/%s with message ID: %s" % (message['slug'], message['function'], message['message_id']))
                                 loggerWS.info("Prio messsage with mod: %s/%s"%(msgToSend['modMsg'],msgToSend['printInfo']))
-                            if message['newMessageID']:
-                                loggerWS.info("Message to renew: %s/%s with message ID: %s modMsg: %s/%s" % (message['slug'], 
+                            if message['newMessageID'] or message['dailyRenew']:
+                                if message['newMessageID']:
+                                    loggerWS.info("Bot request message to renew: %s/%s with message ID: %s modMsg: %s/%s" % (message['slug'], 
                                                                                                                 message['function'], 
                                                                                                                 message['message_id'],
                                                                                                                 msgToSend['modMsg'], 
                                                                                                                 msgToSend['printInfo']))
-                                if msgToSend['printInfo'] != None:
-                                    try:
-                                        msgID.append(self.setNewMsgToMsgID(msgToSend, 
-                                                                            telegramSendPic(pic=msgToSend['printInfo']['actPrint'],
-                                                                            caption=msgLongShort, 
-                                                                            reply_markup=msgToSend['reply_markup'], # telegram conversation has to modify message reply markup
-                                                                            chat_id=CHATID, 
-                                                                            token=MY_TELEGRAM_TOKEN, 
-                                                                            parse_mode=telegram.ParseMode.HTML)))
-                                        loggerWS.info("Message renewed: %s/%s id: %s" % (msgToSend['slug'], msgToSend['function'],msgToSend['message_id']))
-                                        self.botData['bot']['toDelete'].append(message)
-                                        self.botData['bot']['messageID'].remove(message)
-                                    except:
-                                        loggerWS.error("ThreadHdlBot - Picture could not be renewed: %s/%s" % (message['slug'], message['function']))
-                                else:
-                                    try:
-                                        msgID.append(self.setNewMsgToMsgID(msgToSend, 
-                                                                            telegramSendMsg(msg=msgLongShort, 
-                                                                            reply_markup=msgToSend['reply_markup'], # telegram conversation has to modify message reply markup
-                                                                            chat_id=CHATID, 
-                                                                            token=MY_TELEGRAM_TOKEN, 
-                                                                            parse_mode=telegram.ParseMode.HTML)))
-                                        loggerWS.info("Message renewed: %s/%s id: %s" % (msgToSend['slug'], msgToSend['function'],msgToSend['message_id']))
-                                        self.botData['bot']['toDelete'].append(message)
-                                        self.botData['bot']['messageID'].remove(message)
-                                    except:
-                                        loggerWS.error("ThreadHdlBot - Message could not be renewed: %s/%s" % (message['slug'], message['function'])) 
+                                    if msgToSend['printInfo'] != None:
+                                        try:
+                                            msgID.append(self.setNewMsgToMsgID(msgToSend, 
+                                                                                telegramSendPic(pic=msgToSend['printInfo']['actPrint'],
+                                                                                caption=msgLongShort, 
+                                                                                reply_markup=msgToSend['reply_markup'], # telegram conversation has to modify message reply markup
+                                                                                chat_id=CHATID, 
+                                                                                token=MY_TELEGRAM_TOKEN, 
+                                                                                parse_mode=telegram.ParseMode.HTML)))
+                                            loggerWS.info("Message renewed: %s/%s id: %s" % (msgToSend['slug'], msgToSend['function'],msgToSend['message_id']))
+                                            self.botData['bot']['toDelete'].append(message)
+                                            self.botData['bot']['messageID'].remove(message)
+                                        except:
+                                            loggerWS.error("ThreadHdlBot - Picture could not be renewed: %s/%s" % (message['slug'], message['function']))
+                                    else:
+                                        try:
+                                            msgID.append(self.setNewMsgToMsgID(msgToSend, 
+                                                                                telegramSendMsg(msg=msgLongShort, 
+                                                                                reply_markup=msgToSend['reply_markup'], # telegram conversation has to modify message reply markup
+                                                                                chat_id=CHATID, 
+                                                                                token=MY_TELEGRAM_TOKEN, 
+                                                                                parse_mode=telegram.ParseMode.HTML)))
+                                            loggerWS.info("Message renewed: %s/%s id: %s" % (msgToSend['slug'], msgToSend['function'],msgToSend['message_id']))
+                                            self.botData['bot']['toDelete'].append(message)
+                                            self.botData['bot']['messageID'].remove(message)
+                                        except:
+                                            loggerWS.error("ThreadHdlBot - Message could not be renewed: %s/%s" % (message['slug'], message['function'])) 
+                                if message['dailyRenew']:
+                                    loggerWS.info("Daily message to renew: %s/%s with message ID: %s printInfo: %s" % (message['slug'], 
+                                                                                                                message['function'], 
+                                                                                                                message['message_id'], 
+                                                                                                                msgToSend['printInfo']))
+                                    message['dailyRenew'] = False
+                                    if message['printInfo'] != None:
+                                        backupMsg = copy.deepcopy(message)
+                                        try:
+                                            msgID.append(self.setNewMsgToMsgID(backupMsg, 
+                                                                                telegramSendPic(pic=backupMsg['printInfo']['actPrint'],
+                                                                                caption=msgLongShort, 
+                                                                                reply_markup=backupMsg['reply_markup'], # telegram conversation has to modify message reply markup
+                                                                                chat_id=CHATID, 
+                                                                                token=MY_TELEGRAM_TOKEN, 
+                                                                                parse_mode=telegram.ParseMode.HTML)))
+                                            loggerWS.info("Message renewed: %s/%s id: %s" % (backupMsg['slug'], backupMsg['function'],backupMsg['message_id']))
+                                            self.botData['bot']['toDelete'].append(message)
+                                            self.botData['bot']['messageID'].remove(message)
+                                        except:
+                                            loggerWS.error("ThreadHdlBot - Picture could not be renewed: %s/%s" % (message['slug'], message['function']))
+                                    else:
+                                        backupMsg = copy.deepcopy(message)
+                                        try:
+                                            msgID.append(self.setNewMsgToMsgID(backupMsg, 
+                                                                                telegramSendMsg(msg=msgLongShort, 
+                                                                                reply_markup=backupMsg['reply_markup'], # telegram conversation has to modify message reply markup
+                                                                                chat_id=CHATID, 
+                                                                                token=MY_TELEGRAM_TOKEN, 
+                                                                                parse_mode=telegram.ParseMode.HTML)))
+                                            loggerWS.info("Message renewed: %s/%s id: %s" % (backupMsg['slug'], backupMsg['function'],backupMsg['message_id']))
+                                            self.botData['bot']['toDelete'].append(message)
+                                            self.botData['bot']['messageID'].remove(message)
+                                        except:
+                                            loggerWS.error("ThreadHdlBot - Message could not be renewed: %s/%s" % (message['slug'], message['function'])) 
                             else:
                                 loggerWS.debug("Message to edit: %s/%s id: %s" % (message['slug'], message['function'], message['message_id']))
                                 if message['printInfo'] != None:
@@ -2480,7 +2516,7 @@ class botThreadHdl(dataHdlThread):
             loggerWS.info("Update all long term messages. Next update at: %s" % self.nextMsgRenew.format('DD.MM.YYYY - HH:mm'))
             for item in self.botData['bot']['messageID']:
                 with self.threadLock:
-                    item['newMessageID'] = True
+                    item['dailyRenew'] = True
 
     def checkPrinterInMessageID(self, slug):
         for printer in self.botData['bot']['messageID']:
