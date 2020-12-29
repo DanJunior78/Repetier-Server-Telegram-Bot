@@ -65,7 +65,7 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.11" 
+SW_VERSION = "1.0.12" 
 CFG_VERSION = "V1.1"
 EX_DEBUG = True
 
@@ -1641,7 +1641,7 @@ def timeBasedPrintPic(update, context):
                  reply_markup=None)
     sendMsgToBot(slug=botGetTracking(context), 
                  function="timeBasedPrintPic", 
-                 msg=getHeatbSetLimitText(botGetTracking(context)), 
+                 msg=getTimeBasedPrintPicText(botGetTracking(context)), 
                  reply_markup=getKeyboard())
     return FIFTEEN
 
