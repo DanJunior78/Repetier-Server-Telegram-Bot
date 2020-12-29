@@ -65,9 +65,9 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.10" 
+SW_VERSION = "1.0.11" 
 CFG_VERSION = "V1.1"
-EX_DEBUG = False
+EX_DEBUG = True
 
 LANGUAGE = "de"
 
@@ -100,7 +100,7 @@ THRDMODELMAN = 2
 THRDRESTART = 10
 
 # Bot Handler communication levels
-ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN, TWELVE, THIRTEEN, FOURTEEN, FIFTEEN = range(15)
+ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN, TWELVE, THIRTEEN, FOURTEEN, FIFTEEN, SIXTEEN, SEVENTEEN, EIGHTTEEN = range(18)
 
 # Check platform
 checkPlatform = platform.platform()
@@ -146,8 +146,12 @@ def getNewPrinterConfig(slug = "NA", name = "NA"): # Printer dataset for the bot
     printerConfig['extrCoolTempExtComm'] = None
     printerConfig['heatbCoolTemp'] = 40
     printerConfig['heatbCoolTempExtComm'] = None
-    printerConfig['delayTimeAfterPrintPic'] = 0
+    printerConfig['delayTimeAfterPrintPic'] = 0 # seconds
     printerConfig['AfterPrintPicCamSelect'] = None
+    printerConfig['zHeightPrintPic'] = 1.0
+    printerConfig['zHeightPrintPicCamSelect'] = None
+    printerConfig['timeBasedPrintPic'] = 0 # minutes
+    printerConfig['timeBasedPrintPicCamSelect'] = None
     return printerConfig
 
 def getServerConfig(): # Program configuration dataset for the bot, including initialization for update reason
@@ -655,10 +659,10 @@ def getWebcamConfig(slug, update):# Get webcam configuration from server
         return key
     x = int(queryData.split()[1]) - 1
     if msg2['webcams'][x]['dynamicUrl'] != "":
-        key.append(InlineKeyboardButton(_('Send Video Camera %s') % str(x + 1), callback_data='Sende Video %s' % str(x + 1))) # 'Sende Video %s' % str(webcam + 1)
+        key.append(InlineKeyboardButton(_('Send Video Camera %s') % str(x + 1), callback_data='Send Video %s' % str(x + 1))) # 'Sende Video %s' % str(webcam + 1)
     if msg2['webcams'][x]['staticUrl'] != "": 
-        key.append(InlineKeyboardButton(_('Sende Gif Camera %s') % str(x + 1), callback_data='Sende Gif %s' % str(x + 1)))
-        key.append(InlineKeyboardButton(_('Sende Png Camera %s') % str(x + 1), callback_data='Sende Png %s' % str(x + 1)))
+        key.append(InlineKeyboardButton(_('Send Gif Camera %s') % str(x + 1), callback_data='Send Gif %s' % str(x + 1)))
+        key.append(InlineKeyboardButton(_('Send Png Camera %s') % str(x + 1), callback_data='Send Png %s' % str(x + 1)))
     return key
 
 def getQuickCommandsButton(slug):# Get quick command configuration from server
@@ -695,9 +699,19 @@ def getSettingsButton(slug):# Get settings configuration from config file
                 key.append(InlineKeyboardButton(_("HeatbCom temp. dis."), callback_data='HeatbCommand Temp Limit None'))
             key.append(InlineKeyboardButton(_("Pic after print: %ss") % item['delayTimeAfterPrintPic'], callback_data='Print after time %s' % item['delayTimeAfterPrintPic']))
             if item['AfterPrintPicCamSelect'] != None:
-                key.append(InlineKeyboardButton(_("From Cam: %s") % str(item['AfterPrintPicCamSelect']+1), callback_data='Sende Png %s' % str(item['AfterPrintPicCamSelect'])))
+                key.append(InlineKeyboardButton(_("From Cam: %s") % str(item['AfterPrintPicCamSelect']+1), callback_data='Send Png %s' % str(item['AfterPrintPicCamSelect'])))
             else:
-                key.append(InlineKeyboardButton(_("Pic disabled"), callback_data='Sende Png None'))
+                key.append(InlineKeyboardButton(_("Pic disabled"), callback_data='Send Png None'))
+            key.append(InlineKeyboardButton(_("Pic after z height: %smm") % item['zHeightPrintPic'], callback_data='zHeight Value %s' % item['zHeightPrintPic']))
+            if item['zHeightPrintPicCamSelect'] != None:
+                key.append(InlineKeyboardButton(_("From Cam: %s") % str(item['zHeightPrintPicCamSelect']+1), callback_data='Send zHeight Png %s' % str(item['zHeightPrintPicCamSelect'])))
+            else:
+                key.append(InlineKeyboardButton(_("Pic disabled"), callback_data='Send zHeight Png None'))
+            key.append(InlineKeyboardButton(_("Pic after time: %s min") % item['timeBasedPrintPic'], callback_data='Print time based time %s' % item['timeBasedPrintPic']))
+            if item['timeBasedPrintPicCamSelect'] != None:
+                key.append(InlineKeyboardButton(_("From Cam: %s") % str(item['timeBasedPrintPicCamSelect']+1), callback_data='Send time based Png %s' % str(item['timeBasedPrintPicCamSelect'])))
+            else:
+                key.append(InlineKeyboardButton(_("Pic disabled"), callback_data='Send time based Png None'))
     return key
 
 def getExtComAndDisableButton():# Get external command buttons and disable button
@@ -706,18 +720,48 @@ def getExtComAndDisableButton():# Get external command buttons and disable butto
     return key
 
 def getAfterPrintWebcamAndDisableButton(slug):# Get webcam buttons and disable button
-    key = getAllWebcamsFromPrinter(slug)
-    key.append(InlineKeyboardButton(_("disable Pic"), callback_data='Sende Png None'))
+    key = getAllWebcamsFromPrinterAfter(slug)
+    key.append(InlineKeyboardButton(_("disable Pic"), callback_data='Send Png None'))
     return key
 
-def getAllWebcamsFromPrinter(slug):# Get available webcams from server
+def getZHeightPrintWebcamAndDisableButton(slug):# Get webcam buttons and disable button
+    key = getAllWebcamsFromPrinterZHeight(slug)
+    key.append(InlineKeyboardButton(_("disable Pic"), callback_data='Send zHeight Png None'))
+    return key
+
+def getTimeBasedPrintWebcamAndDisableButton(slug):# Get webcam buttons and disable button
+    key = getAllWebcamsFromPrinterTimeBased(slug)
+    key.append(InlineKeyboardButton(_("disable Pic"), callback_data='Send time based Png None'))
+    return key
+
+def getAllWebcamsFromPrinterAfter(slug):# Get available webcams from server
     key = []
     msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
     if msg2 == "Error":
         return key
     for x in range(0, len(msg2['webcams'])):
         if msg2['webcams'][x]['staticUrl'] != "": 
-            key.append(InlineKeyboardButton(_('Send Png Camera %s') % str(x + 1), callback_data='Sende Png %s' % str(x + 1)))
+            key.append(InlineKeyboardButton(_('Send Png Camera %s') % str(x + 1), callback_data='Send Png %s' % str(x + 1)))
+    return key
+
+def getAllWebcamsFromPrinterZHeight(slug):# Get available webcams from server
+    key = []
+    msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+    if msg2 == "Error":
+        return key
+    for x in range(0, len(msg2['webcams'])):
+        if msg2['webcams'][x]['staticUrl'] != "": 
+            key.append(InlineKeyboardButton(_('Send Png Camera %s') % str(x + 1), callback_data='Send zHeight Png %s' % str(x + 1)))
+    return key
+
+def getAllWebcamsFromPrinterTimeBased(slug):# Get available webcams from server
+    key = []
+    msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
+    if msg2 == "Error":
+        return key
+    for x in range(0, len(msg2['webcams'])):
+        if msg2['webcams'][x]['staticUrl'] != "": 
+            key.append(InlineKeyboardButton(_('Send Png Camera %s') % str(x + 1), callback_data='Send time based Png %s' % str(x + 1)))
     return key
 
 def getQuickCommandsText(slug):# Get quick command text from server
@@ -925,6 +969,96 @@ def setAfterPrintWebcam(slug, text):# select one of multiple cams to take pic af
                             singleMsg=True,
                             delTime=5)
 
+def setZHeightValue(slug, text):# set z height value for pic 
+    if isFloat(text):
+        for printer in botThreads.botData['printers']:
+            if printer == slug:
+                item = botThreads.botData['printers'][printer]['config']
+                item['zHeightPrintPic'] = float(text)
+        if botThreads.savePrinterConfigFile():
+            sendMsgToBot(slug=slug, 
+                        function="zHeightPrintPic", 
+                        msg="<i>" + _("Configuration saved") + "</i>", 
+                        reply_markup=None,
+                        singleMsg=True,
+                        delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                        function="zHeightPrintPic", 
+                        msg="<b>" + _("Configuration saving failed") + "</b>", 
+                        reply_markup=None,
+                        singleMsg=True,
+                        delTime=5)
+
+def setZHeightPrintPicCam(slug, text):# select one of multiple cams to take pic after print has finished
+    x = text.split()[3]
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if isInt(x):
+                item['zHeightPrintPicCamSelect'] = int(x) - 1
+            else:
+                item['zHeightPrintPicCamSelect'] = None
+            if botThreads.savePrinterConfigFile():
+                sendMsgToBot(slug=slug, 
+                            function="setZHeightPrintPicCam", 
+                            msg="<i>" + _("Configuration saved") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+            else:
+                sendMsgToBot(slug=slug, 
+                            function="setZHeightPrintPicCam", 
+                            msg="<b>" + _("Configuration saving failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+
+def setTimeBasedPrintPic(slug, text):# set extruder temperature setting to define cold condition
+    if isInt(text):
+        for printer in botThreads.botData['printers']:
+            if printer == slug:
+                item = botThreads.botData['printers'][printer]['config']
+                item['timeBasedPrintPic'] = int(text)
+        if botThreads.savePrinterConfigFile():
+            sendMsgToBot(slug=slug, 
+                            function="setTimeBasedPrintPic", 
+                            msg="<i>" + _("Configuration saved") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="setTimeBasedPrintPic", 
+                            msg="<b>" + _("Configuration saving failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+
+def setTimeBasedPrintPicCam(slug, text):# select one of multiple cams to take pic after print has finished
+    x = text.split()[4]
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if isInt(x):
+                item['timeBasedPrintPicCamSelect'] = int(x) - 1
+            else:
+                item['timeBasedPrintPicCamSelect'] = None
+            if botThreads.savePrinterConfigFile():
+                sendMsgToBot(slug=slug, 
+                            function="setTimeBasedPrintPicCam", 
+                            msg="<i>" + _("Configuration saved") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+            else:
+                sendMsgToBot(slug=slug, 
+                            function="setTimeBasedPrintPicCam", 
+                            msg="<b>" + _("Configuration saving failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+
 def getAfterPrintTimeText(slug):# Text for interaction
     for printer in botThreads.botData['printers']:
         if printer == slug:
@@ -940,6 +1074,40 @@ def getAfterPrintWebcamText(slug):# Text for interaction
                 message = _("Pic after print disabled. Choose camera")
             else:
                 message = _("Webcam %s active") % str(item['AfterPrintPicCamSelect']+1)
+            return message
+
+def getZHeightPrintPicText(slug):# Text for interaction
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            message =  _("Please input new z height. Actual value:") + " %.1fmm" % item['zHeightPrintPic']
+            return message
+
+def getZHeightPrintPicCamText(slug):# Text for interaction
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if item['zHeightPrintPicCamSelect'] == None:
+                message = _("Z height pic disabled. Choose camera")
+            else:
+                message = _("Webcam %s active") % str(item['zHeightPrintPicCamSelect']+1)
+            return message
+
+def getTimeBasedPrintPicText(slug):# Text for interaction
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            message =  _("Please input new cycle time. Actual value:") + " %d min" % item['timeBasedPrintPic']
+            return message
+
+def getTimeBasedPrintPicCamText(slug):# Text for interaction
+    for printer in botThreads.botData['printers']:
+        if printer == slug:
+            item = botThreads.botData['printers'][printer]['config']
+            if item['timeBasedPrintPicCamSelect'] == None:
+                message = _("Time based pic disabled. Choose camera")
+            else:
+                message = _("Webcam %s active") % str(item['timeBasedPrintPicCamSelect']+1)
             return message
 
 def sendExtCommand(updateMsgTxt):# sends external command action
@@ -1224,18 +1392,37 @@ def settingsBack(update,context):
                  function="printer", 
                  msg="<b>🔜 " + _("Opening settings") + "...</b>", 
                  reply_markup=getKeyboard(getSettingsButton(botGetTracking(context)))) 
-    sendMsgToBot(botGetTracking(context), 
-                 "extrSetLimit", 
-                 removeMsg=True)
-    sendMsgToBot(botGetTracking(context), 
-                 "prinExtComm", 
-                 removeMsg=True)
-    sendMsgToBot(botGetTracking(context), 
-                 "heatbSetLimit", 
-                 removeMsg=True)
-    sendMsgToBot(botGetTracking(context), 
-                 "prinHeatbComm", 
-                 removeMsg=True)
+    remAllExtraMsgs(botGetTracking(context))
+    #sendMsgToBot(botGetTracking(context), 
+    #             "extrSetLimit", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "prinExtComm", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "heatbSetLimit", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "prinHeatbComm", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "zHeightPrintPicHeight", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "zHeightPrintPicCam", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "timeBasedPrintPic", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "timeBasedPrintPicCam", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "afterPrintTime", 
+    #             removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "afterPrintWebcam", 
+    #             removeMsg=True)
     return FIVE
 
 def extrSetLimit(update, context):
@@ -1387,6 +1574,110 @@ def afterPrintWebcamItem(update, context):
     setAfterPrintWebcam(botGetTracking(context),queryData)
     sendMsgToBot(botGetTracking(context), 
                  "afterPrintWebcam", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    return FIVE
+
+def zHeightPrintPicHeight(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening z height picture") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="zHeightPrintPicHeight", 
+                 msg=getZHeightPrintPicText(botGetTracking(context)), 
+                 reply_markup=getKeyboard())
+    return THIRTEEN
+
+def zHeightPrintPicValue(update, context):
+    messageData = update.message
+    sendMsgToBot(botGetTracking(context), 
+                 "zHeightPrintPicHeight", 
+                 removeMsg=True)
+    setZHeightValue(botGetTracking(context),messageData.text)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtZHeightPrintPicValue", 
+                 message_id=messageData.message_id)
+    return FIVE
+
+def zHeightPrintPicCamSelect(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening z height picture select webcam") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="zHeightPrintPicCam", 
+                 msg=getZHeightPrintPicCamText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(getZHeightPrintWebcamAndDisableButton(botGetTracking(context))))
+    return FOURTEEN
+
+def zHeightPrintPicCamSelectItem(update, context):
+    queryMessage = update.callback_query.message
+    queryData = update.callback_query.data
+    setZHeightPrintPicCam(botGetTracking(context),queryData)
+    sendMsgToBot(botGetTracking(context), 
+                 "zHeightPrintPicCam", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    return FIVE
+
+def timeBasedPrintPic(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening time based pic") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="timeBasedPrintPic", 
+                 msg=getHeatbSetLimitText(botGetTracking(context)), 
+                 reply_markup=getKeyboard())
+    return FIFTEEN
+
+def timeBasedPrintPicValue(update, context):
+    messageData = update.message
+    sendMsgToBot(botGetTracking(context), 
+                 "timeBasedPrintPic", 
+                 removeMsg=True)
+    setTimeBasedPrintPic(botGetTracking(context),messageData.text)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening settings") + "...</b>", 
+                 reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAttimeBasedPrintPicValue", 
+                 message_id=messageData.message_id)
+    return FIVE
+
+def timeBasedPrintPicCamSelect(update, context):
+    queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening after print send picture select webcam") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="timeBasedPrintPicCam", 
+                 msg=getTimeBasedPrintPicCamText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(getTimeBasedPrintWebcamAndDisableButton(botGetTracking(context))))
+    return SIXTEEN
+
+def timeBasedPrintPicCamSelectItem(update, context):
+    queryMessage = update.callback_query.message
+    queryData = update.callback_query.data
+    setTimeBasedPrintPicCam(botGetTracking(context),queryData)
+    sendMsgToBot(botGetTracking(context), 
+                 "timeBasedPrintPicCam", 
                  removeMsg=True)
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
@@ -1755,6 +2046,7 @@ class botThreadHdl(dataHdlThread):
         self.programStart = arrow.now()
         self.nextMsgRenew = self.programStart.shift(days=1)
         self.nextRSTimeoutMsg = None
+        self.nextOrgMsgOrder = self.programStart.shift(seconds=30)
         loggerWS.info("Update all long term messages at: %s" % self.nextMsgRenew.format('DD.MM.YYYY - HH:mm'))
         self.wsThreadSend = dataHdlThread(interval=THRDSEND, execute=self.ThreadSend, name="Repetier-Server-Send")
         self.wsThreadRec = dataHdlThread(interval=THRDRECEIVE, execute=self.ThreadRec, name="Repetier-Server-Receive")
@@ -1958,18 +2250,22 @@ class botThreadHdl(dataHdlThread):
                       ],
                 FOUR: [CallbackQueryHandler(exitBot, pattern="^End$"), # Webcam conversation
                       CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
-                      CallbackQueryHandler(webcamSendVideo, pattern="Sende Video*"),
-                      CallbackQueryHandler(webcamSendGif, pattern="Sende Gif*"),
-                      CallbackQueryHandler(webcamSendPng, pattern="Sende Png*")
+                      CallbackQueryHandler(webcamSendVideo, pattern="Send Video*"),
+                      CallbackQueryHandler(webcamSendGif, pattern="Send Gif*"),
+                      CallbackQueryHandler(webcamSendPng, pattern="Send Png*")
                       ],
                 FIVE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation
                       CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
-                      CallbackQueryHandler(extrSetLimit, pattern="Extruder Temp Limit*"),
-                      CallbackQueryHandler(prinExtCommOff, pattern="ExtCommand Temp Limit*"), # Heatbed Temp Limit
-                      CallbackQueryHandler(heatbSetLimit, pattern="Heatbed Temp Limit*"),
-                      CallbackQueryHandler(prinHeatbCommOff, pattern="HeatbCommand Temp Limit*"), # Heatbed Temp Limit
-                      CallbackQueryHandler(afterPrintTime, pattern="Print after time*"),
-                      CallbackQueryHandler(afterPrintWebcam, pattern="Sende Png*")
+                      CallbackQueryHandler(extrSetLimit, pattern="Extruder Temp Limit*"), # Extruder Temp Limit
+                      CallbackQueryHandler(prinExtCommOff, pattern="ExtCommand Temp Limit*"), 
+                      CallbackQueryHandler(heatbSetLimit, pattern="Heatbed Temp Limit*"), # Heatbed Temp Limit
+                      CallbackQueryHandler(prinHeatbCommOff, pattern="HeatbCommand Temp Limit*"), 
+                      CallbackQueryHandler(afterPrintTime, pattern="Print after time*"), # Pic after print
+                      CallbackQueryHandler(afterPrintWebcam, pattern="Send Png*"),
+                      CallbackQueryHandler(zHeightPrintPicHeight, pattern="zHeight Value*"), # Pic zHeight
+                      CallbackQueryHandler(zHeightPrintPicCamSelect, pattern="Send zHeight Png*"),
+                      CallbackQueryHandler(timeBasedPrintPic, pattern="Print time based time*"), # Pic after time
+                      CallbackQueryHandler(timeBasedPrintPicCamSelect, pattern="Send time based Png*")
                       ],
                 SIX: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation extrSetLimit
                       CallbackQueryHandler(settingsBack, pattern="^Back$"),
@@ -1984,11 +2280,11 @@ class botThreadHdl(dataHdlThread):
                       CallbackQueryHandler(prinQuickCommand)
                       ],
                 NINE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation afterPrintTime
-                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(settingsBack, pattern="^Back$"),
                       MessageHandler(Filters.all, afterPrintTimeValue)
                       ],
                 TEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation afterPrintWebcam
-                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(settingsBack, pattern="^Back$"),
                       CallbackQueryHandler(afterPrintWebcamItem)
                       ],
                 ELEVEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation extrSetLimit
@@ -1998,6 +2294,22 @@ class botThreadHdl(dataHdlThread):
                 TWELVE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation prinExtCommOff
                       CallbackQueryHandler(settingsBack, pattern="^Back$"),
                       CallbackQueryHandler(prinHeatbCommOffItem)
+                      ],
+                THIRTEEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation zHeightPrintPic
+                      CallbackQueryHandler(settingsBack, pattern="^Back$"),
+                      MessageHandler(Filters.all, zHeightPrintPicValue)
+                      ],
+                FOURTEEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation zHeightPrintPicCamSelect
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(zHeightPrintPicCamSelectItem)
+                      ],
+                FIFTEEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation timeBasedPrintPic
+                      CallbackQueryHandler(settingsBack, pattern="^Back$"),
+                      MessageHandler(Filters.all, timeBasedPrintPicValue)
+                      ],
+                SIXTEEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation timeBasedPrintPicCamSelect
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(timeBasedPrintPicCamSelectItem)
                       ],
                 ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, botTimeout)],      
                     },
@@ -2219,7 +2531,7 @@ class botThreadHdl(dataHdlThread):
     def pushAllMsgToFront(self):
         for item in self.botData['bot']['messageID']:
             with botThreads.threadLock:
-                item['newMessageID'] = True
+                item['dailyRenew'] = True
 
     def ThreadManager(self):
         threadItem = threading.current_thread()
@@ -2313,6 +2625,7 @@ class botThreadHdl(dataHdlThread):
         msgPrio = self.botData['bot']['prioMessages']
         msgDel = self.botData['bot']['toDelete']
         msgNormal = self.botData['bot']['messages']
+        self.organizeMessageOrder()
         if len(msgBot) > 0:
             with self.threadLock:
                 loggerWS.debug("ThreadHdlBot msgBot length: %d"%len(msgBot))
@@ -2360,10 +2673,6 @@ class botThreadHdl(dataHdlThread):
                                       parse_mode=telegram.ParseMode.HTML)
                     loggerWS.info("Video send: %s/%s" % (msgToSend['slug'], msgToSend['function'])) 
                 if msgToSend['vidPic'] == "pic":
-                    #################### TEST - To Remove START #####################################
-                    #telegramSendAnimation(anim=msgToSend['msg']['path'], caption=msgToSend['msg']['caption']+" TEST", chat_id=CHATID, token=MY_TELEGRAM_TOKEN, parse_mode=telegram.ParseMode.HTML)
-                    #time.sleep(1)
-                    #################### TEST - To Remove END #####################################
                     telegramSendPic(pic=msgToSend['msg']['path'], 
                                     caption=msgToSend['msg']['caption'], 
                                     chat_id=CHATID, token=MY_TELEGRAM_TOKEN, 
@@ -2400,7 +2709,7 @@ class botThreadHdl(dataHdlThread):
                                 if msgToSend['modMsg'] == "reply_markup":
                                     message['reply_markup'] = msgToSend['reply_markup']
                                     msgToSend['printInfo'] = message['printInfo']
-                                if msgToSend['modMsg'] == "print_pic":
+                                elif msgToSend['modMsg'] == "print_pic":
                                     try:
                                         if msgToSend['msg']['id'] != None:
                                             msgToSend = self.setNewPrintInfo(msgToSend, id=msgToSend['msg']['id'], actPrint=msgToSend['msg']['actPrint'])
@@ -2411,6 +2720,8 @@ class botThreadHdl(dataHdlThread):
                                     msgToSend['reply_markup'] = message['reply_markup']
                                     msgToSend['msg'] = message['msg']
                                     message['newMessageID'] = True
+                                elif msgToSend['modMsg'] == "reorder":
+                                    message['dailyRenew'] = True
                                 else:
                                     msgToSend['printInfo'] = message['printInfo']
                                     loggerWS.info("Message from Prio without modMsg: %s/%s with message ID: %s" % (message['slug'], message['function'], message['message_id']))
@@ -2450,7 +2761,7 @@ class botThreadHdl(dataHdlThread):
                                         except:
                                             loggerWS.error("ThreadHdlBot - Message could not be renewed: %s/%s" % (message['slug'], message['function'])) 
                                 if message['dailyRenew']:
-                                    loggerWS.info("Daily message to renew: %s/%s with message ID: %s printInfo: %s" % (message['slug'], 
+                                    loggerWS.info("dailyRenew message to renew: %s/%s with message ID: %s printInfo: %s" % (message['slug'], 
                                                                                                                 message['function'], 
                                                                                                                 message['message_id'], 
                                                                                                                 msgToSend['printInfo']))
@@ -2576,6 +2887,102 @@ class botThreadHdl(dataHdlThread):
             if printer['slug'] == slug and printer['function'] == "printer":
                 return True
         return False
+
+    def organizeMessageOrder(self):
+        actTime = arrow.now()
+        if self.nextOrgMsgOrder < actTime:
+            loggerWS.debug("organizeMessageOrder - Start checking messages in database")
+            if self.botData['bot']['actConv'] == None and len(self.botData['bot']['prioMessages']) == 0 and len(self.botData['bot']['messageBot']) == 0:
+                msgSort = {}
+                msgSort['off'] = []
+                msgSort['idle'] = []
+                msgSort['printing'] = []
+                msgSort['server'] = []
+                for slug in self.botData['printers']:
+                    listPrinter = self.botData['printers'][slug]['dataRepetier']['listPrinter']
+                    for message in self.botData['bot']['messageID']:
+                        if message['slug'] == slug:
+                            item = {}
+                            item['slug'] = slug
+                            item['function'] = message['function']
+                            item['message_id'] = message['message_id']
+                            if listPrinter['online'] == 0:
+                                msgSort['off'].append(item)
+                            elif listPrinter['online'] == 1 and listPrinter['job'] == "none":
+                                msgSort['idle'].append(item)
+                            else:
+                                msgSort['printing'].append(item)
+                            loggerWS.debug("organizeMessageOrder place printer \"%s\" to list of message, online: %s job: %s" % (slug, listPrinter['online'], listPrinter['job']))
+                for message in self.botData['bot']['messageID']:
+                    if message['slug'] == _("Messages"):
+                        item = {}
+                        item['slug'] = _("Messages")
+                        item['function'] = message['function']
+                        item['message_id'] = message['message_id']
+                        msgSort['server'].append(item)
+                loggerWS.debug("organizeMessageOrder unsorted list of message IDs: %s" % msgSort)
+                msgSort['off'].sort(key=lambda x:x['message_id'])
+                msgSort['idle'].sort(key=lambda x:x['message_id'])
+                msgSort['printing'].sort(key=lambda x:x['message_id'])
+                msgSort['server'].sort(key=lambda x:x['message_id'])
+                loggerWS.debug("organizeMessageOrder sorted list of message IDs: %s" % msgSort)
+                biggestID = 0
+                msgToUpdate = []
+                if len(msgSort['off']) != 0:
+                    biggestID = msgSort['off'][len(msgSort['off'])-1]['message_id']
+                    loggerWS.debug("organizeMessageOrder biggest message ID in \"off\": %s" % biggestID)
+                for item in msgSort['idle']:
+                    if item['message_id'] < biggestID:
+                        loggerWS.debug("organizeMessageOrder renew message ID for: %s" % item['slug'])
+                        msgToUpdate.append(item)
+                if len(msgSort['idle']) != 0:
+                    if biggestID < msgSort['idle'][len(msgSort['idle'])-1]['message_id']:
+                        biggestID = msgSort['idle'][len(msgSort['idle'])-1]['message_id']
+                        loggerWS.debug("organizeMessageOrder biggest message ID in \"idle\": %s" % biggestID)
+                for item in msgSort['printing']:
+                    if item['message_id'] < biggestID:
+                        loggerWS.debug("organizeMessageOrder renew message ID for: %s" % item['slug'])
+                        msgToUpdate.append(item)
+                if len(msgSort['printing']) != 0:
+                    if biggestID < msgSort['printing'][len(msgSort['printing'])-1]['message_id']:
+                        biggestID = msgSort['printing'][len(msgSort['printing'])-1]['message_id']
+                        loggerWS.debug("organizeMessageOrder biggest message ID in \"printing\": %s" % biggestID)
+                for item in msgSort['server']:
+                    if item['message_id'] < biggestID:
+                        loggerWS.debug("organizeMessageOrder renew message ID for: %s" % item['slug'])
+                        msgToUpdate.append(item)
+                if len(msgToUpdate) != 0:
+                    loggerWS.debug("organizeMessageOrder biggest ID: %s updated messages: %s"%(biggestID,msgToUpdate))
+                    msg = "<i>" + _("Start reorder %d message(s)!") % len(msgToUpdate) + "</i>"
+                    self.addMsgToBot(slug="Bot",
+                                    function="organizeMessageOrder",
+                                    msg=msg,
+                                    reply_markup=None,
+                                    vidPic=None,
+                                    priority=False,
+                                    botMsg=True,
+                                    singleMsg=True, 
+                                    delTime=len(msgToUpdate)+1
+                                    )
+                for item in msgToUpdate:
+                    msg = {}
+                    msgText = "<i>" + _("Renew myself %s !") % item['slug'] + "</i>"
+                    msg['msgLong'] = msgText
+                    msg['msgShort'] = msgText
+                    self.addMsgToBot(slug=item['slug'],
+                                        function=item['function'],
+                                        msg=msg,
+                                        reply_markup=None,
+                                        vidPic=None,
+                                        priority=True,
+                                        botMsg=False,
+                                        singleMsg=False, 
+                                        delTime=5,
+                                        modMsg="reorder")
+                    loggerWS.info("organizeMessageOrder renew item: %s updated messages: %s"%(item['slug'],item['message_id']))
+                self.nextOrgMsgOrder = actTime.shift(seconds=30)
+            else:
+                self.nextOrgMsgOrder = actTime.shift(seconds=30)
 
     def msgPrinter(self):
         threadItem = threading.current_thread()
@@ -2859,6 +3266,10 @@ class botThreadHdl(dataHdlThread):
         elif type == "vid":
             caption+= " 🎦\n"
         if queryData == None:
+            if captionSelect == "zHeight":
+                caption += "📣🎚 <i>" + _("Print") + " <b>\"%s\" </b>" % captionText['textField1'] + _("at Z:")+ " %smm - %s</i>" % (captionText['textField2'], arrow.now().format('DD.MM.YYYY - HH:mm'))
+            if captionSelect == "timeBase":
+                caption += "📣⏱ <i>" + _("Print") + " <b>\"%s\" </b>" % captionText['textField1']+ " - %s</i>" % arrow.now().format('DD.MM.YYYY - HH:mm')
             if captionSelect == "endOfPrint":
                 caption += "📣🏁 <i>" + _("Finished print of") + " <b>\"%s\" </b>" % captionText['textField1']+ " - %s</i>" % arrow.now().format('DD.MM.YYYY - HH:mm')
             if captionSelect == "startOfPrint":
@@ -3242,7 +3653,9 @@ class botThreadHdl(dataHdlThread):
                     loggerWS.error("ThreadSend: Could not reestablish websocket")
                     return
                 else:
-                    loggerWS.info("ThreadSend: Could reestablish websocket")
+                    self.initServerActions()
+                    self.initPrinterConfigActions()
+                    loggerWS.info("ThreadSend: Could reestablish websocket and request renew init actions")
         if webs['actWS'].connected:
             try:
                 result = webs['actWS'].send(self.sendCommand)
@@ -3717,12 +4130,27 @@ class botThreadHdl(dataHdlThread):
                         #                            webcamSelect=1,
                         #                            captionSelect="startOfPrint",
                         #                            captionText=test2)# <-- captionText['textField1']
+                        printerConfig = self.getPrinterDataConfig(dataSet['printer'])
                         listPrinter = self.getPrinterDataStorage(dataSet['printer'],"listPrinter")
                         jobTitle = listPrinter['job']
                         messageBuffer = _("%s has started printing at %s.") % (listPrinter['name'], 
                                                                         arrow.get(dataSet['data']['start']).format('DD.MM.YYYY - HH:mm'))
                                                                          
                         loggerWS.info("eventTyp: jobStarted: %s" % messageBuffer)
+                        if printerConfig['zHeightPrintPicCamSelect'] != None:
+                            self.startActionThread(name=printerConfig['name'], 
+                                                    slug=printerConfig['slug'], 
+                                                    execute=self.sendPicAfterzHeight, 
+                                                    function="sendPicAfterzHeight", 
+                                                    interval=THRDSLOW,
+                                                    addData=None)
+                        if printerConfig['timeBasedPrintPicCamSelect'] != None:
+                            self.startActionThread(name=printerConfig['name'], 
+                                                    slug=printerConfig['slug'], 
+                                                    execute=self.sendPicAfterTimeBase, 
+                                                    function="sendPicAfterTimeBase", 
+                                                    interval=THRDSLOW,
+                                                    addData=None)
                         self.addMsgToBot(slug="Bot",
                                          function="jobStarted",
                                          msg="<b>%s</b>" % messageBuffer,
@@ -3814,6 +4242,21 @@ class botThreadHdl(dataHdlThread):
         threadItem = threading.current_thread()
         slug = threadItem.slug
         function = threadItem.function
+        listPrinters = self.getPrinterDataStorage(slug, "listPrinter")
+        if listPrinters['job'] != "none":
+            messageBuffer = "🛑❄️<b>" + _("Execution of cool down action aborted for %s") % listPrinters['name'] + "</b>❄️"
+            self.addMsgToBot(slug="Bot",
+                            function="coolDownAction",
+                            msg="<b>%s</b>" % messageBuffer,
+                            reply_markup=None,
+                            vidPic=None,
+                            priority=False,
+                            botMsg=True,
+                            singleMsg=True, 
+                            delTime=20
+                            )
+            loggerWS.info("coolDownAction: abort order to server for %s" % slug)
+            return False
         state = self.getPrinterDataStorage(slug, "stateList")
         if state != "Error":
             printerConfig = self.botData['printers'][slug]['config']
@@ -3854,6 +4297,7 @@ class botThreadHdl(dataHdlThread):
                                          singleMsg=True, 
                                          delTime=20
                                          )
+                loggerWS.info("coolDownAction: send order to server for %s" % slug)
                 return False
         self.threadWishState("off",threadItem)
         return True
@@ -3865,7 +4309,7 @@ class botThreadHdl(dataHdlThread):
         printerConfig = buffer['printerConfig']
         listPrinter = buffer['listPrinters']
         picText = {}
-        if listPrinter['job'] != None:
+        if listPrinter['job'] != "none":
             picText['textField1'] = listPrinter['job']
         else:
             picText['textField1'] = _("unknown print")
@@ -3876,6 +4320,95 @@ class botThreadHdl(dataHdlThread):
                                     captionSelect="endOfPrint",
                                     captionText=picText)# <-- captionText['textField1']
         return False
+    
+    def sendPicAfterzHeight(self):
+        threadItem = threading.current_thread()
+        slug = threadItem.slug
+        listPrinter = self.getPrinterDataStorage(slug,"listPrinter")
+        if listPrinter['job'] == "none":
+            loggerWS.info("Exit pic after z height for %s" % slug)
+            return False
+        else:
+            state = self.getPrinterDataStorage(slug, "stateList") # layer, z
+            printerConfig = self.getPrinterDataConfig(slug)
+            if threadItem.addData == None: 
+                buffer = {}
+                if printerConfig['zHeightPrintPic'] <= 0.0:
+                    loggerWS.error("sendPicAfterzHeight - z height config for printer \"%s\" out of range: %.1fmm" % (slug, printerConfig['zHeightPrintPic']))
+                    buffer['zConfig'] = 1.0
+                else:
+                    buffer['zConfig'] = printerConfig['zHeightPrintPic']
+                buffer['nextZ'] = buffer['zConfig']
+                threadItem.addData = buffer
+                loggerWS.info("sendPicAfterzHeight - z height config for printer \"%s\" set to: %.1fmm" % (slug, buffer['zConfig']))
+            else:
+                buffer = threadItem.addData
+                if state['z'] >= buffer['nextZ']:
+                    if printerConfig['zHeightPrintPicCamSelect'] != None:
+                        picText = {}
+                        picText['textField1'] = listPrinter['job']
+                        picText['textField2'] = "%.1f" % state['z'] # z height value
+                        botThreads.startWebcamThread(slug=printerConfig['slug'],
+                                                name="zHeight", 
+                                                type="pic", 
+                                                webcamSelect=printerConfig['zHeightPrintPicCamSelect']+1,
+                                                captionSelect="zHeight",
+                                                captionText=picText)# <-- captionText['textField1']
+                    if printerConfig['zHeightPrintPic'] <= 0.0:
+                        loggerWS.error("sendPicAfterzHeight - z height config for printer \"%s\" out of range: %.1fmm" % (slug, printerConfig['zHeightPrintPic']))
+                        buffer['zConfig'] = 1.0
+                    else:
+                        buffer['zConfig'] = printerConfig['zHeightPrintPic']                    
+                    buffer['nextZ'] = state['z'] + buffer['zConfig']
+                    threadItem.addData = buffer
+                    loggerWS.info("sendPicAfterzHeight - next z height for printer \"%s\" set to: %.1fmm" % (slug, buffer['nextZ']))
+        return True
+        
+    def sendPicAfterTimeBase(self):
+        threadItem = threading.current_thread()
+        slug = threadItem.slug
+        listPrinter = self.getPrinterDataStorage(slug,"listPrinter")
+        if listPrinter['job'] == "none":
+            loggerWS.info("Exit pic after time for %s" % slug)
+            return False
+        else:
+            printerConfig = self.getPrinterDataConfig(slug)
+            if threadItem.addData == None: 
+                buffer = {}
+                if printerConfig['timeBasedPrintPic'] <= 0 or printerConfig['timeBasedPrintPic'] > 60:
+                    loggerWS.error("sendPicAfterTimeBase - time config for printer \"%s\" out of range: %s min" % (slug, printerConfig['timeBasedPrintPic']))
+                    buffer['timeDiff'] = 10
+                else:
+                    buffer['timeDiff'] = printerConfig['timeBasedPrintPic']
+                now = arrow.now()
+                buffer['nextTime'] = now.shift(minutes=buffer['timeDiff'])
+                threadItem.addData = buffer
+                loggerWS.info("sendPicAfterTimeBase - time config for printer \"%s\" set to: %s min. Next pic at: %s" % (slug, 
+                                                                                                                        buffer['timeDiff'], 
+                                                                                                                        buffer['nextTime'].format('DD.MM.YYYY - HH:mm')))
+            else:
+                buffer = threadItem.addData
+                if arrow.now() >= buffer['nextTime']:
+                    if printerConfig['timeBasedPrintPicCamSelect'] != None:
+                        picText = {}
+                        picText['textField1'] = listPrinter['job']
+                        botThreads.startWebcamThread(slug=printerConfig['slug'],
+                                                    name="timeBase", 
+                                                    type="pic", 
+                                                    webcamSelect=printerConfig['timeBasedPrintPicCamSelect']+1,
+                                                    captionSelect="timeBase",
+                                                    captionText=picText)# <-- captionText['textField1']
+                    buffer = {}
+                    if printerConfig['timeBasedPrintPic'] <= 0 or printerConfig['timeBasedPrintPic'] > 60:
+                        loggerWS.error("sendPicAfterTimeBase - time config for printer \"%s\" out of range: %s min" % (slug, printerConfig['timeBasedPrintPic']))
+                        buffer['timeDiff'] = 10
+                    else:
+                        buffer['timeDiff'] = printerConfig['timeBasedPrintPic']
+                    now = arrow.now()
+                    buffer['nextTime'] = now.shift(minutes=buffer['timeDiff'])
+                    threadItem.addData = buffer
+                    loggerWS.info("sendPicAfterTimeBase - next time pic for printer \"%s\" at: %s" % (slug, buffer['nextTime'].format('DD.MM.YYYY - HH:mm')))
+        return True
     
     def servMsgAction(self):
         threadItem = threading.current_thread()
