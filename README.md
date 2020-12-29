@@ -1,5 +1,5 @@
 # Repetier-Server-Telegram-Bot - Python
-## Version: 1.0.10 - 21.12.2020
+## Version: 1.0.11 - 29.12.2020
 Telegram Bot connecting your Repetier Server and your Telegram bot account.
 
 It updates frequently your bot and you´ll have latest information about your prints and printer status.
