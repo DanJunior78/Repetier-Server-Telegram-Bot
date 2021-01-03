@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Repetier-Server_Telegram_Bot\n"
 "POT-Creation-Date: 2020-12-29 23:10+0100\n"
-"PO-Revision-Date: 2020-12-29 23:17+0100\n"
+"PO-Revision-Date: 2020-12-30 00:06+0100\n"
 "Last-Translator: Daniel Glock <daniel.g.aus.g@gmail.com>\n"
 "Language-Team: de\n"
 "Language: de\n"
@@ -182,7 +182,7 @@ msgstr "Z Höhen Bild deaktiviert. Wählen Sie die Webcam"
 
 #: D:\temp\python\RepetierBot.py:1100
 msgid "Please input new cycle time. Actual value:"
-msgstr "Bitte geben Sie eine neues Zeit Intervall ein. Istwert: %d"
+msgstr "Bitte geben Sie eine neues Zeit Intervall ein. Istwert:"
 
 #: D:\temp\python\RepetierBot.py:1108
 msgid "Time based pic disabled. Choose camera"

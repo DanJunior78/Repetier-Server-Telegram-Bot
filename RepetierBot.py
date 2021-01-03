@@ -65,9 +65,9 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.12" 
+SW_VERSION = "1.0.13" 
 CFG_VERSION = "V1.1"
-EX_DEBUG = True
+EX_DEBUG = False
 
 LANGUAGE = "de"
 
@@ -622,6 +622,7 @@ def getLogfilesKeyboard():
             buf['date'] = date
             buf['time'] = time
             key.append(InlineKeyboardButton(("%s/%s") % (buf['date'], buf['time']), callback_data=buf['filename']))
+    key.append(InlineKeyboardButton(_("database"), callback_data='database'))
     return key
 
 def getExtCommands():# Get external commands from server
@@ -1780,7 +1781,8 @@ def addDebugHandler(telegramDispatcher):
     entry_points=[CommandHandler("debug", debugFileUpload)
                     ],
     states={
-        ONE: [CallbackQueryHandler(exitDebugFileUpload, pattern="^End$"), # Start conversation
+        ONE: [CallbackQueryHandler(exitDebugFileUpload, pattern="^End$"), # Start conversation database
+              CallbackQueryHandler(uploadDebugDatabaseUpload, pattern="^database$"),
                 CallbackQueryHandler(uploadDebugFileUpload)
                 ],
         ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, timeoutDebugFileUpload)],       
@@ -1832,7 +1834,19 @@ def uploadDebugFileUpload(update, context):
     caption = "<i>" + _("Actual system configuration") + "</i>\n<strong>" + _("Please check the system configuration. Otherwise modify or delete items which you won´t distribute to third persons!") + "</strong>\n\n" + _("Please send files to telegram group for support: ") + "\n\n<a href=\"https://t.me/Repetier_S_Telegram_Bot_Support\">Telegram Bot Support Group</a>"
     sendMsgToBot(slug=botGetTracking(context), function=file, path=getSystemDebugConfig(), caption=caption, vidPic="file",)
     return ONE
-    
+
+def uploadDebugDatabaseUpload(update, context):
+    logger.info("uploadDebugDatabaseUpload request database")
+    DATABASEFILENAME = os.path.join(LOGFILEFOLDER, Uhrzeit.format(now) + "_" + FILENAME_NO_EXTENSION + '.dbase')
+    with open(DATABASEFILENAME, 'w') as outfile:
+            json.dump(botThreads.botData, outfile, default=lambda o: '<not serializable>')
+    try:
+        caption = "<i>" + _("Actual database") + "</i>"
+        sendMsgToBot(slug=botGetTracking(context), function="Actual database", path=DATABASEFILENAME, caption=caption, vidPic="file",)
+    except:
+            logger.error("Configuration file could not be saved")
+    return ONE
+
 def exitDebugFileUpload(update, context):
     sendMsgToBot(botGetTracking(context), "RemoveAtExit", message_id=update.callback_query.message.message_id)
     sendMsgToBot(botGetTracking(context), "logfileUpload", removeMsg=True)
@@ -2433,7 +2447,7 @@ class botThreadHdl(dataHdlThread):
             return "Error"
         self.botData['server']['websocket']['actWS'] = websocket
         self.botData['server']['websocket']['timeout'] = None
-        loggerWS.info("Websocket established")
+        loggerWS.info("Websocket established: %s" % self.botData['server']['websocket']['actWS'].connected)
         return websocket
 
     def remMsgFromBot(self, slug, function, message_id=None):
@@ -3648,14 +3662,18 @@ class botThreadHdl(dataHdlThread):
         threadItem = threading.current_thread()
         webs = self.botData['server']['websocket']
         if not webs['actWS'].connected:
+            loggerWS.info("ThreadSend: No websocket connection. Request new websocket")
             with self.threadLock:
-                if self.wsWebsocket() == 'Error':
-                    loggerWS.error("ThreadSend: Could not reestablish websocket")
-                    return
-                else:
-                    self.initServerActions()
-                    self.initPrinterConfigActions()
-                    loggerWS.info("ThreadSend: Could reestablish websocket and request renew init actions")
+                feedb = self.wsWebsocket() 
+            if feedb == "Error":
+                loggerWS.error("ThreadSend: Could not reestablish websocket")
+                return
+            else:
+                loggerWS.info("ThreadSend: Reestablish websocket and request renew init actions")
+                self.initServerActions()
+                self.initPrinterConfigActions()
+                loggerWS.debug("ThreadSend: Could reestablish websocket and set request renew init actions")
+            loggerWS.info("ThreadSend: Request new websocket done!")
         if webs['actWS'].connected:
             try:
                 result = webs['actWS'].send(self.sendCommand)
@@ -3815,9 +3833,12 @@ class botThreadHdl(dataHdlThread):
             elif action == "listModels":
                 loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\"" % (action, slug))
                 buffer = {}
-                buffer['data'] = data['data']
-                self.setPrinterData(slug, action, buffer)
-                loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data['data']))
+                try:
+                    buffer['data'] = data['data']
+                    self.setPrinterData(slug, action, buffer)
+                    loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data['data']))
+                except:
+                    loggerWS.error("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data))                
             elif action == "listJobs":
                 buffer = {}
                 buffer['data'] = data['data']
@@ -4343,7 +4364,8 @@ class botThreadHdl(dataHdlThread):
                 loggerWS.info("sendPicAfterzHeight - z height config for printer \"%s\" set to: %.1fmm" % (slug, buffer['zConfig']))
             else:
                 buffer = threadItem.addData
-                if state['z'] >= buffer['nextZ']:
+                if state['z'] >= buffer['nextZ'] and state['layer'] > 0:
+                    loggerWS.info("sendPicAfterzHeight - Actual layer for printer \"%s\" is: %s" % (slug, state['layer']))
                     if printerConfig['zHeightPrintPicCamSelect'] != None:
                         picText = {}
                         picText['textField1'] = listPrinter['job']
