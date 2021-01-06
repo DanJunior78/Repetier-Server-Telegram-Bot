@@ -5,4 +5,4 @@ RUN pip install --no-cache-dir arrow websocket_client requests imageio pygifsicl
 RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
 
-CMD [ "python", "Repetier-Server_Telegram_Bot.py" ]
+CMD [ "python", "RepetierBot.py" ]
