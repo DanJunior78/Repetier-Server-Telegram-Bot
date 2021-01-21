@@ -65,7 +65,7 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.13" 
+SW_VERSION = "1.0.14" 
 CFG_VERSION = "V1.1"
 EX_DEBUG = False
 
@@ -2067,7 +2067,7 @@ class botThreadHdl(dataHdlThread):
         self.wsThreadOrderData = dataHdlThread(interval=THRDORDERDATA, execute=self.ThreadHdlOrderData, name="Repetier-Server-Order-Data")
         self.botCommunicator = dataHdlThread(interval=THRDBOTCOM, execute=self.ThreadHdlBot, name="Repetier-Server-Bot-Communication-Threads")
         self.threadManager = dataHdlThread(interval=THRDMANAGER, execute=self.ThreadManager, name="Repetier-Server-Thread-Manager")
-        self.modelManager = dataHdlThread(interval=THRDMODELMAN, execute=self.modelManager, name="Repetier-Server-Model-Manager")
+        self.modelManager = dataHdlThread(interval=THRDMODELMAN, execute=self.ModelManager, name="Repetier-Server-Model-Manager")
         self.wsThreadRestart = dataHdlThread(interval=THRDRESTART, execute=self.ThreadHdlRestart, name="Repetier-Server-Restart-Threads")
 
     def start(self):
@@ -2203,11 +2203,13 @@ class botThreadHdl(dataHdlThread):
 
     def stopPrinterThreads(self):
         for printer in self.botData['printers']:
+            loggerWS.info("stopPrinterThreads - have to stop %s threads for printer %s" % (len(self.botData['printers'][printer]['threads']), printer))
             for thread in self.botData['printers'][printer]['threads']:
                 self.botData['printers'][printer]['threads'][thread].stop()
                 loggerWS.info("stopPrinterThreads - Stop thread %s from printer %s" % (thread, printer))
 
     def stopServerThreads(self):
+        loggerWS.info("stopServerThreads - have to stop %s threads" % (len(self.botData['server']['threads'])))
         for thread in self.botData['server']['threads']:
             self.botData['server']['threads'][thread].stop()
             loggerWS.info("stopServerThreads - Stop thread %s from server" % (thread))
@@ -2666,18 +2668,24 @@ class botThreadHdl(dataHdlThread):
             msgDebugIn = msgToSend
             if msgToSend['singleMsg']:
                 if msgToSend['delTime'] == 0:
-                    fdback = telegramSendMsg(msg=msgToSend['msg'], 
-                                             reply_markup=None, 
-                                             chat_id=CHATID, 
-                                             token=MY_TELEGRAM_TOKEN, 
-                                             parse_mode=telegram.ParseMode.HTML)
+                    try:
+                        fdback = telegramSendMsg(msg=msgToSend['msg'], 
+                                                 reply_markup=None, 
+                                                 chat_id=CHATID, 
+                                                 token=MY_TELEGRAM_TOKEN, 
+                                                 parse_mode=telegram.ParseMode.HTML)
+                    except:
+                        loggerWS.error("ThreadHdlBot - Could not send single message without delay time: %s/%s" % (msgToSend['slug'], msgToSend['function']))
                 else:
-                    timeDelThread(feedbackMsg=telegramSendMsg(msgToSend['msg'],
-                                                              reply_markup=None, 
-                                                              chat_id=CHATID, 
-                                                              token=MY_TELEGRAM_TOKEN
-                                                              ),
-                                  delayTimeSelect=msgToSend['delTime'])
+                    try:
+                        timeDelThread(feedbackMsg=telegramSendMsg(msgToSend['msg'],
+                                                                  reply_markup=None, 
+                                                                  chat_id=CHATID, 
+                                                                  token=MY_TELEGRAM_TOKEN
+                                                                  ),
+                                    delayTimeSelect=msgToSend['delTime'])
+                    except:
+                        loggerWS.error("ThreadHdlBot - Could not send single message with delay time: %s/%s" % (msgToSend['slug'], msgToSend['function']))
             elif msgToSend['vidPic'] != None: # video = "vid" / pic = "pic" / gif = "gif" / file = "file"
                 loggerWS.info("In vidPic: \"%s\" - Info Path/Caption: %s / %s" % (msgToSend['vidPic'], msgToSend['msg']['path'], msgToSend['msg']['caption'])) 
                 if msgToSend['vidPic'] == "vid":
@@ -2834,7 +2842,7 @@ class botThreadHdl(dataHdlThread):
                                         message['updTime'] = msgToSend['updTime']
                                         loggerWS.debug("Message edited: %s/%s with message ID: %s" % (msgToSend['slug'], msgToSend['function'],message['message_id']))
                                     except:
-                                        loggerWS.error("ThreadHdlBot - Message could not be edited: %s/%s message_id: %s" % (message['slug'], message['function'], message['message_id']))
+                                        loggerWS.debug("ThreadHdlBot - Message could not be edited: %s/%s message_id: %s" % (message['slug'], message['function'], message['message_id']))
                         break
                 if msgInList == False:
                     with self.threadLock:
@@ -3458,7 +3466,7 @@ class botThreadHdl(dataHdlThread):
                             singleMsg=True,
                             ) 
 
-    def modelManager(self): 
+    def ModelManager(self): 
         # MODELFILEFOLDER = os.path.join(os.getcwd(), 'mod') 
         # # self.botData['printers'][slug]
         # # self.botData['bot']['messageID']....['vidPic'] 
@@ -3755,7 +3763,10 @@ class botThreadHdl(dataHdlThread):
             elif action == "stateList":
                 for printers in data:
                     loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\"" % (action, printers))
-                    self.setPrinterData(printers, action, data[printers])
+                    try:
+                        self.setPrinterData(printers, action, data[printers])
+                    except:
+                        loggerWS.error("setPrinterDataStorage - Error in %s dataset for printer \"%s\" with data: %s" % (action, printers, dataset))
                     loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\" stored" % (action, printers))
             else:
                 loggerWS.error("setPrinterDataStorage - New %s dataset not recognized" % (action))
@@ -3841,9 +3852,12 @@ class botThreadHdl(dataHdlThread):
                     loggerWS.error("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data))                
             elif action == "listJobs":
                 buffer = {}
-                buffer['data'] = data['data']
-                self.setPrinterData(slug, action, buffer)  
-                loggerWS.info("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data['data']))
+                try:
+                    buffer['data'] = data['data']
+                    self.setPrinterData(slug, action, buffer)  
+                    loggerWS.info("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data['data']))
+                except:
+                    loggerWS.error("setPrinterDataStorage - New %s dataset for printer \"%s\" made problems. Data: %s" % (action, slug, data))
             else:
                 loggerWS.info("setPrinterDataStorage - New unknown dataset \"%s\" for printer %s: %s" % (action, slug, dataset))
             loggerWS.debug("setPrinterDataStorage - New %s data set for printer \"%s\" stored" % (action, slug))
@@ -4538,7 +4552,8 @@ class botThreadHdl(dataHdlThread):
                 loggerWS.info("modelManager reset restart counter")
                 self.restartModelManager = 0
             self.restartModelManager += 1
-            self.modelManager = dataHdlThread(interval=THRDMODELMAN, execute=self.modelManager, name="Repetier-Server-Model-Manager")
+            self.modelManager.join()
+            self.modelManager = dataHdlThread(interval=THRDMODELMAN, execute=self.ModelManager, name="Repetier-Server-Model-Manager")
             self.modelManager.start()
             loggerWS.info("modelManager restartet. Counter: %s" % self.restartModelManager)
         if  not self.botCommunicator.is_alive():
