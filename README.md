@@ -27,7 +27,7 @@ Please copy /fonts folder and the /mod folder to your local installation.
 
 ### New in V1.1.0:
 
-![New Main View](/00_Pictures/main_view_V1_1.JPG)
+![New Main View](/00_Pictures/main_view_v1_1.JPG)
 ![Printer Handling](/00_Pictures/Printer_V1.1_01.JPG)
 ![Printer Handling](/00_Pictures/Printer_V1.1_02.JPG)
 ![Printer Queue](/00_Pictures/PrinterQueue_V1.1_01.JPG)
