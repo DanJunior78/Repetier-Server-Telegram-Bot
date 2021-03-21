@@ -68,9 +68,9 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.1.0" 
+SW_VERSION = "1.1.1" 
 CFG_VERSION = "V1.1"
-EX_DEBUG = False
+EX_DEBUG = True
 
 LANGUAGE = "de"
 
@@ -274,7 +274,7 @@ def impConfig():
         with open(CFGFILENAME) as json_file:
             data = json.load(json_file)
     except:
-        logger.error("Configuration file not found - impConfig - : %s. Did you rename the RepetierBot.json.sample?" % CFGFILENAME)
+        logger.error("Configuration file not found - impConfig - : %s" % CFGFILENAME)
         sys.exit()
     try:
         if data['gui']['testSuccess'] == True:
@@ -2523,13 +2523,9 @@ def handlePrintSelection(update,context):
 def startSelectedPrint(update, context):
     queryMessageData = update.callback_query.data
     sendStartPrint(botGetTracking(context), queryMessageData)
-    sendMsgToBot(slug=botGetTracking(context), 
-                 function="handlePrintQueue", 
-                 msg="<i>🔜 " + _("Closing keyboard") + "...</i>", 
-                 reply_markup=None)
-    sendMsgToBot(botGetTracking(context), 
-                 "handlePrintQueue", 
-                 removeMsg=True)
+    #sendMsgToBot(botGetTracking(context), 
+    #             "handlePrintQueue", 
+    #             removeMsg=True)
     botRemTracking()
     remAllExtraMsgs(botGetTracking(context))
     logger.info("Bot start print: %s (%s): %s, %s" 
@@ -2936,7 +2932,7 @@ def remPrinterFromBot(telegramDispatcher):
             },
     fallbacks=[MessageHandler(Filters.all, exitRemPrintFromBotContext)],
     allow_reentry=False,
-    conversation_timeout=60,
+    conversation_timeout=180,
     name="Repetier-Server-RemPrinter"
     )
     telegramDispatcher.add_handler(conv_handler)
@@ -3030,7 +3026,7 @@ def repetierBotStats(telegramDispatcher):
             },
     fallbacks=[MessageHandler(Filters.all, timeoutRepetierBotStatsContext)],
     allow_reentry=False,
-    conversation_timeout=60,
+    conversation_timeout=180,
     name="Repetier-Server-Stats"
     )
     telegramDispatcher.add_handler(conv_handler)
@@ -3116,7 +3112,7 @@ def addDebugHandler(telegramDispatcher):
             },
     fallbacks=[MessageHandler(Filters.all, exitDebugFileUpload)],
     allow_reentry=False,
-    conversation_timeout=60,
+    conversation_timeout=180,
     name="Repetier-Server-Debug"
     )
     telegramDispatcher.add_handler(conv_handler)
@@ -3793,7 +3789,7 @@ class botThreadHdl(dataHdlThread):
                     },
             fallbacks=[MessageHandler(Filters.all, unknownCommand)],
             allow_reentry=True,
-            conversation_timeout=60,
+            conversation_timeout=180,
             name="Repetier-Server-Bot"
             )
         elif hdlType == "messages":
@@ -3808,7 +3804,7 @@ class botThreadHdl(dataHdlThread):
                     },
             fallbacks=[MessageHandler(Filters.all, unknownCommand)],
             allow_reentry=True,
-            conversation_timeout=60,
+            conversation_timeout=180,
             name="Repetier-Server-Bot-Messages"
             )
         else:
@@ -4511,8 +4507,12 @@ class botThreadHdl(dataHdlThread):
                         statusC, msgC = self.checkChambersStatus(stateLists['heatedChambers'])
                         statusHB, msgHB = self.checkHeatedBedsStatus(stateLists['heatedBeds'])
                         statusE, msgE = self.checkExtrudersStatus(stateLists['extruder'])
+                        if stateLists['layer'] > 1:
+                            layerMin = True
+                        else:
+                            layerMin = False
                         msgLong = msgBasis 
-                        if statusC and statusHB and statusE:
+                        if statusC and statusHB and statusE or layerMin:
                             actTime = arrow.now()
                             restOfPrintTime = int(listPrinters['printTime'])-int(listPrinters['printedTimeComp'])
                             msgLong += "<u><b>" + _("Print file") + ":</b></u>\n"
