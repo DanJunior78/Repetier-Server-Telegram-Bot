@@ -1,1 +1,12 @@
-{"version": {"CFG_VERSION": "V1.1"}, "server": {"LANGUAGE": "en", "MY_REPETIER_SERVER_API_KEY": "81cb8157-01f9-435a-b9c9-d64adcdd2203", "RepetierServerIP": "192.168.100.44", "RepetierServerPort": "3344", "RepetierServerWebcamIP": "192.168.100.44", "MY_TELEGRAM_ID": 25917677, "MY_TELEGRAM_TOKEN": "1255338182:AAGQj8jHW8E9K0mA2RYiy0fotCusJU0RTdM"}, "printers": [{"slug": "Anycubic_Mega_X1", "name": "Anycubic Mega X", "extrCoolTemp": 40, "extrCoolTempExtComm": null, "heatbCoolTemp": 30, "heatbCoolTempExtComm": null, "delayTimeAfterPrintPic": 20, "AfterPrintPicCamSelect": 0, "zHeightPrintPic": 10.0, "zHeightPrintPicCamSelect": 0, "timeBasedPrintPic": 10, "timeBasedPrintPicCamSelect": 0}, {"slug": "Anycubic_i3_Mega_S", "name": "Anycubic i3 Mega S", "extrCoolTemp": 40, "extrCoolTempExtComm": null, "heatbCoolTemp": 45, "heatbCoolTempExtComm": null, "delayTimeAfterPrintPic": 10, "AfterPrintPicCamSelect": 0, "zHeightPrintPic": 10.0, "zHeightPrintPicCamSelect": 0, "timeBasedPrintPic": 15, "timeBasedPrintPicCamSelect": 0}], "gui": {"testSuccess": true}}
+{"version": 
+	{"CFG_VERSION": "V1.1"}, 
+"server": 
+	{"LANGUAGE": "en", 
+	"MY_REPETIER_SERVER_API_KEY": "xxxxxxx-xxxxxx-xxxxxxxx-xxxxxxxx", 
+	"RepetierServerIP": "", 
+	"RepetierServerPort": "", 
+	"RepetierServerWebcamIP": "", 
+	"MY_TELEGRAM_ID": 0, 
+	"MY_TELEGRAM_TOKEN": ""}, 
+"printers": [], 
+"gui": {"testSuccess": false}}
