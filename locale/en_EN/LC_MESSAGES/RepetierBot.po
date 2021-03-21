@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Repetier-Server_Telegram_Bot\n"
-"POT-Creation-Date: 2020-12-29 23:10+0100\n"
-"PO-Revision-Date: 2020-12-29 23:18+0100\n"
+"POT-Creation-Date: 2021-03-21 00:25+0100\n"
+"PO-Revision-Date: 2021-03-21 00:33+0100\n"
 "Last-Translator: Daniel Glock <daniel.g.aus.g@gmail.com>\n"
 "Language-Team: en <LL@li.org>\n"
 "Language: en\n"
@@ -16,305 +16,758 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: Poedit 2.4.2\n"
 
-#: D:\temp\python\RepetierBot.py:534
+#: D:\temp\python\RepetierBot.py:542
 msgid "BOT Error!!! Please try again."
 msgstr "BOT Error!!! Please try again."
 
-#: D:\temp\python\RepetierBot.py:571 D:\temp\python\RepetierBot.py:580
-#: D:\temp\python\RepetierBot.py:592
+#: D:\temp\python\RepetierBot.py:579 D:\temp\python\RepetierBot.py:588
+#: D:\temp\python\RepetierBot.py:597 D:\temp\python\RepetierBot.py:610
 msgid "End"
 msgstr "End"
 
-#: D:\temp\python\RepetierBot.py:579
+#: D:\temp\python\RepetierBot.py:587 D:\temp\python\RepetierBot.py:596
 msgid "Back"
 msgstr "Back"
 
-#: D:\temp\python\RepetierBot.py:605
+#: D:\temp\python\RepetierBot.py:624
 msgid "ExtCommands"
 msgstr "ExtCommands"
 
-#: D:\temp\python\RepetierBot.py:607
+#: D:\temp\python\RepetierBot.py:626
 msgid "Webcam %s"
 msgstr "Webcam %s"
 
-#: D:\temp\python\RepetierBot.py:609 D:\temp\python\RepetierBot.py:773
+#: D:\temp\python\RepetierBot.py:628 D:\temp\python\RepetierBot.py:1081
 msgid "Quick Commands"
 msgstr "Quick Commands"
 
-#: D:\temp\python\RepetierBot.py:610
+#: D:\temp\python\RepetierBot.py:630
+#| msgid "Print"
+msgid "Printer"
+msgstr "Printer"
+
+#: D:\temp\python\RepetierBot.py:631
 msgid "Settings"
 msgstr "Settings"
 
-#: D:\temp\python\RepetierBot.py:643
+#: D:\temp\python\RepetierBot.py:646
+msgid "database"
+msgstr ""
+
+#: D:\temp\python\RepetierBot.py:647
+#| msgid "Active User: %s"
+msgid "Active Threads"
+msgstr "Active Threads"
+
+#: D:\temp\python\RepetierBot.py:653
+#| msgid "removing %s"
+msgid "Remove %s"
+msgstr "Remove %s"
+
+#: D:\temp\python\RepetierBot.py:678 D:\temp\python\RepetierBot.py:804
 msgid "OK"
 msgstr "OK"
 
-#: D:\temp\python\RepetierBot.py:662
+#: D:\temp\python\RepetierBot.py:697
 msgid "Send Video Camera %s"
 msgstr "Send Video Camera %s"
 
-#: D:\temp\python\RepetierBot.py:664
+#: D:\temp\python\RepetierBot.py:699
 msgid "Send Gif Camera %s"
 msgstr "Send Gif Camera %s"
 
-#: D:\temp\python\RepetierBot.py:665 D:\temp\python\RepetierBot.py:744
-#: D:\temp\python\RepetierBot.py:754 D:\temp\python\RepetierBot.py:764
+#: D:\temp\python\RepetierBot.py:700 D:\temp\python\RepetierBot.py:779
+#: D:\temp\python\RepetierBot.py:789 D:\temp\python\RepetierBot.py:799
 msgid "Send Png Camera %s"
 msgstr "Send Png Camera %s"
 
-#: D:\temp\python\RepetierBot.py:684
+#: D:\temp\python\RepetierBot.py:719
 msgid "Extr. cool down: %s°C"
 msgstr "Extr. cool down: %s°C"
 
-#: D:\temp\python\RepetierBot.py:689
+#: D:\temp\python\RepetierBot.py:724
 msgid "ExtCom: %s"
 msgstr "ExtCom: %s"
 
-#: D:\temp\python\RepetierBot.py:691
+#: D:\temp\python\RepetierBot.py:726
 msgid "ExtCom temp. dis."
 msgstr "ExtCom temp. dis."
 
-#: D:\temp\python\RepetierBot.py:692
+#: D:\temp\python\RepetierBot.py:727
 msgid "Heatb. cool down: %s°C"
 msgstr "Heatb. cool down: %s°C"
 
-#: D:\temp\python\RepetierBot.py:697
+#: D:\temp\python\RepetierBot.py:732
 msgid "HeatbCom: %s"
 msgstr "HeatbCom: %s"
 
-#: D:\temp\python\RepetierBot.py:699
+#: D:\temp\python\RepetierBot.py:734
 msgid "HeatbCom temp. dis."
 msgstr "HeatbCom temp. dis."
 
-#: D:\temp\python\RepetierBot.py:700
+#: D:\temp\python\RepetierBot.py:735
 msgid "Pic after print: %ss"
 msgstr "Pic after print: %ss"
 
-#: D:\temp\python\RepetierBot.py:702 D:\temp\python\RepetierBot.py:707
-#: D:\temp\python\RepetierBot.py:712
+#: D:\temp\python\RepetierBot.py:737 D:\temp\python\RepetierBot.py:742
+#: D:\temp\python\RepetierBot.py:747
 msgid "From Cam: %s"
 msgstr "From Cam: %s"
 
-#: D:\temp\python\RepetierBot.py:704 D:\temp\python\RepetierBot.py:709
-#: D:\temp\python\RepetierBot.py:714
+#: D:\temp\python\RepetierBot.py:739 D:\temp\python\RepetierBot.py:744
+#: D:\temp\python\RepetierBot.py:749
 msgid "Pic disabled"
 msgstr "Pic disabled"
 
-#: D:\temp\python\RepetierBot.py:705
+#: D:\temp\python\RepetierBot.py:740
 msgid "Pic after z height: %smm"
 msgstr "Pic after z height: %smm"
 
-#: D:\temp\python\RepetierBot.py:710
+#: D:\temp\python\RepetierBot.py:745
 msgid "Pic after time: %s min"
 msgstr "Pic after time: %s min"
 
-#: D:\temp\python\RepetierBot.py:719
+#: D:\temp\python\RepetierBot.py:754
 msgid "disable ExtCom"
 msgstr "disable ExtCom"
 
-#: D:\temp\python\RepetierBot.py:724 D:\temp\python\RepetierBot.py:729
-#: D:\temp\python\RepetierBot.py:734
+#: D:\temp\python\RepetierBot.py:759 D:\temp\python\RepetierBot.py:764
+#: D:\temp\python\RepetierBot.py:769
 msgid "disable Pic"
 msgstr "disable Pic"
 
-#: D:\temp\python\RepetierBot.py:784
+#: D:\temp\python\RepetierBot.py:809
+#| msgid "Printer state"
+msgid "Printer queue"
+msgstr "Printer queue"
+
+#: D:\temp\python\RepetierBot.py:813 D:\temp\python\RepetierBot.py:829
+#| msgid "Print speed"
+msgid "Fan speed"
+msgstr "Fan speed"
+
+#: D:\temp\python\RepetierBot.py:815 D:\temp\python\RepetierBot.py:831
+#| msgid "ExtCom temp. dis."
+msgid "Extr temp"
+msgstr "Extr temp"
+
+#: D:\temp\python\RepetierBot.py:817 D:\temp\python\RepetierBot.py:833
+msgid "Bed temp"
+msgstr "Bed temp"
+
+#: D:\temp\python\RepetierBot.py:819 D:\temp\python\RepetierBot.py:835
+#| msgid "Chamber"
+msgid "Cham temp"
+msgstr "Cham temp"
+
+#: D:\temp\python\RepetierBot.py:824
+msgid "Flow multiplier"
+msgstr "Flow multiplier"
+
+#: D:\temp\python\RepetierBot.py:825
+msgid "Speed multiplier"
+msgstr "Speed multiplier"
+
+#: D:\temp\python\RepetierBot.py:836
+msgid "Cancel print"
+msgstr "Cancel print"
+
+#: D:\temp\python\RepetierBot.py:850
+#| msgid "Printer state"
+msgid "Printer Queue"
+msgstr "Printer Queue"
+
+#: D:\temp\python\RepetierBot.py:852 D:\temp\python\RepetierBot.py:926
+msgid "No files on the Server"
+msgstr "No files on the Server"
+
+#: D:\temp\python\RepetierBot.py:858 D:\temp\python\RepetierBot.py:866
+#| msgid "Print file"
+msgid "Print Time: %s"
+msgstr "Print Time: %s"
+
+#: D:\temp\python\RepetierBot.py:881
+#| msgid "Print file"
+msgid "Print File"
+msgstr "Print File"
+
+#: D:\temp\python\RepetierBot.py:888
+#| msgid "Print"
+msgid "Print: "
+msgstr "Print: "
+
+#: D:\temp\python\RepetierBot.py:890
+msgid "Note"
+msgstr "Note"
+
+#: D:\temp\python\RepetierBot.py:891
+#| msgid "Print file"
+msgid "Print Time"
+msgstr "Print Time"
+
+#: D:\temp\python\RepetierBot.py:892
+msgid "Filament total"
+msgstr "Filament total"
+
+#: D:\temp\python\RepetierBot.py:893
+msgid "Slicer"
+msgstr "Slicer"
+
+#: D:\temp\python\RepetierBot.py:894
+msgid "Created"
+msgstr "Created"
+
+#: D:\temp\python\RepetierBot.py:895
+#| msgid "Layer:"
+msgid "Layers"
+msgstr "Layers"
+
+#: D:\temp\python\RepetierBot.py:896
+#| msgid "Print"
+msgid "Printed"
+msgstr "Printed"
+
+#: D:\temp\python\RepetierBot.py:898
+msgid "Fits On Heatbed: Yes"
+msgstr "Fits On Heatbed: Yes"
+
+#: D:\temp\python\RepetierBot.py:900
+msgid "Fits On Heatbed: No"
+msgstr "Fits On Heatbed: No"
+
+#: D:\temp\python\RepetierBot.py:1092
 msgid "Quick command handling aborted"
 msgstr "Quick command handling aborted"
 
-#: D:\temp\python\RepetierBot.py:799
+#: D:\temp\python\RepetierBot.py:1116
+msgid "Stop job sent to printer"
+msgstr "Stop job sent to printer"
+
+#: D:\temp\python\RepetierBot.py:1125
+msgid "Emergency stop sent to printer"
+msgstr "Emergency stop sent to printer"
+
+#: D:\temp\python\RepetierBot.py:1137 D:\temp\python\RepetierBot.py:1168
+msgid "Flow multiply changed"
+msgstr "Flow multiply changed"
+
+#: D:\temp\python\RepetierBot.py:1144
+msgid "Flow multiply change failed"
+msgstr "Flow multiply change failed"
+
+#: D:\temp\python\RepetierBot.py:1181 D:\temp\python\RepetierBot.py:1212
+msgid "Speed multiply changed"
+msgstr "Speed multiply changed"
+
+#: D:\temp\python\RepetierBot.py:1188
+msgid "Speed multiply change failed"
+msgstr "Speed multiply change failed"
+
+#: D:\temp\python\RepetierBot.py:1227 D:\temp\python\RepetierBot.py:1247
+msgid "Fan speed changed"
+msgstr "Fan speed changed"
+
+#: D:\temp\python\RepetierBot.py:1234
+msgid "Fan Speed change failed"
+msgstr "Fan Speed change failed"
+
+#: D:\temp\python\RepetierBot.py:1261 D:\temp\python\RepetierBot.py:1305
+msgid "Extruder temperature changed"
+msgstr "Extruder temperature changed"
+
+#: D:\temp\python\RepetierBot.py:1268
+msgid "Extruder temperature change failed"
+msgstr "Extruder temperature change failed"
+
+#: D:\temp\python\RepetierBot.py:1319 D:\temp\python\RepetierBot.py:1363
+msgid "Heatbed temperature changed"
+msgstr "Heatbed temperature changed"
+
+#: D:\temp\python\RepetierBot.py:1326
+msgid "Heatbed temperature change failed"
+msgstr "Heatbed temperature change failed"
+
+#: D:\temp\python\RepetierBot.py:1377 D:\temp\python\RepetierBot.py:1421
+msgid "Chamber temperature changed"
+msgstr "Chamber temperature changed"
+
+#: D:\temp\python\RepetierBot.py:1384
+msgid "Chamber temperature change failed"
+msgstr "Chamber temperature change failed"
+
+#: D:\temp\python\RepetierBot.py:1432
+#| msgid "Print was started"
+msgid "Print started"
+msgstr "Print started"
+
+#: D:\temp\python\RepetierBot.py:1441
+msgid "Set flow multiplier from %d%% to?"
+msgstr "Set flow multiplier from %d%% to?"
+
+#: D:\temp\python\RepetierBot.py:1443
+msgid "Set flow multiplier? Actual value unknown!"
+msgstr "Set flow multiplier? Actual value unknown!"
+
+#: D:\temp\python\RepetierBot.py:1449
+msgid "Set speed multiplier from %d%% to?"
+msgstr "Set speed multiplier from %d%% to?"
+
+#: D:\temp\python\RepetierBot.py:1451
+msgid "Set speed multiplier? Actual value unknown!"
+msgstr "Set speed multiplier? Actual value unknown!"
+
+#: D:\temp\python\RepetierBot.py:1462
+msgid "Set fan speed from %d%% to?"
+msgstr "Set fan speed from %d%% to?"
+
+#: D:\temp\python\RepetierBot.py:1464
+msgid "Switch fan on to?"
+msgstr "Switch fan on to?"
+
+#: D:\temp\python\RepetierBot.py:1466
+msgid "Set fan speed? Actual value unknown!"
+msgstr "Set fan speed? Actual value unknown!"
+
+#: D:\temp\python\RepetierBot.py:1474
+msgid "Set extruder temperature from %d°C to?"
+msgstr "Set extruder temperature from %d°C to?"
+
+#: D:\temp\python\RepetierBot.py:1476
+#| msgid "Please input new extruder cool down temperature. Actual value: %d°C"
+msgid "Extruder temperature? Actual value unknown!"
+msgstr "Extruder temperature? Actual value unknown!"
+
+#: D:\temp\python\RepetierBot.py:1484
+msgid "Set heatbed temperature from %d°C to?"
+msgstr "Set heatbed temperature from %d°C to?"
+
+#: D:\temp\python\RepetierBot.py:1486
+msgid "Heatbed temperature? Actual value unknown!"
+msgstr "Heatbed temperature? Actual value unknown!"
+
+#: D:\temp\python\RepetierBot.py:1494
+msgid "Set chamber temperature from %d°C to?"
+msgstr "Set chamber temperature from %d°C to?"
+
+#: D:\temp\python\RepetierBot.py:1496
+msgid "Chamber temperature? Actual value unknown!"
+msgstr "Chamber temperature? Actual value unknown!"
+
+#: D:\temp\python\RepetierBot.py:1503
 msgid "Please input new extruder cool down temperature. Actual value: %d°C"
 msgstr "Please input new extruder cool down temperature. Actual value: %d°C"
 
-#: D:\temp\python\RepetierBot.py:807 D:\temp\python\RepetierBot.py:873
+#: D:\temp\python\RepetierBot.py:1511 D:\temp\python\RepetierBot.py:1577
 msgid "ExtCom disabled. Choose new action."
 msgstr "ExtCom disabled. Choose new action."
 
-#: D:\temp\python\RepetierBot.py:811 D:\temp\python\RepetierBot.py:877
+#: D:\temp\python\RepetierBot.py:1515 D:\temp\python\RepetierBot.py:1581
 msgid "Could not connect to the server."
 msgstr "Could not connect to the server."
 
-#: D:\temp\python\RepetierBot.py:814 D:\temp\python\RepetierBot.py:880
+#: D:\temp\python\RepetierBot.py:1518 D:\temp\python\RepetierBot.py:1584
 msgid "ExtCom active: %s"
 msgstr "ExtCom active: %s"
 
-#: D:\temp\python\RepetierBot.py:826 D:\temp\python\RepetierBot.py:849
-#: D:\temp\python\RepetierBot.py:892 D:\temp\python\RepetierBot.py:915
-#: D:\temp\python\RepetierBot.py:936 D:\temp\python\RepetierBot.py:960
-#: D:\temp\python\RepetierBot.py:981 D:\temp\python\RepetierBot.py:1005
-#: D:\temp\python\RepetierBot.py:1026 D:\temp\python\RepetierBot.py:1050
+#: D:\temp\python\RepetierBot.py:1530 D:\temp\python\RepetierBot.py:1553
+#: D:\temp\python\RepetierBot.py:1596 D:\temp\python\RepetierBot.py:1619
+#: D:\temp\python\RepetierBot.py:1640 D:\temp\python\RepetierBot.py:1664
+#: D:\temp\python\RepetierBot.py:1685 D:\temp\python\RepetierBot.py:1709
+#: D:\temp\python\RepetierBot.py:1730 D:\temp\python\RepetierBot.py:1754
 msgid "Configuration saved"
 msgstr "Configuration saved"
 
-#: D:\temp\python\RepetierBot.py:833 D:\temp\python\RepetierBot.py:856
-#: D:\temp\python\RepetierBot.py:899 D:\temp\python\RepetierBot.py:922
-#: D:\temp\python\RepetierBot.py:943 D:\temp\python\RepetierBot.py:967
-#: D:\temp\python\RepetierBot.py:988 D:\temp\python\RepetierBot.py:1012
-#: D:\temp\python\RepetierBot.py:1033 D:\temp\python\RepetierBot.py:1057
+#: D:\temp\python\RepetierBot.py:1537 D:\temp\python\RepetierBot.py:1560
+#: D:\temp\python\RepetierBot.py:1603 D:\temp\python\RepetierBot.py:1626
+#: D:\temp\python\RepetierBot.py:1647 D:\temp\python\RepetierBot.py:1671
+#: D:\temp\python\RepetierBot.py:1692 D:\temp\python\RepetierBot.py:1716
+#: D:\temp\python\RepetierBot.py:1737 D:\temp\python\RepetierBot.py:1761
 msgid "Configuration saving failed"
 msgstr "Configuration saving failed"
 
-#: D:\temp\python\RepetierBot.py:865
+#: D:\temp\python\RepetierBot.py:1569
 msgid "Please input new heatbed cool down temperature. Actual value: %d°C"
 msgstr "Please input new heatbed cool down temperature. Actual value: %d°C"
 
-#: D:\temp\python\RepetierBot.py:1066
+#: D:\temp\python\RepetierBot.py:1770
 msgid "Please input new delay time. Actual value: %ds"
 msgstr "Please input new delay time. Actual value: %ds"
 
-#: D:\temp\python\RepetierBot.py:1074
+#: D:\temp\python\RepetierBot.py:1778
 msgid "Pic after print disabled. Choose camera"
 msgstr "Pic after print disabled. Choose camera"
 
-#: D:\temp\python\RepetierBot.py:1076 D:\temp\python\RepetierBot.py:1093
-#: D:\temp\python\RepetierBot.py:1110
+#: D:\temp\python\RepetierBot.py:1780 D:\temp\python\RepetierBot.py:1797
+#: D:\temp\python\RepetierBot.py:1814
 msgid "Webcam %s active"
 msgstr "Webcam %s active"
 
-#: D:\temp\python\RepetierBot.py:1083
+#: D:\temp\python\RepetierBot.py:1787
 msgid "Please input new z height. Actual value:"
 msgstr "Please input new z height. Actual value:"
 
-#: D:\temp\python\RepetierBot.py:1091
+#: D:\temp\python\RepetierBot.py:1795
 msgid "Z height pic disabled. Choose camera"
 msgstr "Z height pic disabled. Choose camera"
 
-#: D:\temp\python\RepetierBot.py:1100
+#: D:\temp\python\RepetierBot.py:1804
 msgid "Please input new cycle time. Actual value:"
 msgstr "Please input new cycle time. Actual value:"
 
-#: D:\temp\python\RepetierBot.py:1108
+#: D:\temp\python\RepetierBot.py:1812
 msgid "Time based pic disabled. Choose camera"
 msgstr "Time based pic disabled. Choose camera"
 
-#: D:\temp\python\RepetierBot.py:1215 D:\temp\python\RepetierBot.py:1250
-#: D:\temp\python\RepetierBot.py:1810
+#: D:\temp\python\RepetierBot.py:1874
+msgid "Bot running since"
+msgstr "Bot running since"
+
+#: D:\temp\python\RepetierBot.py:1891
+msgid "Statistic"
+msgstr "Statistic"
+
+#: D:\temp\python\RepetierBot.py:1897
+msgid "Monthly Statistic"
+msgstr "Monthly Statistic"
+
+#: D:\temp\python\RepetierBot.py:1913
+msgid "Total"
+msgstr "Total"
+
+#: D:\temp\python\RepetierBot.py:1916
+msgid "Amount of Filament"
+msgstr "Amount of Filament"
+
+#: D:\temp\python\RepetierBot.py:1917
+msgid "Costs"
+msgstr "Costs"
+
+#: D:\temp\python\RepetierBot.py:1918
+#| msgid "Prints"
+msgid "Prints total"
+msgstr "Prints total"
+
+#: D:\temp\python\RepetierBot.py:1919
+#| msgid "Print file"
+msgid "Prints finished"
+msgstr "Prints finished"
+
+#: D:\temp\python\RepetierBot.py:1920
+#| msgid "Print was started"
+msgid "Prints aborted"
+msgstr "Prints aborted"
+
+#: D:\temp\python\RepetierBot.py:1925
+msgid "January"
+msgstr "January"
+
+#: D:\temp\python\RepetierBot.py:1927
+msgid "February"
+msgstr "February"
+
+#: D:\temp\python\RepetierBot.py:1929
+msgid "March"
+msgstr "March"
+
+#: D:\temp\python\RepetierBot.py:1931
+msgid "April"
+msgstr "April"
+
+#: D:\temp\python\RepetierBot.py:1933
+msgid "May"
+msgstr "May"
+
+#: D:\temp\python\RepetierBot.py:1935
+msgid "June"
+msgstr "June"
+
+#: D:\temp\python\RepetierBot.py:1937
+msgid "July"
+msgstr "July"
+
+#: D:\temp\python\RepetierBot.py:1939
+msgid "August"
+msgstr "August"
+
+#: D:\temp\python\RepetierBot.py:1941
+msgid "September"
+msgstr "September"
+
+#: D:\temp\python\RepetierBot.py:1943
+msgid "October"
+msgstr "October"
+
+#: D:\temp\python\RepetierBot.py:1945
+msgid "November"
+msgstr "November"
+
+#: D:\temp\python\RepetierBot.py:1947
+msgid "December"
+msgstr "December"
+
+#: D:\temp\python\RepetierBot.py:2005 D:\temp\python\RepetierBot.py:2040
+#: D:\temp\python\RepetierBot.py:2959 D:\temp\python\RepetierBot.py:3053
+#: D:\temp\python\RepetierBot.py:3139
 msgid "Access denied!"
 msgstr "Access denied!"
 
-#: D:\temp\python\RepetierBot.py:1227
+#: D:\temp\python\RepetierBot.py:2017
 msgid "Server %s selected"
 msgstr "Server %s selected"
 
-#: D:\temp\python\RepetierBot.py:1262
+#: D:\temp\python\RepetierBot.py:2052
 msgid "Printer %s selected"
 msgstr "Printer %s selected"
 
-#: D:\temp\python\RepetierBot.py:1270
+#: D:\temp\python\RepetierBot.py:2060
 msgid "Opening external commands"
 msgstr "Opening external commands"
 
-#: D:\temp\python\RepetierBot.py:1278
+#: D:\temp\python\RepetierBot.py:2068
 msgid "Back to main menu..."
 msgstr "Back to main menu..."
 
-#: D:\temp\python\RepetierBot.py:1293
+#: D:\temp\python\RepetierBot.py:2085
 msgid "Opening external command confirmation"
 msgstr "Opening external command confirmation"
 
-#: D:\temp\python\RepetierBot.py:1305
+#: D:\temp\python\RepetierBot.py:2097
 msgid "Going back to external commands"
 msgstr "Going back to external commands"
 
-#: D:\temp\python\RepetierBot.py:1317
+#: D:\temp\python\RepetierBot.py:2109
 msgid "Opening webcams"
 msgstr "Opening webcams"
 
-#: D:\temp\python\RepetierBot.py:1330
+#: D:\temp\python\RepetierBot.py:2122
 msgid "Generate video file. Closing keyboard"
 msgstr "Generate video file. Closing keyboard"
 
-#: D:\temp\python\RepetierBot.py:1343
+#: D:\temp\python\RepetierBot.py:2135
 msgid "Generate gif file. Closing keyboard"
 msgstr "Generate gif file. Closing keyboard"
 
-#: D:\temp\python\RepetierBot.py:1356
+#: D:\temp\python\RepetierBot.py:2148
 msgid "Get pic. Closing keyboard"
 msgstr "Get pic. Closing keyboard"
 
-#: D:\temp\python\RepetierBot.py:1364
+#: D:\temp\python\RepetierBot.py:2156
 msgid "Opening quick commands"
 msgstr "Opening quick commands"
 
-#: D:\temp\python\RepetierBot.py:1385 D:\temp\python\RepetierBot.py:1393
-#: D:\temp\python\RepetierBot.py:1448 D:\temp\python\RepetierBot.py:1476
-#: D:\temp\python\RepetierBot.py:1500 D:\temp\python\RepetierBot.py:1528
-#: D:\temp\python\RepetierBot.py:1552 D:\temp\python\RepetierBot.py:1580
-#: D:\temp\python\RepetierBot.py:1604 D:\temp\python\RepetierBot.py:1632
-#: D:\temp\python\RepetierBot.py:1656 D:\temp\python\RepetierBot.py:1684
+#: D:\temp\python\RepetierBot.py:2177 D:\temp\python\RepetierBot.py:2185
+#: D:\temp\python\RepetierBot.py:2210 D:\temp\python\RepetierBot.py:2238
+#: D:\temp\python\RepetierBot.py:2262 D:\temp\python\RepetierBot.py:2290
+#: D:\temp\python\RepetierBot.py:2314 D:\temp\python\RepetierBot.py:2342
+#: D:\temp\python\RepetierBot.py:2366 D:\temp\python\RepetierBot.py:2394
+#: D:\temp\python\RepetierBot.py:2418 D:\temp\python\RepetierBot.py:2446
 msgid "Opening settings"
 msgstr "Opening settings"
 
-#: D:\temp\python\RepetierBot.py:1432
+#: D:\temp\python\RepetierBot.py:2194
 msgid "Opening extruder set limit"
 msgstr "Opening extruder set limit"
 
-#: D:\temp\python\RepetierBot.py:1459
+#: D:\temp\python\RepetierBot.py:2221
 msgid "Opening extruder command at set limit"
 msgstr "Opening extruder command at set limit"
 
-#: D:\temp\python\RepetierBot.py:1484
+#: D:\temp\python\RepetierBot.py:2246
 msgid "Opening heatbed set limit"
 msgstr "Opening heatbed set limit"
 
-#: D:\temp\python\RepetierBot.py:1511
+#: D:\temp\python\RepetierBot.py:2273
 msgid "Opening heatbed command at set limit"
 msgstr "Opening heatbed command at set limit"
 
-#: D:\temp\python\RepetierBot.py:1536
+#: D:\temp\python\RepetierBot.py:2298
 msgid "Opening after print send picture time delay"
 msgstr "Opening after print send picture time delay"
 
-#: D:\temp\python\RepetierBot.py:1563 D:\temp\python\RepetierBot.py:1667
+#: D:\temp\python\RepetierBot.py:2325 D:\temp\python\RepetierBot.py:2429
 msgid "Opening after print send picture select webcam"
 msgstr "Opening after print send picture select webcam"
 
-#: D:\temp\python\RepetierBot.py:1588
+#: D:\temp\python\RepetierBot.py:2350
 msgid "Opening z height picture"
 msgstr "Opening z height picture"
 
-#: D:\temp\python\RepetierBot.py:1615
+#: D:\temp\python\RepetierBot.py:2377
 msgid "Opening z height picture select webcam"
 msgstr "Opening z height picture select webcam"
 
-#: D:\temp\python\RepetierBot.py:1640
+#: D:\temp\python\RepetierBot.py:2402
 msgid "Opening time based pic"
 msgstr "Opening time based pic"
 
-#: D:\temp\python\RepetierBot.py:1691 D:\temp\python\RepetierBot.py:1703
-#: D:\temp\python\RepetierBot.py:1720 D:\temp\python\RepetierBot.py:1734
-#: D:\temp\python\RepetierBot.py:1746
+#: D:\temp\python\RepetierBot.py:2456
+#| msgid "Opening external commands"
+msgid "Opening printer control"
+msgstr "Opening printer control"
+
+#: D:\temp\python\RepetierBot.py:2462
+#| msgid "Opening settings"
+msgid "Opening print handling"
+msgstr "Opening print handling"
+
+#: D:\temp\python\RepetierBot.py:2469
+msgid "Opening printer queue"
+msgstr "Opening printer queue"
+
+#: D:\temp\python\RepetierBot.py:2507
+#| msgid "Print file"
+msgid "Opening printer file"
+msgstr "Opening printer file"
+
+#: D:\temp\python\RepetierBot.py:2528 D:\temp\python\RepetierBot.py:2840
+#: D:\temp\python\RepetierBot.py:2852 D:\temp\python\RepetierBot.py:2869
+#: D:\temp\python\RepetierBot.py:2883 D:\temp\python\RepetierBot.py:2895
 msgid "Closing keyboard"
 msgstr "Closing keyboard"
 
-#: D:\temp\python\RepetierBot.py:1707
+#: D:\temp\python\RepetierBot.py:2543
+#| msgid "Opening external command confirmation"
+msgid "Opening cancel print confirmation"
+msgstr "Opening cancel print confirmation"
+
+#: D:\temp\python\RepetierBot.py:2547
+msgid "Do you really want to cancel the print?"
+msgstr "Do you really want to cancel the print?"
+
+#: D:\temp\python\RepetierBot.py:2558
+msgid "Closing cancel message"
+msgstr "Closing cancel message"
+
+#: D:\temp\python\RepetierBot.py:2566
+msgid "Opening flow multiplier"
+msgstr "Opening flow multiplier"
+
+#: D:\temp\python\RepetierBot.py:2582
+msgid "Closing flow multiplier"
+msgstr "Closing flow multiplier"
+
+#: D:\temp\python\RepetierBot.py:2595
+msgid "Waiting for flow update"
+msgstr "Waiting for flow update"
+
+#: D:\temp\python\RepetierBot.py:2608
+#| msgid "Opening heatbed set limit"
+msgid "Opening speed multiplier"
+msgstr "Opening speed multiplier"
+
+#: D:\temp\python\RepetierBot.py:2624
+msgid "Closing speed multiplier"
+msgstr "Closing speed multiplier"
+
+#: D:\temp\python\RepetierBot.py:2637
+msgid "Waiting for speed update"
+msgstr "Waiting for speed update"
+
+#: D:\temp\python\RepetierBot.py:2651
+#| msgid "Opening webcams"
+msgid "Opening fan speed"
+msgstr "Opening fan speed"
+
+#: D:\temp\python\RepetierBot.py:2667
+#| msgid "Closing keyboard"
+msgid "Closing fan speed"
+msgstr "Closing fan speed"
+
+#: D:\temp\python\RepetierBot.py:2679
+msgid "Waiting for fan speed update"
+msgstr "Waiting for fan speed update"
+
+#: D:\temp\python\RepetierBot.py:2693
+#| msgid "Opening extruder set limit"
+msgid "Opening extruder temperature"
+msgstr "Opening extruder temperature"
+
+#: D:\temp\python\RepetierBot.py:2709
+msgid "Closing extruder temperature"
+msgstr "Closing extruder temperature"
+
+#: D:\temp\python\RepetierBot.py:2721
+msgid "Waiting for extruder temperature update"
+msgstr "Waiting for extruder temperature update"
+
+#: D:\temp\python\RepetierBot.py:2735
+#| msgid "Opening heatbed set limit"
+msgid "Opening heatbed temperature"
+msgstr "Opening heatbed temperature"
+
+#: D:\temp\python\RepetierBot.py:2751
+msgid "Closing heatbed temperature"
+msgstr "Closing heatbed temperature"
+
+#: D:\temp\python\RepetierBot.py:2763
+msgid "Waiting for heatbed temperature update"
+msgstr "Waiting for heatbed temperature update"
+
+#: D:\temp\python\RepetierBot.py:2777
+#| msgid "Opening z height picture"
+msgid "Opening chamber temperature"
+msgstr "Opening chamber temperature"
+
+#: D:\temp\python\RepetierBot.py:2793
+msgid "Closing chamber temperature"
+msgstr "Closing chamber temperature"
+
+#: D:\temp\python\RepetierBot.py:2805
+msgid "Waiting for chamber temperature update"
+msgstr "Waiting for chamber temperature update"
+
+#: D:\temp\python\RepetierBot.py:2818
+#| msgid "Opening external command confirmation"
+msgid "Opening emergency stop confirmation"
+msgstr "Opening emergency stop confirmation"
+
+#: D:\temp\python\RepetierBot.py:2822
+msgid "Do you really want to emergency stop the printer?"
+msgstr "Do you really want to emergency stop the printer?"
+
+#: D:\temp\python\RepetierBot.py:2833
+#| msgid "Removing server info messages"
+msgid "Closing emergency stop message"
+msgstr "Closing emergency stop message"
+
+#: D:\temp\python\RepetierBot.py:2856
 msgid "Didn´t get ya, maaaaan...What is"
 msgstr "Didn´t get ya, maaaaan...What is"
 
-#: D:\temp\python\RepetierBot.py:1724 D:\temp\python\RepetierBot.py:1750
+#: D:\temp\python\RepetierBot.py:2873 D:\temp\python\RepetierBot.py:2899
 msgid "Don´t sleep, please...wake up"
 msgstr "Don´t sleep, please...wake up"
 
-#: D:\temp\python\RepetierBot.py:1766
+#: D:\temp\python\RepetierBot.py:2915
 msgid "Reset, reset"
 msgstr "Reset, reset"
 
-#: D:\temp\python\RepetierBot.py:1766
+#: D:\temp\python\RepetierBot.py:2915
 msgid "everyone comes back"
 msgstr "everyone comes back"
 
-#: D:\temp\python\RepetierBot.py:1766
+#: D:\temp\python\RepetierBot.py:2915
 msgid "hopefully"
 msgstr "hopefully"
 
-#: D:\temp\python\RepetierBot.py:1821
-msgid "Please choose file to upload :"
-msgstr "Please choose file to upload :"
+#: D:\temp\python\RepetierBot.py:2970
+#| msgid "Please choose file to upload :"
+msgid "Please choose printer to remove from Bot :"
+msgstr "Please choose printer to remove from Bot :"
 
-#: D:\temp\python\RepetierBot.py:1832
+#: D:\temp\python\RepetierBot.py:2981
+msgid "Removing %s printer from bot"
+msgstr "Removing %s printer from bot"
+
+#: D:\temp\python\RepetierBot.py:3064
+msgid "Load statistics from Bot :"
+msgstr "Load statistics from Bot :"
+
+#: D:\temp\python\RepetierBot.py:3085 D:\temp\python\RepetierBot.py:3161
 msgid "Actual system configuration"
 msgstr "Actual system configuration"
 
-#: D:\temp\python\RepetierBot.py:1832
+#: D:\temp\python\RepetierBot.py:3085 D:\temp\python\RepetierBot.py:3161
 msgid ""
 "Please check the system configuration. Otherwise modify or delete items "
 "which you won´t distribute to third persons!"
@@ -322,300 +775,313 @@ msgstr ""
 "Please check the system configuration. Otherwise modify or delete items "
 "which you won´t distribute to third persons!"
 
-#: D:\temp\python\RepetierBot.py:1832
+#: D:\temp\python\RepetierBot.py:3085 D:\temp\python\RepetierBot.py:3161
 msgid "Please send files to telegram group for support: "
 msgstr "Please send files to telegram group for support: "
 
-#: D:\temp\python\RepetierBot.py:1974
+#: D:\temp\python\RepetierBot.py:3150
+msgid "Please choose file to upload :"
+msgstr "Please choose file to upload :"
+
+#: D:\temp\python\RepetierBot.py:3171
+msgid "Actual database"
+msgstr "Actual database"
+
+#: D:\temp\python\RepetierBot.py:3179
+#| msgid "Active User: %s"
+msgid "Active threads"
+msgstr "Active threads"
+
+#: D:\temp\python\RepetierBot.py:3330
 msgid "Message: %s"
 msgstr "Message: %s"
 
-#: D:\temp\python\RepetierBot.py:2064
+#: D:\temp\python\RepetierBot.py:3420
 msgid "Version: "
 msgstr "Version: "
 
-#: D:\temp\python\RepetierBot.py:2064
+#: D:\temp\python\RepetierBot.py:3420
 msgid "Welcome to Repetier-Server telegram bot!"
 msgstr "Welcome to Repetier-Server telegram bot!"
 
-#: D:\temp\python\RepetierBot.py:2064
+#: D:\temp\python\RepetierBot.py:3420
 msgid "from"
 msgstr "from"
 
-#: D:\temp\python\RepetierBot.py:2170
+#: D:\temp\python\RepetierBot.py:3526
 msgid "Language set to"
 msgstr "Language set to"
 
-#: D:\temp\python\RepetierBot.py:2323 D:\temp\python\RepetierBot.py:2917
-#: D:\temp\python\RepetierBot.py:2919 D:\temp\python\RepetierBot.py:3783
-#: D:\temp\python\RepetierBot.py:3784 D:\temp\python\RepetierBot.py:3789
-#: D:\temp\python\RepetierBot.py:3794 D:\temp\python\RepetierBot.py:3798
-#: D:\temp\python\RepetierBot.py:3800 D:\temp\python\RepetierBot.py:3801
-#: D:\temp\python\RepetierBot.py:4419 D:\temp\python\RepetierBot.py:4425
+#: D:\temp\python\RepetierBot.py:3801 D:\temp\python\RepetierBot.py:4409
+#: D:\temp\python\RepetierBot.py:4411 D:\temp\python\RepetierBot.py:5286
+#: D:\temp\python\RepetierBot.py:5287 D:\temp\python\RepetierBot.py:5292
+#: D:\temp\python\RepetierBot.py:5297 D:\temp\python\RepetierBot.py:5301
+#: D:\temp\python\RepetierBot.py:5303 D:\temp\python\RepetierBot.py:5304
+#: D:\temp\python\RepetierBot.py:6019 D:\temp\python\RepetierBot.py:6025
 msgid "Messages"
 msgstr "Messages"
 
-#: D:\temp\python\RepetierBot.py:2872
+#: D:\temp\python\RepetierBot.py:4364
 msgid "Renew message now. Next renew of messages"
 msgstr "Renew message now. Next renew of messages"
 
-#: D:\temp\python\RepetierBot.py:2956
+#: D:\temp\python\RepetierBot.py:4448
 msgid "Start reorder %d message(s)!"
 msgstr "Start reorder %d message(s)!"
 
-#: D:\temp\python\RepetierBot.py:2969
+#: D:\temp\python\RepetierBot.py:4461
 msgid "Renew myself %s !"
 msgstr "Renew myself %s !"
 
-#: D:\temp\python\RepetierBot.py:2996 D:\temp\python\RepetierBot.py:3002
-#: D:\temp\python\RepetierBot.py:4426
+#: D:\temp\python\RepetierBot.py:4488 D:\temp\python\RepetierBot.py:4494
+#: D:\temp\python\RepetierBot.py:6026
 msgid "Update: %s at %s"
 msgstr "Update: %s at %s"
 
-#: D:\temp\python\RepetierBot.py:2997 D:\temp\python\RepetierBot.py:3284
+#: D:\temp\python\RepetierBot.py:4489 D:\temp\python\RepetierBot.py:4776
 msgid "Switched off"
 msgstr "Switched off"
 
-#: D:\temp\python\RepetierBot.py:3014 D:\temp\python\RepetierBot.py:3282
+#: D:\temp\python\RepetierBot.py:4506 D:\temp\python\RepetierBot.py:4774
 msgid "Standby"
 msgstr "Standby"
 
-#: D:\temp\python\RepetierBot.py:3026
+#: D:\temp\python\RepetierBot.py:4518
 msgid "Print file"
 msgstr "Print file"
 
-#: D:\temp\python\RepetierBot.py:3028
+#: D:\temp\python\RepetierBot.py:4520
 msgid "is at"
 msgstr "is at"
 
-#: D:\temp\python\RepetierBot.py:3029
+#: D:\temp\python\RepetierBot.py:4521
 msgid "Layer:"
 msgstr "Layer:"
 
-#: D:\temp\python\RepetierBot.py:3029 D:\temp\python\RepetierBot.py:3270
+#: D:\temp\python\RepetierBot.py:4521 D:\temp\python\RepetierBot.py:4762
 msgid "at Z:"
 msgstr "at Z:"
 
-#: D:\temp\python\RepetierBot.py:3030
+#: D:\temp\python\RepetierBot.py:4522
 msgid "Print was started"
 msgstr "Print was started"
 
-#: D:\temp\python\RepetierBot.py:3031
+#: D:\temp\python\RepetierBot.py:4523
 msgid "Expected end at"
 msgstr "Expected end at"
 
-#: D:\temp\python\RepetierBot.py:3032
+#: D:\temp\python\RepetierBot.py:4524
 msgid "Actual print time"
 msgstr "Actual print time"
 
-#: D:\temp\python\RepetierBot.py:3033
+#: D:\temp\python\RepetierBot.py:4525
 msgid "Time left to finish"
 msgstr "Time left to finish"
 
-#: D:\temp\python\RepetierBot.py:3034
+#: D:\temp\python\RepetierBot.py:4526
 msgid "Printer state"
 msgstr "Printer state"
 
-#: D:\temp\python\RepetierBot.py:3035
+#: D:\temp\python\RepetierBot.py:4527
 msgid "Flow"
 msgstr "Flow"
 
-#: D:\temp\python\RepetierBot.py:3035
+#: D:\temp\python\RepetierBot.py:4527
 msgid "Print speed"
 msgstr "Print speed"
 
-#: D:\temp\python\RepetierBot.py:3044 D:\temp\python\RepetierBot.py:3057
+#: D:\temp\python\RepetierBot.py:4536 D:\temp\python\RepetierBot.py:4549
 msgid "Heat up phase:"
 msgstr "Heat up phase:"
 
-#: D:\temp\python\RepetierBot.py:3055
+#: D:\temp\python\RepetierBot.py:4547
 msgid "Printing"
 msgstr "Printing"
 
-#: D:\temp\python\RepetierBot.py:3085 D:\temp\python\RepetierBot.py:3087
+#: D:\temp\python\RepetierBot.py:4577 D:\temp\python\RepetierBot.py:4579
 msgid "Fan"
 msgstr "Fan"
 
-#: D:\temp\python\RepetierBot.py:3087
+#: D:\temp\python\RepetierBot.py:4579
 msgid "Off"
 msgstr "Off"
 
-#: D:\temp\python\RepetierBot.py:3097 D:\temp\python\RepetierBot.py:3099
+#: D:\temp\python\RepetierBot.py:4589 D:\temp\python\RepetierBot.py:4591
 msgid "Chamber"
 msgstr "Chamber"
 
-#: D:\temp\python\RepetierBot.py:3110 D:\temp\python\RepetierBot.py:3112
-#: D:\temp\python\RepetierBot.py:3173 D:\temp\python\RepetierBot.py:3176
+#: D:\temp\python\RepetierBot.py:4602 D:\temp\python\RepetierBot.py:4604
+#: D:\temp\python\RepetierBot.py:4665 D:\temp\python\RepetierBot.py:4668
 msgid "Heatbed"
 msgstr "Heatbed"
 
-#: D:\temp\python\RepetierBot.py:3123 D:\temp\python\RepetierBot.py:3125
-#: D:\temp\python\RepetierBot.py:3141 D:\temp\python\RepetierBot.py:3144
+#: D:\temp\python\RepetierBot.py:4615 D:\temp\python\RepetierBot.py:4617
+#: D:\temp\python\RepetierBot.py:4633 D:\temp\python\RepetierBot.py:4636
 msgid "Extruder"
 msgstr "Extruder"
 
-#: D:\temp\python\RepetierBot.py:3149
+#: D:\temp\python\RepetierBot.py:4641
 msgid "Extruders heating up"
 msgstr "Extruders heating up"
 
-#: D:\temp\python\RepetierBot.py:3151
+#: D:\temp\python\RepetierBot.py:4643
 msgid "Extruder heating up"
 msgstr "Extruder heating up"
 
-#: D:\temp\python\RepetierBot.py:3154
+#: D:\temp\python\RepetierBot.py:4646
 msgid "Extruders cooling down"
 msgstr "Extruders cooling down"
 
-#: D:\temp\python\RepetierBot.py:3156
+#: D:\temp\python\RepetierBot.py:4648
 msgid "Extruder cooling down"
 msgstr "Extruder cooling down"
 
-#: D:\temp\python\RepetierBot.py:3159
+#: D:\temp\python\RepetierBot.py:4651
 msgid "Extruder(s) cold"
 msgstr "Extruder(s) cold"
 
-#: D:\temp\python\RepetierBot.py:3181
+#: D:\temp\python\RepetierBot.py:4673
 msgid "Heatbeds heating up"
 msgstr "Heatbeds heating up"
 
-#: D:\temp\python\RepetierBot.py:3183
+#: D:\temp\python\RepetierBot.py:4675
 msgid "Heatbed heating up"
 msgstr "Heatbed heating up"
 
-#: D:\temp\python\RepetierBot.py:3186
+#: D:\temp\python\RepetierBot.py:4678
 msgid "Heatbeds cooling down"
 msgstr "Heatbeds cooling down"
 
-#: D:\temp\python\RepetierBot.py:3188
+#: D:\temp\python\RepetierBot.py:4680
 msgid "Heatbed cooling down"
 msgstr "Heatbed cooling down"
 
-#: D:\temp\python\RepetierBot.py:3191
+#: D:\temp\python\RepetierBot.py:4683
 msgid "Heatbed(s) cold"
 msgstr "Heatbed(s) cold"
 
-#: D:\temp\python\RepetierBot.py:3270 D:\temp\python\RepetierBot.py:3272
+#: D:\temp\python\RepetierBot.py:4762 D:\temp\python\RepetierBot.py:4764
 msgid "Print"
 msgstr "Print"
 
-#: D:\temp\python\RepetierBot.py:3274
+#: D:\temp\python\RepetierBot.py:4766
 msgid "Finished print of"
 msgstr "Finished print of"
 
-#: D:\temp\python\RepetierBot.py:3276
+#: D:\temp\python\RepetierBot.py:4768
 msgid "Starting print of"
 msgstr "Starting print of"
 
-#: D:\temp\python\RepetierBot.py:3279
+#: D:\temp\python\RepetierBot.py:4771
 msgid "Prints"
 msgstr "Prints"
 
-#: D:\temp\python\RepetierBot.py:3279
+#: D:\temp\python\RepetierBot.py:4771
 msgid "at"
 msgstr "at"
 
-#: D:\temp\python\RepetierBot.py:3439
+#: D:\temp\python\RepetierBot.py:4931
 msgid "Error on the picture/video request for printer: %s"
 msgstr "Error on the picture/video request for printer: %s"
 
-#: D:\temp\python\RepetierBot.py:3481
+#: D:\temp\python\RepetierBot.py:4973
 msgid "finished rendering for printer %s."
 msgstr "finished rendering for printer %s."
 
-#: D:\temp\python\RepetierBot.py:3481 D:\temp\python\RepetierBot.py:3493
+#: D:\temp\python\RepetierBot.py:4973 D:\temp\python\RepetierBot.py:4985
 msgid "Model"
 msgstr "Model"
 
-#: D:\temp\python\RepetierBot.py:3493
+#: D:\temp\python\RepetierBot.py:4985
 msgid "uploaded to printer %s."
 msgstr "uploaded to printer %s."
 
-#: D:\temp\python\RepetierBot.py:3515
+#: D:\temp\python\RepetierBot.py:5007
 msgid "Model removed from printer %s."
 msgstr "Model removed from printer %s."
 
-#: D:\temp\python\RepetierBot.py:3537
+#: D:\temp\python\RepetierBot.py:5029
 msgid "Load preview picture"
 msgstr "Load preview picture"
 
-#: D:\temp\python\RepetierBot.py:3561
+#: D:\temp\python\RepetierBot.py:5053
 msgid "Delete preview picture"
 msgstr "Delete preview picture"
 
-#: D:\temp\python\RepetierBot.py:3632
+#: D:\temp\python\RepetierBot.py:5124
 msgid "Found"
 msgstr "Found"
 
-#: D:\temp\python\RepetierBot.py:3632
+#: D:\temp\python\RepetierBot.py:5124
 msgid "models in print queue for printer %s."
 msgstr "models in print queue for printer %s."
 
-#: D:\temp\python\RepetierBot.py:3753
+#: D:\temp\python\RepetierBot.py:5256
 msgid "Checked for external Commands"
 msgstr "Checked for external Commands"
 
-#: D:\temp\python\RepetierBot.py:3761
+#: D:\temp\python\RepetierBot.py:5264
 msgid "Quick command failed"
 msgstr "Quick command failed"
 
-#: D:\temp\python\RepetierBot.py:3768
+#: D:\temp\python\RepetierBot.py:5271
 msgid "Quick command successful"
 msgstr "Quick command successful"
 
-#: D:\temp\python\RepetierBot.py:3775
+#: D:\temp\python\RepetierBot.py:5278
 msgid "External command successful"
 msgstr "External command successful"
 
-#: D:\temp\python\RepetierBot.py:3786 D:\temp\python\RepetierBot.py:3791
-#: D:\temp\python\RepetierBot.py:3796
+#: D:\temp\python\RepetierBot.py:5289 D:\temp\python\RepetierBot.py:5294
+#: D:\temp\python\RepetierBot.py:5299
 msgid "Update messages required"
 msgstr "Update messages required"
 
-#: D:\temp\python\RepetierBot.py:3803
+#: D:\temp\python\RepetierBot.py:5306
 msgid "Removing server info messages"
 msgstr "Removing server info messages"
 
-#: D:\temp\python\RepetierBot.py:3811
+#: D:\temp\python\RepetierBot.py:5314
 msgid "Message removed"
 msgstr "Message removed"
 
-#: D:\temp\python\RepetierBot.py:4061
+#: D:\temp\python\RepetierBot.py:5646
 msgid " has finished the print."
 msgstr " has finished the print."
 
-#: D:\temp\python\RepetierBot.py:4109
+#: D:\temp\python\RepetierBot.py:5699
 msgid "Print from %s was aborted after %s"
 msgstr "Print from %s was aborted after %s"
 
-#: D:\temp\python\RepetierBot.py:4136
+#: D:\temp\python\RepetierBot.py:5735
 msgid "%s has started printing at %s."
 msgstr "%s has started printing at %s."
 
-#: D:\temp\python\RepetierBot.py:4247
+#: D:\temp\python\RepetierBot.py:5846
 msgid "Execution of cool down action aborted for %s"
 msgstr "Execution of cool down action aborted for %s"
 
-#: D:\temp\python\RepetierBot.py:4280
+#: D:\temp\python\RepetierBot.py:5879
 msgid "Extruder cool down external command execute for printer %s"
 msgstr "Extruder cool down external command execute for printer %s"
 
-#: D:\temp\python\RepetierBot.py:4285
+#: D:\temp\python\RepetierBot.py:5884
 msgid "Heatbed cool down external command execute for printer %s"
 msgstr "Heatbed cool down external command execute for printer %s"
 
-#: D:\temp\python\RepetierBot.py:4315
+#: D:\temp\python\RepetierBot.py:5914
 msgid "unknown print"
 msgstr "unknown print"
 
-#: D:\temp\python\RepetierBot.py:4443
+#: D:\temp\python\RepetierBot.py:6043
 msgid "Last message"
 msgstr "Last message"
 
-#: D:\temp\python\RepetierBot.py:4541
+#: D:\temp\python\RepetierBot.py:6142
 msgid "Repetier Server connection timeout. Started at: %s"
 msgstr "Repetier Server connection timeout. Started at: %s"
 
-#: D:\temp\python\RepetierBot.py:4616
+#: D:\temp\python\RepetierBot.py:6219
 msgid "Bot is going offline"
 msgstr "Bot is going offline"
 
@@ -1240,9 +1706,6 @@ msgstr "Bot is going offline"
 #~ msgid "Vid Erstellung startet für %s"
 #~ msgstr "Vid creation started for %s"
 
-#~ msgid "removing %s"
-#~ msgstr "removing %s"
-
 #~ msgid "Vid Erstellung beendet für %s"
 #~ msgstr "Vid creation finished for %s"
 
@@ -1402,9 +1865,6 @@ msgstr "Bot is going offline"
 
 #~ msgid "OS: %s"
 #~ msgstr "OS: %s"
-
-#~ msgid "Active User: %s"
-#~ msgstr "Active user: %s"
 
 #~ msgid "Python Programm wurde beendet. Aktive Threads: %d/ %s"
 #~ msgstr "Python program was stopped. Active threads: %d/ %s"

@@ -43,6 +43,9 @@ import imageio
 from pygifsicle import optimize #pip install pygifsicle + https://eternallybored.org/misc/gifsicle/
 import cv2
 import telegram
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw 
 from telegram import (InlineQueryResultArticle,
                     InputTextMessageContent,
                     InlineKeyboardButton,
@@ -65,9 +68,9 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.0.14" 
+SW_VERSION = "1.1.0" 
 CFG_VERSION = "V1.1"
-EX_DEBUG = False
+EX_DEBUG = FALSE
 
 LANGUAGE = "de"
 
@@ -100,7 +103,9 @@ THRDMODELMAN = 2
 THRDRESTART = 10
 
 # Bot Handler communication levels
-ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN, TWELVE, THIRTEEN, FOURTEEN, FIFTEEN, SIXTEEN, SEVENTEEN, EIGHTTEEN = range(18)
+ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN = range(10)
+ELEVEN, TWELVE, THIRTEEN, FOURTEEN, FIFTEEN, SIXTEEN, SEVENTEEN, EIGHTTEEN, NINETEEN, TWENTY = range(10,20)
+TWENTYONE, TWENTYTWO, TWENTYTHREE, TWENTYFOUR, TWENTYFIVE, TWENTYSIX, TWENTYSEVEN, TWENTYEIGHT, TWENTYNINE, THIRTY = range(20,30)
 
 # Check platform
 checkPlatform = platform.platform()
@@ -128,12 +133,15 @@ LOGFILECONFIG = os.path.join(LOGFILEFOLDER, 'log.conf')
 FILENAME_FILE_NO_EXT_CFG = FILENAME_NO_EXTENSION
 CFGFILENAME =  os.path.join(os.getcwd(), FILENAME_FILE_NO_EXT_CFG + '.json')
 
-## Video & Gifs & Pictures & Model Pictures
+## Video & Gifs & Pictures & Model Pictures & Fonts
 PNGFILEFOLDER = os.path.join(os.getcwd(), 'pic', 'png')
 GIFFILEFOLDER = os.path.join(os.getcwd(), 'pic', 'gif') 
 VIDFILEFOLDER = os.path.join(os.getcwd(), 'vid') 
 MODELFILEFOLDER = os.path.join(os.getcwd(), 'mod')
+FONTSFILEFOLDER = os.path.join(os.getcwd(), 'fonts')
 
+fontSmall = ImageFont.truetype(os.path.join(FONTSFILEFOLDER, 'NCS Rogueland Slab Bold.ttf'), 16)
+fontMedium = ImageFont.truetype(os.path.join(FONTSFILEFOLDER, 'NCS Rogueland Slab Bold.ttf'), 34)
 ### Functions
 
 # Program datasets inits and updates
@@ -583,6 +591,16 @@ def getKeyboard(userKeyb = [], back = ""):# Main keyboard layout of bot for prin
                footer_buttons=stdKeyb)
     return reply_markup
 
+def getSpecialKeyboard(headerKeyb = [], userKeyb = [], back = ""):# Main keyboard layout of bot for printer levels below
+    stdKeyb = []
+    stdKeyb.append(InlineKeyboardButton(_("Back"), callback_data='Back'))
+    stdKeyb.append(InlineKeyboardButton(_("End"), callback_data='End'))
+    reply_markup = build_menu(userKeyb,
+               2,
+               footer_buttons=stdKeyb,
+               header_buttons=headerKeyb)
+    return reply_markup
+
 def getMsgKeyboard():# Message keyboard add ons
     userKeyb = []
     msg = botThreads.getServerDataStorage(action="messages")
@@ -599,7 +617,8 @@ def checkStartKeys(slug):# Check start keyboard add ons
     key = []
     msg = botThreads.getServerDataStorage(action="listExternalCommands")
     msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
-    if msg == "Error" or msg2 == "Error":
+    listPrinters = botThreads.getPrinterDataStorage(slug, "listPrinter")
+    if msg == "Error" or msg2 == "Error" or listPrinters == "Error":
         return key
     if len(msg) > 0:    
         key.append(InlineKeyboardButton(_("ExtCommands"), callback_data='ExtCommands'))
@@ -607,6 +626,8 @@ def checkStartKeys(slug):# Check start keyboard add ons
         key.append(InlineKeyboardButton(_('Webcam %s') % str(webcam + 1), callback_data='Webcam %s' % str(webcam + 1)))
     if len(msg2['quickCommands']) > 0:
         key.append(InlineKeyboardButton(_('Quick Commands'), callback_data='QuickCommands'))
+    if listPrinters['online'] == 1 and listPrinters['active'] == True:
+        key.append(InlineKeyboardButton(_('Printer'), callback_data='HandlePrinter'))
     key.append(InlineKeyboardButton(_('Settings'), callback_data='Settings'))
     return key
 
@@ -623,6 +644,19 @@ def getLogfilesKeyboard():
             buf['time'] = time
             key.append(InlineKeyboardButton(("%s/%s") % (buf['date'], buf['time']), callback_data=buf['filename']))
     key.append(InlineKeyboardButton(_("database"), callback_data='database'))
+    key.append(InlineKeyboardButton(_("Active Threads"), callback_data='threads'))
+    return key
+
+def getRemPrinterFromBotKeyboard():
+    key = []
+    for printer in botThreads.botData['printers']:
+        key.append(InlineKeyboardButton(_("Remove %s") % (printer), callback_data=printer))
+    return key
+
+def getRepetierBotStatsKeyboard():
+    key = []
+    for stats in botThreads.botData['server']['dataRepetier']['historySummary']:
+        key.append(InlineKeyboardButton(stats, callback_data=stats))
     return key
 
 def getExtCommands():# Get external commands from server
@@ -765,11 +799,284 @@ def getAllWebcamsFromPrinterTimeBased(slug):# Get available webcams from server
             key.append(InlineKeyboardButton(_('Send Png Camera %s') % str(x + 1), callback_data='Send time based Png %s' % str(x + 1)))
     return key
 
+def getOKButton():# Get OK button
+    key = []
+    key.append(InlineKeyboardButton(_("OK"), callback_data='OK'))
+    return key
+
+def getStartPrintButton(slug):# Get OK button
+    key = []
+    key.append(InlineKeyboardButton(_("Printer queue"), callback_data='Queue'))
+    stateLists = botThreads.getPrinterDataStorage(slug, "stateList")
+    if stateLists != "Error":
+        for i in range(0,len(stateLists['fans'])):
+            key.append(InlineKeyboardButton((_("Fan speed") + " %d" % (i+1)), callback_data="FanSpeed %d" % i))
+        for i in range(0,len(stateLists['extruder'])):
+            key.append(InlineKeyboardButton((_("Extr temp") + " %d" % (i+1)), callback_data="ExtruderTemperature %d" % i))
+        for i in range(0,len(stateLists['heatedBeds'])):
+            key.append(InlineKeyboardButton((_("Bed temp") + " %d" % (i+1)), callback_data="BedTemperature %d" % i))
+        for i in range(0,len(stateLists['heatedChambers'])):
+            key.append(InlineKeyboardButton((_("Cham temp") + " %d" % (i+1)), callback_data="ChamberTemperature %d" % i))
+    return key
+
+def getHandlePrintButton(slug):
+    key = []
+    key.append(InlineKeyboardButton(_("Flow multiplier"), callback_data='FlowMultiply'))
+    key.append(InlineKeyboardButton(_("Speed multiplier"), callback_data='SpeedMultiply'))
+    stateLists = botThreads.getPrinterDataStorage(slug, "stateList")
+    if stateLists != "Error":
+        for i in range(0,len(stateLists['fans'])):
+            key.append(InlineKeyboardButton((_("Fan speed") + " %d" % (i+1)), callback_data="FanSpeed %d" % i))
+        for i in range(0,len(stateLists['extruder'])):
+            key.append(InlineKeyboardButton((_("Extr temp") + " %d" % (i+1)), callback_data="ExtruderTemperature %d" % i))
+        for i in range(0,len(stateLists['heatedBeds'])):
+            key.append(InlineKeyboardButton((_("Bed temp") + " %d" % (i+1)), callback_data="BedTemperature %d" % i))
+        for i in range(0,len(stateLists['heatedChambers'])):
+            key.append(InlineKeyboardButton((_("Cham temp") + " %d" % (i+1)), callback_data="ChamberTemperature %d" % i))
+    key.append(InlineKeyboardButton(_("Cancel print"), callback_data='Cancel'))
+    return key
+
+def getPrintQueueText(slug, pos):# Get quick command text from server
+    fileList = []
+    thumbnPos = 0
+    filePathModel= pathlib.Path(os.path.join(MODELFILEFOLDER, slug))
+    pngCounter = sum(1 for x in pathlib.Path(filePathModel).glob('*.png') if x.is_file())
+    for eachFileInPath in pathlib.Path(filePathModel).glob('*.png'):
+        printData = {}
+        printData['id'] = int(os.path.splitext(os.path.basename(eachFileInPath))[0])
+        printData['file'] = eachFileInPath
+        fileList.append(printData)
+    listModels = botThreads.getPrinterDataStorage(slug, "listModels")
+    message = _("Printer Queue") + ":\n"
+    if pngCounter == 0:
+        message += "<b> " +  _("No files on the Server") + "...</b>"
+    elif pngCounter > pos + 6:
+        for txt in range(pos, (pos+6)):
+            fileInfo = fileList[txt]
+            for anyModel in listModels['data']:
+                if anyModel['id'] == fileInfo['id']:
+                    message += "<code> %d: %s, " % (thumbnPos+1,anyModel['name']) + _("Print Time: %s") % (getTimeDelta(anyModel['printTime'])) + "</code>\n"                    
+            thumbnPos += 1
+    else:
+        amountPic = pngCounter - pos
+        for pic in range(pos, pngCounter):
+            fileInfo = fileList[pic]
+            for anyModel in listModels['data']:
+                if anyModel['id'] == fileInfo['id']:
+                    message += "<code> %d: %s, " % (thumbnPos+1,anyModel['name']) + _("Print Time: %s") % (getTimeDelta(anyModel['printTime'])) + "</code>\n"
+            thumbnPos += 1
+    return message
+
+def getPreviewPicSetting(preMsg):
+    msg = {}
+    msg['msgLong'] = preMsg
+    msg['msgShort'] = preMsg
+    msg['id'] = 0
+    msg['actPrint'] = os.path.join(MODELFILEFOLDER,'preview.jpg')
+    return msg
+
+def getPrintSelectData(slug, fileID):# Get print file data
+    filePathModel= pathlib.Path(os.path.join(MODELFILEFOLDER, slug))
+    listModels = botThreads.getPrinterDataStorage(slug, "listModels")
+    message = "<b> " +  _("Print File") + ":</b>\n"
+    file = ""
+    idInt = int(fileID)
+    for eachFileInList in listModels['data']:
+        if eachFileInList['id'] == idInt:
+            filePathModelName = fileID + ".png"
+            file = pathlib.Path(os.path.join(filePathModel, filePathModelName))
+            message += "<code>" + _("Print: ") + ": %s" % (eachFileInList['name'])  + "</code>\n"
+            if eachFileInList['notes'] != "":
+                message += "<code>" + _("Note") + ": %s" % (eachFileInList['notes']) + "</code>\n"  
+            message += "<code>" + _("Print Time") + ": %s" % (getTimeDelta(eachFileInList['printTime'])) + "</code>\n"
+            message += "<code>" + _("Filament total") + ": %.2fm" % (eachFileInList['filamentTotal']/1000) + "</code>\n"
+            message += "<code>" + _("Slicer") + ": %s" % (eachFileInList['slicer']) + "</code>\n" 
+            message += "<code>" + _("Created") + ": %s" % (arrow.get(int(eachFileInList['created'])).format('DD.MM.YYYY - HH:mm')) + "</code>\n"
+            message += "<code>" + _("Layers") + ": %d" % (int(eachFileInList['layer'])) + "</code>\n" 
+            message += "<code>" + _("Printed") + ": %d" % (int(eachFileInList['printed'])) + "</code>\n" 
+            if eachFileInList['fits']:
+                message += "<code>" + _("Fits On Heatbed: Yes") + "</code>\n" 
+            else:
+                message += "<code>" + _("Fits On Heatbed: No") + "</code>\n"
+    msg = {}
+    msg['msgLong'] = message
+    msg['msgShort'] = message
+    msg['id'] = idInt
+    msg['actPrint'] = file
+    return msg, idInt
+
+def getPrintQueueButton(slug, pos):# Get print queue
+    key = []
+    fileList = []
+    thumbnPos = 0
+    filePathModel= pathlib.Path(os.path.join(MODELFILEFOLDER, slug))
+    fileBackground = os.path.join(MODELFILEFOLDER,'background.jpg') # (827, 512)
+    filePreview = os.path.join(MODELFILEFOLDER,'preview.jpg') # (827, 512)
+    pngCounter = sum(1 for x in pathlib.Path(filePathModel).glob('*.png') if x.is_file())
+    key = getMoveQueueButton(pngCounter, pos)
+    for eachFileInPath in pathlib.Path(filePathModel).glob('*.png'):
+        printData = {}
+        printData['id'] = int(os.path.splitext(os.path.basename(eachFileInPath))[0])
+        printData['file'] = eachFileInPath
+        fileList.append(printData)
+    listModels = botThreads.getPrinterDataStorage(slug, "listModels")
+    if pngCounter == 0:
+        preview = Image.open(fileBackground)
+        drawPreview = ImageDraw.Draw(preview)
+        drawPreview.text((50, 256),_("No files on the Server"),(0,0,0),font=fontMedium)
+        preview.save(filePreview)
+    elif pngCounter > pos + 6:
+        preview = Image.open(fileBackground)
+        for pic in range(pos, (pos+6)):
+            fileInfo = fileList[pic]
+            for anyModel in listModels['data']:
+                if anyModel['id'] == fileInfo['id']:
+                    preview = addThumbnail(pic=preview,
+                                           pos=thumbnPos,
+                                           text=anyModel['name'],
+                                           picThmbFile=fileInfo['file'])
+                    key.append(InlineKeyboardButton(anyModel['name'], callback_data=str(anyModel['id'])))
+            thumbnPos += 1
+        preview.save(filePreview)
+    else:
+        preview = Image.open(fileBackground)
+        amountPic = pngCounter - pos
+        for pic in range(pos, pngCounter):
+            fileInfo = fileList[pic]
+            for anyModel in listModels['data']:
+                if anyModel['id'] == fileInfo['id']:
+                    preview = addThumbnail(pic=preview,
+                                           pos=thumbnPos,
+                                           text=anyModel['name'],
+                                           picThmbFile=fileInfo['file'],
+                                           amountPic=amountPic) 
+                    key.append(InlineKeyboardButton(anyModel['name'], callback_data=str(anyModel['id'])))
+            thumbnPos += 1
+        preview.save(filePreview)
+    return key
+
+def getMoveQueueButton(pngCounter, pos):
+    key = []
+    if pos > 12:
+        npos = pos - 12
+        if npos < 0:
+            npos = 0
+        key.append(InlineKeyboardButton("<<", callback_data="<< %s" % str(npos)))
+    if pos > 5:
+        npos = pos - 6
+        if npos < 0:
+            npos = 0
+        key.append(InlineKeyboardButton("<", callback_data="<< %s" % str(npos)))
+    if pngCounter-pos > 12:
+        npos = pos + 12
+        key.append(InlineKeyboardButton(">>", callback_data=">> %s" % str(npos)))
+    if pngCounter-pos > 6:
+        npos = pos + 6
+        key.append(InlineKeyboardButton(">", callback_data=">> %s" % str(npos)))
+    return key
+
+def getPrintSelectionButton(slug, id):# Get print queue
+    key = []
+    key.append(InlineKeyboardButton("Print", callback_data=str(id)))
+    return key
+
+def setFMultiplyButton():
+    key = []
+    key.append(InlineKeyboardButton("+10", callback_data="plus10"))
+    key.append(InlineKeyboardButton("-10", callback_data="minus10"))
+    key.append(InlineKeyboardButton("+5", callback_data="plus5"))
+    key.append(InlineKeyboardButton("-5", callback_data="minus5"))
+    key.append(InlineKeyboardButton("+1", callback_data="plus1"))
+    key.append(InlineKeyboardButton("-1", callback_data="minus1"))
+    return key
+
+def setPrintFSpeedButton(queryData):
+    fan = int(queryData.split()[1])
+    key = []
+    key.append(InlineKeyboardButton("100%", callback_data="100 %d" % fan))
+    key.append(InlineKeyboardButton("90%", callback_data="90 %d" % fan))
+    key.append(InlineKeyboardButton("80%", callback_data="80 %d" % fan))
+    key.append(InlineKeyboardButton("70%", callback_data="70 %d" % fan))
+    key.append(InlineKeyboardButton("60%", callback_data="60 %d" % fan))
+    key.append(InlineKeyboardButton("50%", callback_data="50 %d" % fan))
+    key.append(InlineKeyboardButton("40%", callback_data="40 %d" % fan))
+    key.append(InlineKeyboardButton("30%", callback_data="30 %d" % fan))
+    key.append(InlineKeyboardButton("20%", callback_data="20 %d" % fan))
+    key.append(InlineKeyboardButton("10%", callback_data="10 %d" % fan))
+    key.append(InlineKeyboardButton("OFF", callback_data="0 %d" % fan))
+    return key
+
+def setETempButton():
+    key = []
+    key.append(InlineKeyboardButton("+10", callback_data="plus10"))
+    key.append(InlineKeyboardButton("-10", callback_data="minus10"))
+    key.append(InlineKeyboardButton("+5", callback_data="plus5"))
+    key.append(InlineKeyboardButton("-5", callback_data="minus5"))
+    key.append(InlineKeyboardButton("+1", callback_data="plus1"))
+    key.append(InlineKeyboardButton("-1", callback_data="minus1"))
+    key.append(InlineKeyboardButton("200°C", callback_data="200"))
+    key.append(InlineKeyboardButton("210°C", callback_data="210"))
+    key.append(InlineKeyboardButton("220°C", callback_data="220"))
+    key.append(InlineKeyboardButton("230°C", callback_data="230"))
+    key.append(InlineKeyboardButton("240°C", callback_data="240"))
+    key.append(InlineKeyboardButton("OFF", callback_data="0"))
+    return key
+
+def setBTempButton():
+    key = []
+    key.append(InlineKeyboardButton("+10", callback_data="plus10"))
+    key.append(InlineKeyboardButton("-10", callback_data="minus10"))
+    key.append(InlineKeyboardButton("+5", callback_data="plus5"))
+    key.append(InlineKeyboardButton("-5", callback_data="minus5"))
+    key.append(InlineKeyboardButton("+1", callback_data="plus1"))
+    key.append(InlineKeyboardButton("-1", callback_data="minus1"))
+    key.append(InlineKeyboardButton("50°C", callback_data="50"))
+    key.append(InlineKeyboardButton("60°C", callback_data="60"))
+    key.append(InlineKeyboardButton("70°C", callback_data="70"))
+    key.append(InlineKeyboardButton("80°C", callback_data="80"))
+    key.append(InlineKeyboardButton("90°C", callback_data="90"))
+    key.append(InlineKeyboardButton("OFF", callback_data="0"))
+    return key
+
+def addThumbnail(pic, pos, text, picThmbFile, amountPic = 6):
+    picthmb = Image.open(picThmbFile)
+    box = (150, 100, 400, 300)
+    picthmbBox = picthmb.crop(box)
+    draw = ImageDraw.Draw(picthmbBox)
+    try:
+        draw.text((0,0),text,(0,0,0),font=fontSmall)
+    except:
+        loggerWS.error("addThumbnail not possible for pic: %s" % str(text))
+    #foo = foo.resize((160,300),Image.ANTIALIAS)
+    if amountPic == 1:
+        position = (int(pic.width/2-picthmbBox.width/2), int(pic.height/2-picthmbBox.height/2))
+    elif amountPic == 2:
+        position = (int((pic.width/2*pos+pic.width/4)-picthmbBox.width/2), int(pic.height/2-picthmbBox.height/2))
+    elif amountPic == 3:
+        position = (int(pic.width/3*pos+10), int(pic.height/2-picthmbBox.height/2))
+    elif amountPic == 4:
+        if pos < 2:
+            position = (int((pic.width/2*pos+pic.width/4)-picthmbBox.width/2), 10)
+        else:
+            position = (int((pic.width/2*(pos-2)+pic.width/4)-picthmbBox.width/2), int(pic.height-picthmbBox.height-10))
+    elif amountPic == 5:
+        if pos < 3:
+            position = (int(pic.width/3*pos+10), 10)
+        else:
+            position = (int((pic.width/2*(pos-3)+pic.width/4)-picthmbBox.width/2), int(pic.height-picthmbBox.height-10))
+    else:
+        if pos < 3:
+            position = (int(pic.width/3*pos+10), 10)
+        else:
+            position = (int(pic.width/3*(pos-3)+10), int(pic.height-picthmbBox.height-10))
+    pic.paste(picthmbBox, position)
+    return pic
+
 def getQuickCommandsText(slug):# Get quick command text from server
     msg2 = botThreads.getPrinterDataStorage(slug=slug, action="getPrinterConfig")
     if msg2 == "Error":
         loggerWS.error("Request error getPrinterConfig in getQuickCommandsButton for printer: %s" % str(slug))
-        return key
+        return msg2
     quickCom = msg2['quickCommands']
     message = _("Quick Commands") + ":\n"
     for item in quickCom:    
@@ -792,7 +1099,403 @@ def sendQuickCommand(slug, text):# Send quick command
             packOrder = {}
             packOrder['name'] = item['name']
             botThreads.sendRecExtendedData(action="sendQuickCommand", slug=slug, data=packOrder, messageCntItem="sendQuickCommand")
+
+def sendDelayMessage(slug,function,reply_markup,timer=5):
+    for i in range(timer,0,-1):
+        sendMsgToBot(slug=slug, 
+                     function=function, 
+                     msg="<b>🔜 %d" % i + "......</b>", 
+                     reply_markup=reply_markup)
+        time.sleep(1)
+
+def sendCancelPrint(slug):# Send cancel print command
+    packOrder = {}
+    botThreads.sendRecExtendedData(action="stopJob", slug=slug, data=packOrder, messageCntItem="stopJob")
+    sendMsgToBot(slug=slug, 
+                 function="printer", 
+                 msg="<b>" + _("Stop job sent to printer") + "</b>", 
+                 reply_markup=None,
+                 singleMsg=True)
         
+def sendEmStop(slug):# Send cancel print command
+    packOrder = {}
+    botThreads.sendRecExtendedData(action="emergencyStop", slug=slug, data=packOrder, messageCntItem="emergencyStop")
+    sendMsgToBot(slug=slug, 
+                 function="printer", 
+                 msg="<b>" + _("Emergency stop sent to printer") + "</b>", 
+                 reply_markup=None,
+                 singleMsg=True)
+        
+def setFMultiply(slug, fMultply, typedValue=True):
+    if typedValue:
+        if isInt(fMultply):
+            packOrder = {}
+            packOrder['speed'] = fMultply
+            botThreads.sendRecExtendedData(action="setFlowMultiply", slug=slug, data=packOrder, messageCntItem="setFlowMultiply")
+            sendMsgToBot(slug=slug, 
+                            function="setFMultiply", 
+                            msg="<i>" + _("Flow multiply changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="setFMultiply", 
+                            msg="<b>" + _("Flow multiply change failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+    else:
+        stateList = botThreads.getPrinterDataStorage(slug=slug, action="stateList")
+        if stateList != "Error":
+            if fMultply == "plus10":
+                addMul = stateList['flowMultiply'] + 10
+            elif fMultply == "plus5":
+                addMul = stateList['flowMultiply'] + 5
+            elif fMultply == "plus1":
+                addMul = stateList['flowMultiply'] + 1
+            elif fMultply == "minus10":
+                addMul = stateList['flowMultiply'] - 10
+            elif fMultply == "minus5":
+                addMul = stateList['flowMultiply'] - 5
+            elif fMultply == "minus1":
+                addMul = stateList['flowMultiply'] - 1
+            packOrder = {}
+            packOrder['speed'] = addMul
+            botThreads.sendRecExtendedData(action="setFlowMultiply", slug=slug, data=packOrder, messageCntItem="setFlowMultiply")
+            sendMsgToBot(slug=slug, 
+                            function="setFMultiply", 
+                            msg="<i>" + _("Flow multiply changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        
+def setSMultiply(slug, SMultply, typedValue=True):
+    if typedValue:
+        if isInt(SMultply):
+            packOrder = {}
+            packOrder['speed'] = SMultply
+            botThreads.sendRecExtendedData(action="setSpeedMultiply", slug=slug, data=packOrder, messageCntItem="setSpeedMultiply")
+            sendMsgToBot(slug=slug, 
+                            function="setSMultiply", 
+                            msg="<i>" + _("Speed multiply changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="setSMultiply", 
+                            msg="<b>" + _("Speed multiply change failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+    else:
+        stateList = botThreads.getPrinterDataStorage(slug=slug, action="stateList")
+        if stateList != "Error":
+            if SMultply == "plus10":
+                addMul = stateList['speedMultiply'] + 10
+            elif SMultply == "plus5":
+                addMul = stateList['speedMultiply'] + 5
+            elif SMultply == "plus1":
+                addMul = stateList['speedMultiply'] + 1
+            elif SMultply == "minus10":
+                addMul = stateList['speedMultiply'] - 10
+            elif SMultply == "minus5":
+                addMul = stateList['speedMultiply'] - 5
+            elif SMultply == "minus1":
+                addMul = stateList['speedMultiply'] - 1
+            packOrder = {}
+            packOrder['speed'] = addMul
+            botThreads.sendRecExtendedData(action="setSpeedMultiply", slug=slug, data=packOrder, messageCntItem="setSpeedMultiply")
+            sendMsgToBot(slug=slug, 
+                            function="setSMultiply", 
+                            msg="<i>" + _("Speed multiply changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        
+def setFSpeed(slug, FSpeed, typedValue=False, fanID=0):
+    if typedValue:
+        if isInt(FSpeed):
+            #100 * fan['voltage'] / 255
+            packOrder = {}
+            packOrder['speed'] = int(int(FSpeed)*255/100) # fanId
+            packOrder['fanId'] = fanID # fanId
+            botThreads.sendRecExtendedData(action="setFanSpeed", slug=slug, data=packOrder, messageCntItem="setFanSpeed")
+            sendMsgToBot(slug=slug, 
+                            function="setFSpeed", 
+                            msg="<i>" + _("Fan speed changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="setFSpeed", 
+                            msg="<b>" + _("Fan Speed change failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+    else:
+        speed=int(FSpeed.split()[0])
+        fan=int(FSpeed.split()[1])
+        packOrder = {}
+        packOrder['speed'] = int(speed*255/100)
+        packOrder['fanId'] = fan # fanId
+        botThreads.sendRecExtendedData(action="setFanSpeed", slug=slug, data=packOrder, messageCntItem="setFanSpeed")
+        sendMsgToBot(slug=slug, 
+                        function="setFSpeed", 
+                        msg="<i>" + _("Fan speed changed") + "</i>", 
+                        reply_markup=None,
+                        singleMsg=True,
+                        delTime=5)
+        
+def setETemp(slug, eTemp, typedValue=False, extrID=0):
+    if typedValue:
+        if isInt(eTemp):
+            packOrder = {}
+            packOrder['temperature'] = int(eTemp)
+            packOrder['extruder'] = extrID 
+            botThreads.sendRecExtendedData(action="setExtruderTemperature", slug=slug, data=packOrder, messageCntItem="setExtruderTemperature")
+            sendMsgToBot(slug=slug, 
+                            function="setETemp", 
+                            msg="<i>" + _("Extruder temperature changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="setETemp", 
+                            msg="<b>" + _("Extruder temperature change failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+    else:
+        stateList = botThreads.getPrinterDataStorage(slug=slug, action="stateList")
+        if stateList != "Error":
+            if eTemp == "plus10":
+                addSetTemp = int(stateList['extruder'][extrID]['tempSet']) + 10
+            elif eTemp == "plus5":
+                addSetTemp = int(stateList['extruder'][extrID]['tempSet']) + 5
+            elif eTemp == "plus1":
+                addSetTemp = int(stateList['extruder'][extrID]['tempSet']) + 1
+            elif eTemp == "minus10":
+                addSetTemp = int(stateList['extruder'][extrID]['tempSet']) - 10
+            elif eTemp == "minus5":
+                addSetTemp = int(stateList['extruder'][extrID]['tempSet']) - 5
+            elif eTemp == "minus1":
+                addSetTemp = int(stateList['extruder'][extrID]['tempSet']) - 1
+            elif eTemp == "200":
+                addSetTemp = 200
+            elif eTemp == "210":
+                addSetTemp = 210
+            elif eTemp == "220":
+                addSetTemp = 220
+            elif eTemp == "230":
+                addSetTemp = 230
+            elif eTemp == "240":
+                addSetTemp = 240
+            elif eTemp == "0":
+                addSetTemp = 0
+            packOrder = {}
+            packOrder['temperature'] = addSetTemp
+            packOrder['extruder'] = extrID 
+            botThreads.sendRecExtendedData(action="setExtruderTemperature", slug=slug, data=packOrder, messageCntItem="setExtruderTemperature")
+            sendMsgToBot(slug=slug, 
+                            function="setETemp", 
+                            msg="<i>" + _("Extruder temperature changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        
+def setBTemp(slug, bTemp, typedValue=False, heatbID=0):
+    if typedValue:
+        if isInt(bTemp):
+            packOrder = {}
+            packOrder['temperature'] = int(bTemp)
+            packOrder['bedId'] = heatbID 
+            botThreads.sendRecExtendedData(action="setBedTemperature", slug=slug, data=packOrder, messageCntItem="setBedTemperature")
+            sendMsgToBot(slug=slug, 
+                            function="setBTemp", 
+                            msg="<i>" + _("Heatbed temperature changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="setBTemp", 
+                            msg="<b>" + _("Heatbed temperature change failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+    else:
+        stateList = botThreads.getPrinterDataStorage(slug=slug, action="stateList")
+        if stateList != "Error":
+            if bTemp == "plus10":
+                addSetTemp = int(stateList['heatedBeds'][heatbID]['tempSet']) + 10
+            elif bTemp == "plus5":
+                addSetTemp = int(stateList['heatedBeds'][heatbID]['tempSet']) + 5
+            elif bTemp == "plus1":
+                addSetTemp = int(stateList['heatedBeds'][heatbID]['tempSet']) + 1
+            elif bTemp == "minus10":
+                addSetTemp = int(stateList['heatedBeds'][heatbID]['tempSet']) - 10
+            elif bTemp == "minus5":
+                addSetTemp = int(stateList['heatedBeds'][heatbID]['tempSet']) - 5
+            elif bTemp == "minus1":
+                addSetTemp = int(stateList['heatedBeds'][heatbID]['tempSet']) - 1
+            elif bTemp == "50":
+                addSetTemp = 50
+            elif bTemp == "60":
+                addSetTemp = 60
+            elif bTemp == "70":
+                addSetTemp = 70
+            elif bTemp == "80":
+                addSetTemp = 80
+            elif bTemp == "90":
+                addSetTemp = 90
+            elif bTemp == "0":
+                addSetTemp = 0
+            packOrder = {}
+            packOrder['temperature'] = addSetTemp
+            packOrder['bedId'] = heatbID 
+            botThreads.sendRecExtendedData(action="setBedTemperature", slug=slug, data=packOrder, messageCntItem="setBedTemperature")
+            sendMsgToBot(slug=slug, 
+                            function="setBTemp", 
+                            msg="<i>" + _("Heatbed temperature changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        
+def setCTemp(slug, cTemp, typedValue=False, chamberId=0):
+    if typedValue:
+        if isInt(cTemp):
+            packOrder = {}
+            packOrder['temperature'] = int(cTemp)
+            packOrder['chamberId'] = chamberId 
+            botThreads.sendRecExtendedData(action="setChamberTemperature", slug=slug, data=packOrder, messageCntItem="setChamberTemperature")
+            sendMsgToBot(slug=slug, 
+                            function="setCTemp", 
+                            msg="<i>" + _("Chamber temperature changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        else:
+            sendMsgToBot(slug=slug, 
+                            function="setCTemp", 
+                            msg="<b>" + _("Chamber temperature change failed") + "</b>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+    else:
+        stateList = botThreads.getPrinterDataStorage(slug=slug, action="stateList")
+        if stateList != "Error":
+            if cTemp == "plus10":
+                addSetTemp = int(stateList['heatedChambers'][chamberId]['tempSet']) + 10
+            elif cTemp == "plus5":
+                addSetTemp = int(stateList['heatedChambers'][chamberId]['tempSet']) + 5
+            elif cTemp == "plus1":
+                addSetTemp = int(stateList['heatedChambers'][chamberId]['tempSet']) + 1
+            elif cTemp == "minus10":
+                addSetTemp = int(stateList['heatedChambers'][chamberId]['tempSet']) - 10
+            elif cTemp == "minus5":
+                addSetTemp = int(stateList['heatedChambers'][chamberId]['tempSet']) - 5
+            elif cTemp == "minus1":
+                addSetTemp = int(stateList['heatedChambers'][chamberId]['tempSet']) - 1
+            elif cTemp == "50":
+                addSetTemp = 50
+            elif cTemp == "60":
+                addSetTemp = 60
+            elif cTemp == "70":
+                addSetTemp = 70
+            elif cTemp == "80":
+                addSetTemp = 80
+            elif cTemp == "90":
+                addSetTemp = 90
+            elif cTemp == "0":
+                addSetTemp = 0
+            packOrder = {}
+            packOrder['temperature'] = addSetTemp
+            packOrder['chamberId'] = chamberId 
+            botThreads.sendRecExtendedData(action="setChamberTemperature", slug=slug, data=packOrder, messageCntItem="setChamberTemperature")
+            sendMsgToBot(slug=slug, 
+                            function="setCTemp", 
+                            msg="<i>" + _("Chamber temperature changed") + "</i>", 
+                            reply_markup=None,
+                            singleMsg=True,
+                            delTime=5)
+        
+def sendStartPrint(slug, id):# Send quick command
+    packOrder = {}
+    packOrder['id'] = int(id)
+    botThreads.sendRecExtendedData(action="copyModel", slug=slug, data=packOrder, messageCntItem="copyModel")
+    sendMsgToBot(slug=slug, 
+                 function="startPrint", 
+                 msg="<i>" + _("Print started") + "</i>", 
+                 reply_markup=None,
+                 singleMsg=True,
+                 delTime=5)
+    loggerWS.info("Start print for printer: %s/%s" % (str(slug),id))
+        
+def getFMultiplyText(slug):
+    stateList = botThreads.getPrinterDataStorage(slug, "stateList")
+    if stateList != "Error":
+        message = "<b>⚠️ " + _("Set flow multiplier from %d%% to?") % stateList['flowMultiply'] + "</b>"
+    else:
+        message = "<b>⚠️ " + _("Set flow multiplier? Actual value unknown!") + "</b>"
+    return message
+
+def getSMultiplyText(slug):
+    stateList = botThreads.getPrinterDataStorage(slug, "stateList")
+    if stateList != "Error":
+        message = "<b>⚠️ " + _("Set speed multiplier from %d%% to?") % stateList['speedMultiply'] + "</b>"
+    else:
+        message = "<b>⚠️ " + _("Set speed multiplier? Actual value unknown!") + "</b>"
+    return message
+
+def getPrintFSpeedText(slug, queryData):
+    stateList = botThreads.getPrinterDataStorage(slug, "stateList")
+    fan = int(queryData.split()[1])
+    message=""
+    if stateList != "Error":
+        #100 * fan['voltage'] / 255
+        if stateList['fans'][fan]['on']:
+            aSpeed = int(stateList['fans'][fan]['voltage']*100/255)
+            message = "<b>⚠️ " + _("Set fan speed from %d%% to?") % aSpeed + "</b>"
+        else:
+            message = "<b>⚠️ " + _("Switch fan on to?") + "</b>"
+    else:
+        message = "<b>⚠️ " + _("Set fan speed? Actual value unknown!") + "</b>"
+    return message
+
+def getPrintETempText(slug, extr):
+    stateList = botThreads.getPrinterDataStorage(slug, "stateList")
+    message=""
+    if stateList != "Error":
+        aTemp = int(stateList['extruder'][extr]['tempSet'])
+        message = "<b>⚠️ " + _("Set extruder temperature from %d°C to?") % aTemp + "</b>"
+    else:
+        message = "<b>⚠️ " + _("Extruder temperature? Actual value unknown!") + "</b>"
+    return message
+
+def getPrintBTempText(slug, heatb):
+    stateList = botThreads.getPrinterDataStorage(slug, "stateList")
+    message=""
+    if stateList != "Error":
+        aTemp = int(stateList['heatedBeds'][heatb]['tempSet'])
+        message = "<b>⚠️ " + _("Set heatbed temperature from %d°C to?") % aTemp + "</b>"
+    else:
+        message = "<b>⚠️ " + _("Heatbed temperature? Actual value unknown!") + "</b>"
+    return message
+
+def getPrintCTempText(slug, chamb):
+    stateList = botThreads.getPrinterDataStorage(slug, "stateList")
+    message=""
+    if stateList != "Error":
+        aTemp = int(stateList['heatedChambers'][chamb]['tempSet'])
+        message = "<b>⚠️ " + _("Set chamber temperature from %d°C to?") % aTemp + "</b>"
+    else:
+        message = "<b>⚠️ " + _("Chamber temperature? Actual value unknown!") + "</b>"
+    return message
+
 def getExtrSetLimitText(slug):# Text in interaction to get the temp. limit value
     for printer in botThreads.botData['printers']:
         if printer == slug:
@@ -1142,6 +1845,13 @@ def botGetTracking(context): # get marked printer which activate bot interaction
 def botRemTracking():
     botThreads.botData['bot']['actConv'] = None
 
+def botSetSpecialData(context, special):
+    logger.debug("Set botSetSpecialData: %s" % (special))
+    context.user_data['special'] = special
+
+def botGetSpecialData(context):
+    return context.user_data['special']
+
 def getBotSlug(botFeedback): # get "/" rid of bot activation on slug for handling
     slug = botFeedback[1:]
     return slug
@@ -1160,6 +1870,82 @@ def getSystemDebugConfig(): # get debug information from application
             logger.error("getSystemDebugConfig: Debug configuration file could not be written to: %s" % cfgFile)
     return cfgFile
 
+def getStatisticEntryText(year):# Text for interaction
+    message = "👣 <b>" + _("Bot running since") + ": </b>\n<code>%s</code>\n" % (botThreads.programStart.format('DD.MM.YYYY - HH:mm'))
+    listhistorySummary = botThreads.getServerDataStorage(action="historySummary")
+    if listhistorySummary != "Error" and len(listhistorySummary) != 0:
+        for years in listhistorySummary:
+            totalYear = {}            
+            totalYear['filament'] = 0.0
+            totalYear['costs'] = 0.0
+            totalYear['num'] = 0
+            totalYear['finished'] = 0
+            totalYear['aborted'] = 0
+            yearsData = listhistorySummary[years]
+            for months in yearsData:
+                totalYear['filament'] = months['filament'] + totalYear['filament']
+                totalYear['costs'] = months['costs'] + totalYear['costs']
+                totalYear['num'] = months['num'] + totalYear['num']
+                totalYear['finished'] = months['finished'] + totalYear['finished']
+                totalYear['aborted'] = months['aborted'] + totalYear['aborted']
+            message += "💶 <b>" + _("Statistic") + " %d: </b>\n" % (years)
+            message += "<code>🧶: %.2fm / " % (totalYear['filament']/1000) + "💸: %.2f€ </code>\n" % (totalYear['costs'])
+            message += "<code>📠: %d / 🏁: %d / 🗑: %d" % (totalYear['num'],totalYear['finished'],totalYear['aborted']) + "</code>\n"
+        year = int(year)
+        if year in listhistorySummary:
+            actYear = listhistorySummary[year]
+            message += "\n💶 <b>" + _("Monthly Statistic") + " %d: </b>\n" % (year)
+            totalYear['filament'] = 0.0
+            totalYear['costs'] = 0.0
+            totalYear['num'] = 0
+            totalYear['finished'] = 0
+            totalYear['aborted'] = 0
+            for months in actYear:
+                message += "<b><i>%s:\n</i></b>" % (getMonth(months['month']))
+                message += "<code>🧶: %.2fm / " % (months['filament']/1000) + "💸: %.2f€ </code>\n" % (months['costs'])
+                message += "<code>📠: %d / 🏁: %d / 🗑: %d" % (months['num'],months['finished'],months['aborted']) + "</code>\n" 
+                totalYear['filament'] = months['filament'] + totalYear['filament']
+                totalYear['costs'] = months['costs'] + totalYear['costs']
+                totalYear['num'] = months['num'] + totalYear['num']
+                totalYear['finished'] = months['finished'] + totalYear['finished']
+                totalYear['aborted'] = months['aborted'] + totalYear['aborted']
+
+            message += "\n<b><i>" + _("Total") + ":\n</i></b>"
+            message += "<code>🧶: %.2fm / " % (totalYear['filament']/1000) + "💸: %.2f€ </code>\n" % (totalYear['costs'])
+            message += "<code>📠: %d / 🏁: %d / 🗑: %d" % (totalYear['num'],totalYear['finished'],totalYear['aborted']) + "</code>\n" 
+        message += "\n<i>🧶: " + _("Amount of Filament") + "</i>\n"
+        message += "<i>💸: " + _("Costs") + "</i>\n"
+        message += "<i>📠: " + _("Prints total") + "</i>\n"
+        message += "<i>🏁: " + _("Prints finished") + "</i>\n"
+        message += "<i>🗑: " + _("Prints aborted") + "</i>\n"
+    return message
+
+def getMonth(month):
+    if month == 1:
+        return _("January")
+    elif  month == 2:
+        return _("February")
+    elif  month == 3:
+        return _("March")
+    elif  month == 4:
+        return _("April")
+    elif  month == 5:
+        return _("May")
+    elif  month == 6:
+        return _("June")
+    elif  month == 7:
+        return _("July")
+    elif  month == 8:
+        return _("August")
+    elif  month == 9:
+        return _("September")
+    elif  month == 10:
+        return _("October")
+    elif  month == 11:
+        return _("November")
+    elif  month == 12:
+        return _("December")
+
 def sendMsgToBot(slug, function, # send messages at conversation time to the bot
                  msg=None, msgLong=None, msgShort=None, 
                  path=None, caption=None, vidPic=False,
@@ -1172,13 +1958,16 @@ def sendMsgToBot(slug, function, # send messages at conversation time to the bot
         logger.info("sendMsgToBot - Remove: Slug: %s Function: %s" % (slug, function))
     elif removeMsg:
         botThreads.remMsgFromBot(slug=slug, function=function)
-        logger.debug("sendMsgToBot - Remove: Slug: %s Function: %s" % (slug, function))
+        logger.info("sendMsgToBot - Remove: Slug: %s Function: %s" % (slug, function))
     elif vidPic: 
         message = {}
         message['path'] = path
         message['caption'] = caption
         botThreads.addMsgToBot(slug=slug, function=function, msg=message, reply_markup=reply_markup, vidPic=vidPic, singleMsg=singleMsg, delTime=delTime, modMsg=modMsg, priority=True)
         logger.debug("sendMsgToBot - Send: Slug: %s Function: %s Path: %s Caption: %s ReplM: %s" % (slug, function, message['path'], message['caption'], reply_markup))
+    elif modMsg != None:
+        botThreads.addMsgToBot(slug=slug, function=function, msg=msg, reply_markup=reply_markup, singleMsg=singleMsg, delTime=delTime, modMsg=modMsg, priority=True)
+        logger.debug("sendMsgToBot - Send: Slug: %s Function: %s msg: %s ReplM: %s" % (slug, function, msg, reply_markup))
     else:
         message = {}
         if singleMsg:
@@ -1284,7 +2073,9 @@ def extCommandsBack(update,context):
     sendMsgToBot(botGetTracking(context), 
                  "quickCommands", 
                  removeMsg=True)
-    
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintQueue", 
+                 removeMsg=True)    
     return ONE
 
 def extCommandsChoosen(update,context):
@@ -1394,36 +2185,6 @@ def settingsBack(update,context):
                  msg="<b>🔜 " + _("Opening settings") + "...</b>", 
                  reply_markup=getKeyboard(getSettingsButton(botGetTracking(context)))) 
     remAllExtraMsgs(botGetTracking(context))
-    #sendMsgToBot(botGetTracking(context), 
-    #             "extrSetLimit", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "prinExtComm", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "heatbSetLimit", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "prinHeatbComm", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "zHeightPrintPicHeight", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "zHeightPrintPicCam", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "timeBasedPrintPic", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "timeBasedPrintPicCam", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "afterPrintTime", 
-    #             removeMsg=True)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "afterPrintWebcam", 
-    #             removeMsg=True)
     return FIVE
 
 def extrSetLimit(update, context):
@@ -1662,7 +2423,7 @@ def timeBasedPrintPicValue(update, context):
     return FIVE
 
 def timeBasedPrintPicCamSelect(update, context):
-    queryMessageData = update.callback_query.message
+    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening after print send picture select webcam") + "...</b>", 
@@ -1674,7 +2435,7 @@ def timeBasedPrintPicCamSelect(update, context):
     return SIXTEEN
 
 def timeBasedPrintPicCamSelectItem(update, context):
-    queryMessage = update.callback_query.message
+    #queryMessage = update.callback_query.message
     queryData = update.callback_query.data
     setTimeBasedPrintPicCam(botGetTracking(context),queryData)
     sendMsgToBot(botGetTracking(context), 
@@ -1685,6 +2446,393 @@ def timeBasedPrintPicCamSelectItem(update, context):
                  msg="<b>🔜 " + _("Opening settings") + "...</b>", 
                  reply_markup=getKeyboard(getSettingsButton(botGetTracking(context))))
     return FIVE
+
+def handlePrint(update, context):
+    remAllExtraMsgs(botGetTracking(context))
+    listPrinters = botThreads.getPrinterDataStorage(botGetTracking(context), "listPrinter")
+    if listPrinters['job'] == "none":
+        sendMsgToBot(slug=botGetTracking(context), 
+                     function="printer", 
+                     msg="<b>🔜 " + _("Opening printer control") + "...</b>", 
+                     reply_markup=getKeyboard(getStartPrintButton(botGetTracking(context))))
+        return SEVENTEEN
+    else:
+        sendMsgToBot(slug=botGetTracking(context), 
+                     function="printer", 
+                     msg="<b>🔜 " + _("Opening print handling") + "...</b>", 
+                     reply_markup=getKeyboard(getHandlePrintButton(botGetTracking(context))))
+        return EIGHTTEEN
+
+def handlePrintQueue(update,context):
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening printer queue") + "...</b>", 
+                 reply_markup=None)
+    msgText = getPrintQueueText(botGetTracking(context),0)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintQueue", 
+                 msg=msgText, 
+                 reply_markup=getKeyboard(getPrintQueueButton(botGetTracking(context),0)))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintQueue", 
+                 msg=getPreviewPicSetting(msgText),
+                 delTime=1,
+                 vidPic=None,
+                 reply_markup=getKeyboard(getPrintQueueButton(botGetTracking(context),0)),
+                 modMsg="print_pic")
+    return TWENTYONE
+
+def movePrintQueue(update,context):
+    queryMessageData = update.callback_query.data
+    pos = int(queryMessageData.split()[1])
+    print(pos)
+    msgText = getPrintQueueText(botGetTracking(context),pos)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintQueue", 
+                 msg=msgText, 
+                 reply_markup=getKeyboard(getPrintQueueButton(botGetTracking(context),pos)))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintQueue", 
+                 msg=getPreviewPicSetting(msgText),
+                 delTime=1,
+                 vidPic=None,
+                 reply_markup=getKeyboard(getPrintQueueButton(botGetTracking(context),pos)),
+                 modMsg="print_pic")
+    return TWENTYONE
+
+def handlePrintSelection(update,context):
+    queryMessageData = update.callback_query.data
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintQueue", 
+                 msg="<b>🔜 " + _("Opening printer file") + "...</b>", 
+                 reply_markup=None)
+    msgText, fileID = getPrintSelectData(botGetTracking(context),queryMessageData)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintQueue", 
+                 msg=msgText, 
+                 reply_markup=getKeyboard(getPrintSelectionButton(botGetTracking(context),fileID)))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintQueue", 
+                 msg=msgText,
+                 delTime=1,
+                 vidPic=None,
+                 reply_markup=getKeyboard(getPrintSelectionButton(botGetTracking(context),fileID)),
+                 modMsg="print_pic")
+    return TWENTYTWO
+
+def startSelectedPrint(update, context):
+    queryMessageData = update.callback_query.data
+    sendStartPrint(botGetTracking(context), queryMessageData)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintQueue", 
+                 msg="<i>🔜 " + _("Closing keyboard") + "...</i>", 
+                 reply_markup=None)
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintQueue", 
+                 removeMsg=True)
+    botRemTracking()
+    remAllExtraMsgs(botGetTracking(context))
+    logger.info("Bot start print: %s (%s): %s, %s" 
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+def handlePrintCancel(update,context):
+    #queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening cancel print confirmation") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintCancel", 
+                 msg="<b>⚠️ " + _("Do you really want to cancel the print?") + "</b>", 
+                 reply_markup=getKeyboard(getOKButton()))
+    return NINETEEN
+
+def handlePrintCancelAction(update, context):
+    sendCancelPrint(botGetTracking(context))
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintCancel", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Closing cancel message") + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    return ONE
+
+def handlePrintFMultiply(update,context):
+    #queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening flow multiplier") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintFMultiply", 
+                 msg=getFMultiplyText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(setFMultiplyButton()))
+    return TWENTY
+
+def handlePrintFMultiplyActionText(update, context):
+    messageData = update.message
+    setFMultiply(botGetTracking(context),messageData.text)
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintFMultiply", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Closing flow multiplier") + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtHandlePrintFMultiplyAction", 
+                 message_id=messageData.message_id)
+    return ONE
+
+def handlePrintFMultiplyActionButton(update, context):
+    queryMessageData = update.callback_query.data
+    print(queryMessageData)
+    setFMultiply(botGetTracking(context),queryMessageData,False)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintFMultiply", 
+                 msg="<b>🔜 " + _("Waiting for flow update") + "...</b>", 
+                 reply_markup=None)
+    sendDelayMessage(botGetTracking(context),"handlePrintFMultiply",None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintFMultiply", 
+                 msg=getFMultiplyText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(setFMultiplyButton()))
+    return TWENTY
+
+def handlePrintSMultiply(update,context):
+    #queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening speed multiplier") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintSMultiply", 
+                 msg=getSMultiplyText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(setFMultiplyButton()))
+    return TWENTYFOUR
+
+def handlePrintSMultiplyActionText(update, context):
+    messageData = update.message
+    setSMultiply(botGetTracking(context),messageData.text)
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintSMultiply", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Closing speed multiplier") + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtHandlePrintSMultiplyAction", 
+                 message_id=messageData.message_id)
+    return ONE
+
+def handlePrintSMultiplyActionButton(update, context):
+    queryMessageData = update.callback_query.data
+    print(queryMessageData)
+    setSMultiply(botGetTracking(context),queryMessageData,False)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintSMultiply", 
+                 msg="<b>🔜 " + _("Waiting for speed update") + "...</b>", 
+                 reply_markup=None)
+    sendDelayMessage(botGetTracking(context),"handlePrintSMultiply",None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintSMultiply", 
+                 msg=getSMultiplyText(botGetTracking(context)), 
+                 reply_markup=getKeyboard(setFMultiplyButton()))
+    return TWENTYFOUR
+
+def handlePrintFSpeed(update,context):
+    queryMessageData = update.callback_query.data
+    botSetSpecialData(context,int(queryMessageData.split()[1]))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening fan speed") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintFSpeed", 
+                 msg=getPrintFSpeedText(botGetTracking(context),queryMessageData), 
+                 reply_markup=getKeyboard(setPrintFSpeedButton(queryMessageData)))
+    return TWENTYFIVE
+
+def handlePrintFSpeedActionText(update, context):
+    messageData = update.message
+    setFSpeed(botGetTracking(context),messageData.text,typedValue=True,fanID=botGetSpecialData(context))
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintFSpeed", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Closing fan speed") + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtHandlePrintFSpeedAction", 
+                 message_id=messageData.message_id)
+    return ONE
+
+def handlePrintFSpeedActionButton(update, context):
+    queryMessageData = update.callback_query.data
+    setFSpeed(botGetTracking(context),queryMessageData)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintFSpeed", 
+                 msg="<b>🔜 " + _("Waiting for fan speed update") + "...</b>", 
+                 reply_markup=None)
+    sendDelayMessage(botGetTracking(context),"handlePrintFSpeed",None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintFSpeed", 
+                 msg=getPrintFSpeedText(botGetTracking(context),queryMessageData), 
+                 reply_markup=getKeyboard(setPrintFSpeedButton(queryMessageData)))
+    return TWENTYFIVE
+
+def handlePrintETemp(update,context):
+    queryMessageData = update.callback_query.data
+    botSetSpecialData(context,int(queryMessageData.split()[1]))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening extruder temperature") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintETemp", 
+                 msg=getPrintETempText(botGetTracking(context),botGetSpecialData(context)), 
+                 reply_markup=getKeyboard(setETempButton()))
+    return TWENTYSIX
+
+def handlePrintETempActionText(update, context):
+    messageData = update.message
+    setETemp(botGetTracking(context),messageData.text,typedValue=True,extrID=botGetSpecialData(context))
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintETemp", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Closing extruder temperature") + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtHandlePrintETempAction", 
+                 message_id=messageData.message_id)
+    return ONE
+
+def handlePrintETempActionButton(update, context):
+    queryMessageData = update.callback_query.data
+    setETemp(botGetTracking(context),queryMessageData,typedValue=False,extrID=botGetSpecialData(context))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintETemp", 
+                 msg="<b>🔜 " + _("Waiting for extruder temperature update") + "...</b>", 
+                 reply_markup=None)
+    sendDelayMessage(botGetTracking(context),"handlePrintETemp",None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintETemp", 
+                 msg=getPrintETempText(botGetTracking(context),botGetSpecialData(context)), 
+                 reply_markup=getKeyboard(setETempButton()))
+    return TWENTYSIX
+
+def handlePrintBTemp(update,context):
+    queryMessageData = update.callback_query.data
+    botSetSpecialData(context,int(queryMessageData.split()[1]))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening heatbed temperature") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintBTemp", 
+                 msg=getPrintBTempText(botGetTracking(context),botGetSpecialData(context)), 
+                 reply_markup=getKeyboard(setBTempButton()))
+    return TWENTYSEVEN
+
+def handlePrintBTempActionText(update, context):
+    messageData = update.message
+    setBTemp(botGetTracking(context),messageData.text,typedValue=True,heatbID=botGetSpecialData(context))
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintBTemp", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Closing heatbed temperature") + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtHandlePrintBTempAction", 
+                 message_id=messageData.message_id)
+    return ONE
+
+def handlePrintBTempActionButton(update, context):
+    queryMessageData = update.callback_query.data
+    setBTemp(botGetTracking(context),queryMessageData,typedValue=False,heatbID=botGetSpecialData(context))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintBTemp", 
+                 msg="<b>🔜 " + _("Waiting for heatbed temperature update") + "...</b>", 
+                 reply_markup=None)
+    sendDelayMessage(botGetTracking(context),"handlePrintBTemp",None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintBTemp", 
+                 msg=getPrintBTempText(botGetTracking(context),botGetSpecialData(context)), 
+                 reply_markup=getKeyboard(setBTempButton()))
+    return TWENTYSEVEN
+
+def handlePrintCTemp(update,context):
+    queryMessageData = update.callback_query.data
+    botSetSpecialData(context,int(queryMessageData.split()[1]))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening chamber temperature") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintCTemp", 
+                 msg=getPrintCTempText(botGetTracking(context),botGetSpecialData(context)), 
+                 reply_markup=getKeyboard(setBTempButton()))
+    return TWENTYEIGHT
+
+def handlePrintCTempActionText(update, context):
+    messageData = update.message
+    setBTemp(botGetTracking(context),messageData.text,typedValue=True,heatbID=botGetSpecialData(context))
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintCTemp", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Closing chamber temperature") + "...</b>", 
+                 reply_markup=getStartKeyboard(checkStartKeys(botGetTracking(context))))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtHandlePrintCTempAction", 
+                 message_id=messageData.message_id)
+    return ONE
+
+def handlePrintCTempActionButton(update, context):
+    queryMessageData = update.callback_query.data
+    setBTemp(botGetTracking(context),queryMessageData,typedValue=False,heatbID=botGetSpecialData(context))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintCTemp", 
+                 msg="<b>🔜 " + _("Waiting for chamber temperature update") + "...</b>", 
+                 reply_markup=None)
+    sendDelayMessage(botGetTracking(context),"handlePrintCTemp",None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintCTemp", 
+                 msg=getPrintCTempText(botGetTracking(context),botGetSpecialData(context)), 
+                 reply_markup=getKeyboard(setBTempButton()))
+    return TWENTYEIGHT
+
+def handlePrintEStop(update,context):
+    #queryMessageData = update.callback_query.message
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening emergency stop confirmation") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="handlePrintEStop", 
+                 msg="<b>⚠️ " + _("Do you really want to emergency stop the printer?") + "</b>", 
+                 reply_markup=getKeyboard(getOKButton()))
+    return TWENTY
+
+def handleEmStopAction(update, context):
+    sendEmStop(botGetTracking(context))
+    sendMsgToBot(botGetTracking(context), 
+                 "handlePrintEStop", 
+                 removeMsg=True)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Closing emergency stop message") + "...</b>", 
+                 reply_markup=getKeyboard(getHandlePrintButton(botGetTracking(context))))
+    return EIGHTTEEN
 
 def exitBot(update, context):
     sendMsgToBot(slug=botGetTracking(context), 
@@ -1774,6 +2922,184 @@ def remAllExtraMsgs(slug):
         if message['function'] != "printer" and message['function'] != "server" and message['function'] != "messages":
             botThreads.remMsgFromBot(slug, message['function'])
 
+# Remove Printer from Bot manually
+
+def remPrinterFromBot(telegramDispatcher):
+    conv_handler = ConversationHandler(
+    entry_points=[CommandHandler("remove", remPrintFromBotContext)
+                    ],
+    states={
+        ONE: [CallbackQueryHandler(exitRemPrintFromBotContext, pattern="^End$"), # Start conversation database
+              CallbackQueryHandler(removePrinter)
+                ],
+        ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, timeoutRemPrintFromBotContext)],       
+            },
+    fallbacks=[MessageHandler(Filters.all, exitRemPrintFromBotContext)],
+    allow_reentry=False,
+    conversation_timeout=60,
+    name="Repetier-Server-RemPrinter"
+    )
+    telegramDispatcher.add_handler(conv_handler)
+    logger.info("addHandler: Added handler remove printer handler")
+
+def remPrintFromBotContext(update, context):
+    if not checkUserIDValid(update,chatID=CHATID):
+        logger.critical("Bot answered to an unknown user: %s / %s: %s, %s" % (update.effective_chat.username, 
+                                                                                      update.effective_chat.id, 
+                                                                                      update.effective_chat.last_name, 
+                                                                                      update.effective_chat.first_name)
+                        )
+        msgTelegram = "Unauthorized access (ID: %s) from user %s, %s %s" % (update.effective_chat.id,
+                                                                                 update.effective_chat.username, 
+                                                                                 update.effective_chat.first_name, 
+                                                                                 update.effective_chat.last_name
+                                                                                )
+        telegramSendMsg(msgTelegram,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+    
+        update.message.reply_text(_('Access denied!'))
+        return ConversationHandler.END
+    botAddTracking(slug=getBotSlug(update.message.text), 
+                   function="remPrinterFromBot", 
+                   context=context)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtEntry", 
+                 message_id=update.message.message_id)
+    logger.debug("Starting remove printer conversation messageID: %s" % (update.message.message_id))
+    sendMsgToBot(slug=getBotSlug(update.message.text), 
+                 function="remPrinterFromBot", 
+                 msg=_("Please choose printer to remove from Bot :"), 
+                 reply_markup=getStartKeyboard(getRemPrinterFromBotKeyboard()))
+    return ONE 
+
+def removePrinter(update, context):
+    selectedPrinter = update.callback_query.data
+    logger.info("removePrinter request remove printer: %s" % (selectedPrinter))
+    for printer in botThreads.botData['printers']:
+        if selectedPrinter == printer:
+            sendMsgToBot(slug=printer, 
+                        function="removePrinterInfo", 
+                        msg="<i>" + _("Removing %s printer from bot") % (printer) + "</i>", 
+                        reply_markup=None,
+                        singleMsg=True,
+                        delTime=5)
+            printerData = botThreads.botData['printers'][printer]
+            for printThread in botThreads.botData['printers'][printer]['threads']:
+                botThreads.botData['printers'][printer]['threads'][printThread].stop()
+            for printMsg in botThreads.botData['bot']['messageID']:
+                if printMsg['slug'] == printer:
+                    sendMsgToBot(slug=printMsg['slug'],function=printMsg['function'],message_id=printMsg['message_id'])                    
+            botThreads.savePrinterConfigFile()
+    sendMsgToBot(botGetTracking(context), "remPrinterFromBot", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot ends remove printer conversation: %s (%s): %s, %s"
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+    #for file in os.listdir(LOGFILEFOLDER):
+    #    if file.startswith(fileStart):
+    #        sendMsgToBot(botGetTracking(context), file, path=os.path.join(LOGFILEFOLDER, file), caption=file, vidPic="file",)
+    #caption = "<i>" + _("Actual system configuration") + "</i>\n<strong>" + _("Please check the system configuration. Otherwise modify or delete items which you won´t distribute to third persons!") + "</strong>\n\n" + _("Please send files to telegram group for support: ") + "\n\n<a href=\"https://t.me/Repetier_S_Telegram_Bot_Support\">Telegram Bot Support Group</a>"
+    #sendMsgToBot(slug=botGetTracking(context), function=file, path=getSystemDebugConfig(), caption=caption, vidPic="file",)
+    #return ONE
+
+def exitRemPrintFromBotContext(update, context):
+    sendMsgToBot(botGetTracking(context), "remPrinterFromBot", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot ends remove printer conversation: %s (%s): %s, %s"
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+def timeoutRemPrintFromBotContext(update, context):
+    sendMsgToBot(botGetTracking(context), "remPrinterFromBot", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot timeout remove printer conversation: %s (%s): %s, %s" 
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+# Bot & Repetier Server stats
+
+def repetierBotStats(telegramDispatcher):
+    conv_handler = ConversationHandler(
+    entry_points=[CommandHandler("stats", repetierBotStatsContext)
+                    ],
+    states={
+        ONE: [CallbackQueryHandler(exitRepetierBotStatsContext, pattern="^End$"), # Start conversation database
+              CallbackQueryHandler(switchStatsYear)
+                ],
+        ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, timeoutDebugFileUpload)],       
+            },
+    fallbacks=[MessageHandler(Filters.all, timeoutRepetierBotStatsContext)],
+    allow_reentry=False,
+    conversation_timeout=60,
+    name="Repetier-Server-Stats"
+    )
+    telegramDispatcher.add_handler(conv_handler)
+    logger.info("addHandler: Added handler stats handler")
+
+def repetierBotStatsContext(update, context):
+    if not checkUserIDValid(update,chatID=CHATID):
+        logger.critical("Bot answered to an unknown user: %s / %s: %s, %s" % (update.effective_chat.username, 
+                                                                                      update.effective_chat.id, 
+                                                                                      update.effective_chat.last_name, 
+                                                                                      update.effective_chat.first_name)
+                        )
+        msgTelegram = "Unauthorized access (ID: %s) from user %s, %s %s" % (update.effective_chat.id,
+                                                                                 update.effective_chat.username, 
+                                                                                 update.effective_chat.first_name, 
+                                                                                 update.effective_chat.last_name
+                                                                                )
+        telegramSendMsg(msgTelegram,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+    
+        update.message.reply_text(_('Access denied!'))
+        return ConversationHandler.END
+    botAddTracking(slug=getBotSlug(update.message.text), 
+                   function="repetierBotStats", 
+                   context=context)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtEntry", 
+                 message_id=update.message.message_id)
+    logger.debug("Starting statistic conversation messageID: %s" % (update.message.message_id))
+    sendMsgToBot(slug=getBotSlug(update.message.text), 
+                 function="repetierBotStats", 
+                 msg="<i>" + _("Load statistics from Bot :") + "</i>", 
+                 reply_markup=None)
+    date = arrow.now()
+    sendMsgToBot(slug=getBotSlug(update.message.text), 
+                 function="repetierBotStats", 
+                 msg=getStatisticEntryText(date.year), 
+                 reply_markup=getStartKeyboard(getRepetierBotStatsKeyboard()))
+    return ONE 
+
+def switchStatsYear(update, context):
+    selectedYear = update.callback_query.data
+    logger.info("switch stats year to: %s" % (selectedYear))
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="repetierBotStats", 
+                 msg=getStatisticEntryText(selectedYear), 
+                 reply_markup=getStartKeyboard(getRepetierBotStatsKeyboard()))
+    return ONE
+
+    for file in os.listdir(LOGFILEFOLDER):
+        if file.startswith(fileStart):
+            sendMsgToBot(botGetTracking(context), file, path=os.path.join(LOGFILEFOLDER, file), caption=file, vidPic="file",)
+    caption = "<i>" + _("Actual system configuration") + "</i>\n<strong>" + _("Please check the system configuration. Otherwise modify or delete items which you won´t distribute to third persons!") + "</strong>\n\n" + _("Please send files to telegram group for support: ") + "\n\n<a href=\"https://t.me/Repetier_S_Telegram_Bot_Support\">Telegram Bot Support Group</a>"
+    sendMsgToBot(slug=botGetTracking(context), function=file, path=getSystemDebugConfig(), caption=caption, vidPic="file",)
+    return ONE
+
+def exitRepetierBotStatsContext(update, context):
+    sendMsgToBot(botGetTracking(context), "repetierBotStats", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot ends statistic conversation: %s (%s): %s, %s"
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+def timeoutRepetierBotStatsContext(update, context):
+    sendMsgToBot(botGetTracking(context), "repetierBotStats", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot timeout statistic conversation: %s (%s): %s, %s" 
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
 # Support 
 
 def addDebugHandler(telegramDispatcher):
@@ -1783,8 +3109,9 @@ def addDebugHandler(telegramDispatcher):
     states={
         ONE: [CallbackQueryHandler(exitDebugFileUpload, pattern="^End$"), # Start conversation database
               CallbackQueryHandler(uploadDebugDatabaseUpload, pattern="^database$"),
-                CallbackQueryHandler(uploadDebugFileUpload)
-                ],
+              CallbackQueryHandler(uploadDebugActiveThreads, pattern="^threads$"),
+              CallbackQueryHandler(uploadDebugFileUpload)
+             ],
         ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, timeoutDebugFileUpload)],       
             },
     fallbacks=[MessageHandler(Filters.all, exitDebugFileUpload)],
@@ -1847,6 +3174,20 @@ def uploadDebugDatabaseUpload(update, context):
             logger.error("Configuration file could not be saved")
     return ONE
 
+def uploadDebugActiveThreads(update, context):
+    logger.info("Debug check threads. Active threads: %d / %s" % (threading.active_count(), threading.enumerate()))
+    msg="<b>"+_("Active threads")+": %d</b>\n" % (threading.active_count())
+    for actThreads in threading.enumerate():
+        strThread=str(actThreads)
+        msg+="<b>*</b> <code>" + str(strThread[1:-1]) + "</code>\n"
+    sendMsgToBot(slug="Bot", 
+                function="activeThreads", 
+                msg=msg, 
+                reply_markup=None,
+                singleMsg=True,
+                delTime=20)
+    return ONE
+
 def exitDebugFileUpload(update, context):
     sendMsgToBot(botGetTracking(context), "RemoveAtExit", message_id=update.callback_query.message.message_id)
     sendMsgToBot(botGetTracking(context), "logfileUpload", removeMsg=True)
@@ -1861,6 +3202,7 @@ def timeoutDebugFileUpload(update, context):
     logger.debug("Bot timeout debug conversation: %s (%s): %s, %s" 
                  % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
     return ConversationHandler.END
+
 # Websocket
 def messageCntHndl():
     global MessCnt
@@ -2140,17 +3482,17 @@ class botThreadHdl(dataHdlThread):
         initServer['config'] = configFileServer
         initServer['websocket'] = {}
         initServer['websocket']['actWS'] = None
+        initServer['websocket']['actSession'] = None
         initServer['websocket']['timeout'] = None
         initServer['websocket']['msgCnt'] = 10000
         initServer['websocket']['msgCntHandler'] = []
         initServer['websocket']['dataSendBuffer'] = []
         initServer['websocket']['dataReceiveBuffer'] = []
-        #initServer['websocket']['availablePrinters'] = []
         initServer['threads'] = {}
         initServer['dataRepetier'] = {}
-        #initServer['notifications'] = []
-        #initServer['statistic'] = None
-        #initServer['statistic'] = None
+        initServer['statistic'] = {}
+        initServer['statistic']['prints'] = []
+        initServer['statistic']['summary'] = []
         return initServer
 
     def initPrinterRoot(self, configFilePrinters):
@@ -2254,6 +3596,7 @@ class botThreadHdl(dataHdlThread):
                       CallbackQueryHandler(extCommands, pattern="^ExtCommands$"),
                       CallbackQueryHandler(webcams, pattern="Webcam*"),
                       CallbackQueryHandler(quickCommands, pattern="^QuickCommands"),
+                      CallbackQueryHandler(handlePrint, pattern="^HandlePrinter"),
                       CallbackQueryHandler(settings, pattern="Settings*")
                       ],
                 TWO: [CallbackQueryHandler(exitBot, pattern="^End$"), # ExtCommand conversation
@@ -2326,6 +3669,125 @@ class botThreadHdl(dataHdlThread):
                 SIXTEEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Settings conversation timeBasedPrintPicCamSelect
                       CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
                       CallbackQueryHandler(timeBasedPrintPicCamSelectItem)
+                      ],
+                SEVENTEEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Start print
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(handlePrintFSpeed, pattern="^FanSpeed*"),
+                      CallbackQueryHandler(handlePrintETemp, pattern="^ExtruderTemperature*"),
+                      CallbackQueryHandler(handlePrintBTemp, pattern="^BedTemperature*"),
+                      CallbackQueryHandler(handlePrintCTemp, pattern="^ChamberTemperature*"),
+                      CallbackQueryHandler(handlePrintQueue, pattern="^Queue$")
+                      ],
+                EIGHTTEEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Handle print
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(handlePrintCancel, pattern="^Cancel$"),
+                      CallbackQueryHandler(handlePrintSMultiply, pattern="^SpeedMultiply$"),
+                      CallbackQueryHandler(handlePrintFSpeed, pattern="^FanSpeed*"),
+                      CallbackQueryHandler(handlePrintETemp, pattern="^ExtruderTemperature*"),
+                      CallbackQueryHandler(handlePrintBTemp, pattern="^BedTemperature*"),
+                      CallbackQueryHandler(handlePrintCTemp, pattern="^ChamberTemperature*"),
+                      CallbackQueryHandler(handlePrintFMultiply, pattern="^FlowMultiply$")
+                      ],
+                NINETEEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Cancel Print confirmation
+                      CallbackQueryHandler(handlePrint, pattern="^Back$"), 
+                      CallbackQueryHandler(handlePrintCancelAction, pattern="^OK$")
+                      ],
+                TWENTY: [CallbackQueryHandler(exitBot, pattern="^End$"), # Flow Multipy
+                      CallbackQueryHandler(handlePrint, pattern="^Back$"), 
+                      CallbackQueryHandler(handlePrintFMultiplyActionButton, pattern="^plus10$"), 
+                      CallbackQueryHandler(handlePrintFMultiplyActionButton, pattern="^plus5$"), 
+                      CallbackQueryHandler(handlePrintFMultiplyActionButton, pattern="^plus1$"), 
+                      CallbackQueryHandler(handlePrintFMultiplyActionButton, pattern="^minus1$"), 
+                      CallbackQueryHandler(handlePrintFMultiplyActionButton, pattern="^minus5$"), 
+                      CallbackQueryHandler(handlePrintFMultiplyActionButton, pattern="^minus10$"), 
+                      MessageHandler(Filters.all, handlePrintFMultiplyActionText)
+                      ],
+                TWENTYONE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Print Queue Selection
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(movePrintQueue, pattern="<<*"),
+                      CallbackQueryHandler(movePrintQueue, pattern=">>*"),
+                      CallbackQueryHandler(handlePrintSelection)
+                      ],
+                TWENTYTWO: [CallbackQueryHandler(exitBot, pattern="^End$"), # Start Print
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"),
+                      CallbackQueryHandler(startSelectedPrint) 
+                      ],
+                TWENTYTHREE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Emergency stop confirmation
+                      CallbackQueryHandler(handlePrint, pattern="^Back$"), 
+                      CallbackQueryHandler(handleEmStopAction, pattern="^OK$")
+                      ],
+                TWENTYFOUR: [CallbackQueryHandler(exitBot, pattern="^End$"), # Speed Multipy
+                      CallbackQueryHandler(handlePrint, pattern="^Back$"), 
+                      CallbackQueryHandler(handlePrintSMultiplyActionButton, pattern="^plus10$"), 
+                      CallbackQueryHandler(handlePrintSMultiplyActionButton, pattern="^plus5$"), 
+                      CallbackQueryHandler(handlePrintSMultiplyActionButton, pattern="^plus1$"), 
+                      CallbackQueryHandler(handlePrintSMultiplyActionButton, pattern="^minus1$"), 
+                      CallbackQueryHandler(handlePrintSMultiplyActionButton, pattern="^minus5$"), 
+                      CallbackQueryHandler(handlePrintSMultiplyActionButton, pattern="^minus10$"), 
+                      MessageHandler(Filters.all, handlePrintSMultiplyActionText)
+                      ],
+                TWENTYFIVE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Fan speed
+                      CallbackQueryHandler(handlePrint, pattern="^Back$"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^100*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^90*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^80*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^70*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^60*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^50*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^40*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^30*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^20*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^10*"), 
+                      CallbackQueryHandler(handlePrintFSpeedActionButton, pattern="^0*"), 
+                      MessageHandler(Filters.all, handlePrintFSpeedActionText)
+                      ],
+                TWENTYSIX: [CallbackQueryHandler(exitBot, pattern="^End$"), # Extruder temperature
+                      CallbackQueryHandler(handlePrint, pattern="^Back$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^plus10$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^plus5$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^plus1$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^minus1$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^minus5$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^minus10$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^200$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^210$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^220$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^230$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^240$"), 
+                      CallbackQueryHandler(handlePrintETempActionButton, pattern="^0$"), 
+                      MessageHandler(Filters.all, handlePrintETempActionText)
+                      ],
+                TWENTYSEVEN: [CallbackQueryHandler(exitBot, pattern="^End$"), # Heatbed temperature
+                      CallbackQueryHandler(handlePrint, pattern="^Back$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^plus10$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^plus5$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^plus1$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^minus1$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^minus5$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^minus10$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^50$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^60$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^70$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^80$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^90$"), 
+                      CallbackQueryHandler(handlePrintBTempActionButton, pattern="^0$"), 
+                      MessageHandler(Filters.all, handlePrintBTempActionText)
+                      ],
+                TWENTYEIGHT: [CallbackQueryHandler(exitBot, pattern="^End$"), # Chamber temperature
+                      CallbackQueryHandler(handlePrint, pattern="^Back$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^plus10$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^plus5$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^plus1$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^minus1$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^minus5$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^minus10$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^50$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^60$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^70$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^80$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^90$"), 
+                      CallbackQueryHandler(handlePrintCTempActionButton, pattern="^0$"), 
+                      MessageHandler(Filters.all, handlePrintCTempActionText)
                       ],
                 ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, botTimeout)],      
                     },
@@ -2446,6 +3908,7 @@ class botThreadHdl(dataHdlThread):
             loggerWS.error("wsWebsocket: Response to open websocket: %s, Unexpected Error: %s" % (self.webserver, sys.exc_info()[0]))
             if self.botData['server']['websocket']['timeout'] == None:
                 self.botData['server']['websocket']['timeout'] = arrow.now()
+                self.botData['server']['websocket']['actSession'] = None
             return "Error"
         self.botData['server']['websocket']['actWS'] = websocket
         self.botData['server']['websocket']['timeout'] = None
@@ -2694,6 +4157,13 @@ class botThreadHdl(dataHdlThread):
                                       chat_id=CHATID, token=MY_TELEGRAM_TOKEN, 
                                       parse_mode=telegram.ParseMode.HTML)
                     loggerWS.info("Video send: %s/%s" % (msgToSend['slug'], msgToSend['function'])) 
+                if msgToSend['vidPic'] == "preview":
+                    telegramSendPic(pic=msgToSend['msg']['path'], 
+                                    caption=msgToSend['msg']['caption'], 
+                                    chat_id=CHATID, token=MY_TELEGRAM_TOKEN,
+                                    reply_markup=msgToSend['reply_markup'],
+                                    parse_mode=telegram.ParseMode.HTML)
+                    loggerWS.info("Picture send: %s/%s" % (msgToSend['slug'], msgToSend['function'])) 
                 if msgToSend['vidPic'] == "pic":
                     telegramSendPic(pic=msgToSend['msg']['path'], 
                                     caption=msgToSend['msg']['caption'], 
@@ -3709,6 +5179,7 @@ class botThreadHdl(dataHdlThread):
             except:
                 loggerWS.error("ThreadRec unexpected error: %s" % sys.exc_info()[0])
                 webs['actWS'].close()
+                self.botData['server']['websocket']['actSession'] = None
                 return "Error"
             with self.threadLock:
                 self.botData['server']['websocket']['dataReceiveBuffer'].append(resServ)
@@ -3751,6 +5222,10 @@ class botThreadHdl(dataHdlThread):
 
     def setPrinterDataStorage(self, dataset):
         slug, action = self.getMessageCntAction(dataset['callback_id'])
+        try:
+            self.botData['server']['websocket']['actSession'] = dataset['session']
+        except:
+            loggerWS.debug("setPrinterDataStorage - Session ID not found for: %s" % action)
         if slug == None:
             data = dataset['data']
             if action == "listPrinter":
@@ -3759,7 +5234,6 @@ class botThreadHdl(dataHdlThread):
                     loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\"" % (action, printers['slug']))
                     self.setPrinterData(printers['slug'], action, printers)
                     loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\" stored" % (action, printers['slug']))
-                self.checkForDelPrinters(data)
             elif action == "stateList":
                 for printers in data:
                     loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\"" % (action, printers))
@@ -3849,7 +5323,7 @@ class botThreadHdl(dataHdlThread):
                     self.setPrinterData(slug, action, buffer)
                     loggerWS.debug("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data['data']))
                 except:
-                    loggerWS.error("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data))                
+                    loggerWS.error("setPrinterDataStorage - New %s dataset for printer \"%s\" made problems. Data: %s" % (action, slug, data))                
             elif action == "listJobs":
                 buffer = {}
                 try:
@@ -3858,6 +5332,17 @@ class botThreadHdl(dataHdlThread):
                     loggerWS.info("setPrinterDataStorage - New %s dataset for printer \"%s\" stored. Data: %s" % (action, slug, data['data']))
                 except:
                     loggerWS.error("setPrinterDataStorage - New %s dataset for printer \"%s\" made problems. Data: %s" % (action, slug, data))
+            elif action == "historySummary":
+                if slug == "server":
+                    if len(data['list']) != 0:
+                        buffer = {}
+                        buffer[data['list'][0]['year']] = data['list']
+                        self.setSpecialServerData(data['list'], action, data['list'][0]['year'])
+                else:
+                    if len(data['list']) != 0:
+                        buffer = {}
+                        buffer[data['list'][0]['year']] = data['list']
+                        self.setPrinterData(slug, action, buffer) 
             else:
                 loggerWS.info("setPrinterDataStorage - New unknown dataset \"%s\" for printer %s: %s" % (action, slug, dataset))
             loggerWS.debug("setPrinterDataStorage - New %s data set for printer \"%s\" stored" % (action, slug))
@@ -3945,9 +5430,37 @@ class botThreadHdl(dataHdlThread):
                 loggerWS.error("setPrinterData - Server dataset killed me: %s/%s - \ninside: %s" % (slug, action, data))
         return data
 
+    def setSpecialPrinterData(self, slug, action, data, postfix):
+        if not action in self.botData['printers'][slug]['dataRepetier']:
+            with self.threadLock:
+                try:
+                    self.botData['printers'][slug]['dataRepetier'][action] = {}
+                    self.botData['printers'][slug]['dataRepetier'][action][postfix] = data
+                    self.botData['printers'][slug]['dataRepetier'][action][postfix]['updTime'] = time.time()
+                except:
+                    loggerWS.error("setPrinterData - Server dataset killed me: %s/%s - \ninside: %s" % (slug, action, data))
+        else:
+            with self.threadLock:
+                try:
+                    self.botData['printers'][slug]['dataRepetier'][action][postfix] = data
+                    self.botData['printers'][slug]['dataRepetier'][action][postfix]['updTime'] = time.time()
+                except:
+                    loggerWS.error("setPrinterData - Server dataset killed me: %s/%s - \ninside: %s" % (slug, action, data))
+        return data
+
     def setServerData(self, data, action):
         with self.threadLock:
             self.botData['server']['dataRepetier'][action] = data
+        return data
+
+    def setSpecialServerData(self, data, action, postfix):
+        if not action in self.botData['server']['dataRepetier']:
+            with self.threadLock:
+                self.botData['server']['dataRepetier'][action] = {}
+                self.botData['server']['dataRepetier'][action][postfix] = data
+        else:
+            with self.threadLock:
+                self.botData['server']['dataRepetier'][action][postfix] = data
         return data
 
     def sendRecExtendedData(self, action="ping", slug="Plastich Bomber", data={}, messageCntItem=None):
@@ -3971,6 +5484,15 @@ class botThreadHdl(dataHdlThread):
                                                                                         callback_id = self.messageCntHndl(slug, "listJobs"), 
                                                                                         printer = slug, 
                                                                                         data = {}))
+        date = arrow.now()
+        data = {}
+        data['year'] = date.year
+        data['slug'] = slug
+        data['allPrinter'] = False
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "historySummary", 
+                                                                                        callback_id = self.messageCntHndl(slug, "historySummary"), 
+                                                                                        printer = slug, 
+                                                                                        data = data))
         loggerWS.info("initPrinterActions - Sending request to Repetier-Server")
 
     def initServerActions(self):
@@ -3982,6 +5504,20 @@ class botThreadHdl(dataHdlThread):
                                                                                         callback_id = self.messageCntHndl("messages", "messages"), 
                                                                                         printer = "server", 
                                                                                         data = {}))
+        date = arrow.now()
+        data = {}
+        data['year'] = date.year - 1
+        data['slug'] = "server"
+        data['allPrinter'] = True
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "historySummary", 
+                                                                                        callback_id = self.messageCntHndl("server", "historySummary"), 
+                                                                                        printer = "server", 
+                                                                                        data = data))
+        data['year'] = date.year
+        self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "historySummary", 
+                                                                                        callback_id = self.messageCntHndl("server", "historySummary"), 
+                                                                                        printer = "server", 
+                                                                                        data = data))
         loggerWS.info("initServerActions - Sending request to Repetier-Server")
     
     def initPrinterConfigActions(self):
@@ -3998,6 +5534,20 @@ class botThreadHdl(dataHdlThread):
                                                                                         callback_id = self.messageCntHndl(slug, "listJobs"), 
                                                                                         printer = slug, 
                                                                                         data = {}))
+            date = arrow.now()
+            data = {}
+            data['year'] = date.year - 1
+            data['slug'] = slug
+            data['allPrinter'] = False
+            self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "historySummary", 
+                                                                                            callback_id = self.messageCntHndl(slug, "historySummary"), 
+                                                                                            printer = slug, 
+                                                                                            data = data))     
+            data['year'] = date.year
+            self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "historySummary", 
+                                                                                            callback_id = self.messageCntHndl(slug, "historySummary"), 
+                                                                                            printer = slug, 
+                                                                                            data = data))
         loggerWS.info("initPrinterConfigActions - Sending request to Repetier-Server")
 
     def checkAddThread(self, threadPlace, thread, function, hdlType, execute):
@@ -4127,14 +5677,19 @@ class botThreadHdl(dataHdlThread):
                                                     function="sendPicAfterPrint", 
                                                     interval=printerConfig['delayTimeAfterPrintPic'],
                                                     addData=buffer)
+                        date = arrow.now()
+                        data = {}
+                        data['year'] = date.year
+                        data['slug'] = "server"
+                        data['allPrinter'] = True
+                        self.sendRecExtendedData(action="historySummary", slug="server", data=data, messageCntItem="server")
+                        data['slug'] = slug
+                        data['allPrinter'] = False
+                        self.sendRecExtendedData(action="historySummary", slug=slug, data=data, messageCntItem="slug")
 
                     elif eventType == "messagesChanged":
                         loggerWS.info("eventType: messagesChanged detected")
                         self.sendRecExtendedData(action="messages", slug="server", messageCntItem="messages")
-                        #self.botData['server']['websocket']['dataSendBuffer'].append(self.encCommand(action = "messages", 
-                        #                                                                callback_id = self.messageCntHndl("messages", "messages"), 
-                        #                                                                printer = "server", 
-                        #                                                                data = {}))
 
                     elif eventType == "jobKilled":
                     # Payload: {start:unixTime,duration:seconds,end:unixTime,lines:linesOfJob} / Gets send after a normal job has been killed.
@@ -4153,6 +5708,15 @@ class botThreadHdl(dataHdlThread):
                                          singleMsg=True, 
                                          delTime=20
                                          )
+                        date = arrow.now()
+                        data = {}
+                        data['year'] = date.year
+                        data['slug'] = "server"
+                        data['allPrinter'] = True
+                        self.sendRecExtendedData(action="historySummary", slug="server", data=data, messageCntItem="server")
+                        data['slug'] = slug
+                        data['allPrinter'] = False
+                        self.sendRecExtendedData(action="historySummary", slug=slug, data=data, messageCntItem="slug")
                         
                     elif eventType == "jobStarted":
                     # Payload: {start:unixTime} / Gets send after a normal job has been started. {'data': {'start': 1603036621}, 'event': 'jobStarted', 'printer': 'Anycubic_i3_Mega_S'}
@@ -4200,7 +5764,7 @@ class botThreadHdl(dataHdlThread):
                     elif eventType == "changeFilamentRequested":
                     # Payload: none / Firmware requested a filament change on server side.
                         loggerWS.info("eventTyp: changeFilamentRequested detected")
-                        #timeDelThread(feedbackMsg = telegramSendMsg("Drucker Filament Ende" + str(dataSet[k]),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN))
+                        timeDelThread(feedbackMsg = telegramSendMsg("Drucker Filament Ende\n\n" + str(dataSet),reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN))
 
                     elif eventType == "config": # general slug
                         self.sendRecExtendedData(action="getPrinterConfig", slug=dataSet['printer'], messageCntItem=dataSet['printer'])
@@ -4265,7 +5829,7 @@ class botThreadHdl(dataHdlThread):
                             try:
                                 loggerWS.info("eventTyp: %s - %s" % (eventType, dataSet['data']))
                             except:
-                                loggerWS.debug("eventTyp (except): %s - %s" % (eventType, dataSet))
+                                loggerWS.info("eventTyp (except): %s - %s" % (eventType, dataSet))
             else:
                 self.setPrinterDataStorage(dataSetItems)                
         stopTime = arrow.now() 
@@ -4628,7 +6192,7 @@ if __name__ == "__main__":
     configFile = impConfig()
     presLan.install()
     _ = presLan.gettext
-    
+
     # Bot
     updater = Updater(MY_TELEGRAM_TOKEN, use_context=True)
     dp = updater.dispatcher
@@ -4639,6 +6203,8 @@ if __name__ == "__main__":
     
     dp.add_handler(CommandHandler('reset', resetMsgs))
     addDebugHandler(dp)
+    remPrinterFromBot(dp)
+    repetierBotStats(dp)
     
     dp.add_error_handler(error_callback) 
     
