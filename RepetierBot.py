@@ -274,7 +274,7 @@ def impConfig():
         with open(CFGFILENAME) as json_file:
             data = json.load(json_file)
     except:
-        logger.error("Configuration file not found - impConfig - : %s" % CFGFILENAME)
+        logger.error("Configuration file not found - impConfig - : %s. Did you rename the RepetierBot.json.sample?" % CFGFILENAME)
         sys.exit()
     try:
         if data['gui']['testSuccess'] == True:
