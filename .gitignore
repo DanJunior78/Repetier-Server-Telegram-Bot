@@ -1,2 +1,6 @@
 .DS_Store
 RepetierBot.json
+mod/
+locale/
+fonts/
+00_Pictures/
