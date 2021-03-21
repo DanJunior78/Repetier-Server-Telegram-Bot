@@ -1,0 +1,12 @@
+{"version": 
+	{"CFG_VERSION": "V1.1"}, 
+"server": 
+	{"LANGUAGE": "en", 
+	"MY_REPETIER_SERVER_API_KEY": "xxxxxxx-xxxxxx-xxxxxxxx-xxxxxxxx", 
+	"RepetierServerIP": "", 
+	"RepetierServerPort": "", 
+	"RepetierServerWebcamIP": "", 
+	"MY_TELEGRAM_ID": 0, 
+	"MY_TELEGRAM_TOKEN": ""}, 
+"printers": [], 
+"gui": {"testSuccess": false}}
