@@ -123,8 +123,8 @@ BASENAME = os.path.basename(PROGRAM_FILE)
 FILENAME_NO_EXTENSION = os.path.splitext(BASENAME)[0]
 PROGRAM_FILE_NO_EXT = os.path.splitext(PROGRAM_FILE)[0]
 FILENAME_FILE_NO_EXT_WS = FILENAME_NO_EXTENSION + "Websocket"
-LOGFILENAME = os.path.join(LOGFILEFOLDER, Uhrzeit.format(now) + "_" + FILENAME_NO_EXTENSION + '.log')
-LOGFILENAMEWS = os.path.join(LOGFILEFOLDER, Uhrzeit.format(now) + "_" + FILENAME_FILE_NO_EXT_WS + '.log')
+LOGFILENAME = os.path.join(LOGFILEFOLDER, FILENAME_NO_EXTENSION + '.log')
+LOGFILENAMEWS = os.path.join(LOGFILEFOLDER, FILENAME_FILE_NO_EXT_WS + '.log')
 LOGFILECONFIG = os.path.join(LOGFILEFOLDER, 'log.conf')
 
 # Configuration and external Data
@@ -637,12 +637,7 @@ def getLogfilesKeyboard():
         if file.endswith(FILENAME_NO_EXTENSION + '.log'): 
             buf = {}
             buf['filename'] = file
-            x = file.split("_")
-            date = x[0][4:] + "." + x[0][2:4] + "." + x[0][:2]
-            time = x[1][:2] + ":" + x[1][2:4] + ":" + x[1][4:]
-            buf['date'] = date
-            buf['time'] = time
-            key.append(InlineKeyboardButton(("%s/%s") % (buf['date'], buf['time']), callback_data=buf['filename']))
+            key.append(InlineKeyboardButton(("%s") % (buf['filename']), callback_data=buf['filename']))
     key.append(InlineKeyboardButton(_("database"), callback_data='database'))
     key.append(InlineKeyboardButton(_("Active Threads"), callback_data='threads'))
     return key
