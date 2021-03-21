@@ -1,12 +1,12 @@
 {"version": 
-	{"CFG_VERSION": "V1.1"}, 
+	{"CFG_VERSION": "V1.1"}, ====> DON´T TOUCH
 "server": 
-	{"LANGUAGE": "en", 
-	"MY_REPETIER_SERVER_API_KEY": "xxxxxxx-xxxxxx-xxxxxxxx-xxxxxxxx", 
-	"RepetierServerIP": "", 
-	"RepetierServerPort": "", 
-	"RepetierServerWebcamIP": "", 
-	"MY_TELEGRAM_ID": 0, 
-	"MY_TELEGRAM_TOKEN": ""}, 
-"printers": [], 
-"gui": {"testSuccess": false}}
+	{"LANGUAGE": "en",  ====> Choose: en,de,es
+	"MY_REPETIER_SERVER_API_KEY": "xxxxxxx-xxxxxx-xxxxxxxx-xxxxxxxx", ====> Repetier Server API Key
+	"RepetierServerIP": "xxx.xxx.xxx.xxx", ====> Repetier Server IP
+	"RepetierServerPort": "yyyy", ====> Repetier Server Port
+	"RepetierServerWebcamIP": "xxx.xxx.xxx.xxx", ====> {can be same as Repetier Server IP}
+	"MY_TELEGRAM_ID": 0, ====> Telegram ID of your Telegram Account which you use on your phone, laptop
+	"MY_TELEGRAM_TOKEN": ""}, ====> Telegram Botfather token
+"printers": [],  ====> DON´T TOUCH
+"gui": {"testSuccess": false}} ====> DON´T TOUCH
