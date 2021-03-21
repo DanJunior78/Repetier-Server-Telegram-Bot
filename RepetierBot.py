@@ -68,9 +68,9 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.1.0" 
+SW_VERSION = "1.1.2" 
 CFG_VERSION = "V1.1"
-EX_DEBUG = False
+EX_DEBUG = True
 
 LANGUAGE = "de"
 
@@ -123,8 +123,8 @@ BASENAME = os.path.basename(PROGRAM_FILE)
 FILENAME_NO_EXTENSION = os.path.splitext(BASENAME)[0]
 PROGRAM_FILE_NO_EXT = os.path.splitext(PROGRAM_FILE)[0]
 FILENAME_FILE_NO_EXT_WS = FILENAME_NO_EXTENSION + "Websocket"
-LOGFILENAME = os.path.join(LOGFILEFOLDER, Uhrzeit.format(now) + "_" + FILENAME_NO_EXTENSION + '.log')
-LOGFILENAMEWS = os.path.join(LOGFILEFOLDER, Uhrzeit.format(now) + "_" + FILENAME_FILE_NO_EXT_WS + '.log')
+LOGFILENAME = os.path.join(LOGFILEFOLDER, FILENAME_NO_EXTENSION + '.log')
+LOGFILENAMEWS = os.path.join(LOGFILEFOLDER, FILENAME_FILE_NO_EXT_WS + '.log')
 LOGFILECONFIG = os.path.join(LOGFILEFOLDER, 'log.conf')
 
 # Configuration and external Data
@@ -274,7 +274,7 @@ def impConfig():
         with open(CFGFILENAME) as json_file:
             data = json.load(json_file)
     except:
-        logger.error("Configuration file not found - impConfig - : %s. Did you rename the RepetierBot.json.sample?" % CFGFILENAME)
+        logger.error("Configuration file not found - impConfig - : %s" % CFGFILENAME)
         sys.exit()
     try:
         if data['gui']['testSuccess'] == True:
@@ -637,12 +637,7 @@ def getLogfilesKeyboard():
         if file.endswith(FILENAME_NO_EXTENSION + '.log'): 
             buf = {}
             buf['filename'] = file
-            x = file.split("_")
-            date = x[0][4:] + "." + x[0][2:4] + "." + x[0][:2]
-            time = x[1][:2] + ":" + x[1][2:4] + ":" + x[1][4:]
-            buf['date'] = date
-            buf['time'] = time
-            key.append(InlineKeyboardButton(("%s/%s") % (buf['date'], buf['time']), callback_data=buf['filename']))
+            key.append(InlineKeyboardButton(("%s") % (buf['filename']), callback_data=buf['filename']))
     key.append(InlineKeyboardButton(_("database"), callback_data='database'))
     key.append(InlineKeyboardButton(_("Active Threads"), callback_data='threads'))
     return key
@@ -2423,7 +2418,6 @@ def timeBasedPrintPicValue(update, context):
     return FIVE
 
 def timeBasedPrintPicCamSelect(update, context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening after print send picture select webcam") + "...</b>", 
@@ -2435,7 +2429,6 @@ def timeBasedPrintPicCamSelect(update, context):
     return SIXTEEN
 
 def timeBasedPrintPicCamSelectItem(update, context):
-    #queryMessage = update.callback_query.message
     queryData = update.callback_query.data
     setTimeBasedPrintPicCam(botGetTracking(context),queryData)
     sendMsgToBot(botGetTracking(context), 
@@ -2523,13 +2516,6 @@ def handlePrintSelection(update,context):
 def startSelectedPrint(update, context):
     queryMessageData = update.callback_query.data
     sendStartPrint(botGetTracking(context), queryMessageData)
-    sendMsgToBot(slug=botGetTracking(context), 
-                 function="handlePrintQueue", 
-                 msg="<i>🔜 " + _("Closing keyboard") + "...</i>", 
-                 reply_markup=None)
-    sendMsgToBot(botGetTracking(context), 
-                 "handlePrintQueue", 
-                 removeMsg=True)
     botRemTracking()
     remAllExtraMsgs(botGetTracking(context))
     logger.info("Bot start print: %s (%s): %s, %s" 
@@ -2537,7 +2523,6 @@ def startSelectedPrint(update, context):
     return ConversationHandler.END
 
 def handlePrintCancel(update,context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening cancel print confirmation") + "...</b>", 
@@ -2560,7 +2545,6 @@ def handlePrintCancelAction(update, context):
     return ONE
 
 def handlePrintFMultiply(update,context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening flow multiplier") + "...</b>", 
@@ -2602,7 +2586,6 @@ def handlePrintFMultiplyActionButton(update, context):
     return TWENTY
 
 def handlePrintSMultiply(update,context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening speed multiplier") + "...</b>", 
@@ -2812,7 +2795,6 @@ def handlePrintCTempActionButton(update, context):
     return TWENTYEIGHT
 
 def handlePrintEStop(update,context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening emergency stop confirmation") + "...</b>", 
@@ -2936,7 +2918,7 @@ def remPrinterFromBot(telegramDispatcher):
             },
     fallbacks=[MessageHandler(Filters.all, exitRemPrintFromBotContext)],
     allow_reentry=False,
-    conversation_timeout=60,
+    conversation_timeout=180,
     name="Repetier-Server-RemPrinter"
     )
     telegramDispatcher.add_handler(conv_handler)
@@ -2995,13 +2977,6 @@ def removePrinter(update, context):
                  % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
     return ConversationHandler.END
 
-    #for file in os.listdir(LOGFILEFOLDER):
-    #    if file.startswith(fileStart):
-    #        sendMsgToBot(botGetTracking(context), file, path=os.path.join(LOGFILEFOLDER, file), caption=file, vidPic="file",)
-    #caption = "<i>" + _("Actual system configuration") + "</i>\n<strong>" + _("Please check the system configuration. Otherwise modify or delete items which you won´t distribute to third persons!") + "</strong>\n\n" + _("Please send files to telegram group for support: ") + "\n\n<a href=\"https://t.me/Repetier_S_Telegram_Bot_Support\">Telegram Bot Support Group</a>"
-    #sendMsgToBot(slug=botGetTracking(context), function=file, path=getSystemDebugConfig(), caption=caption, vidPic="file",)
-    #return ONE
-
 def exitRemPrintFromBotContext(update, context):
     sendMsgToBot(botGetTracking(context), "remPrinterFromBot", removeMsg=True)
     botRemTracking()
@@ -3030,7 +3005,7 @@ def repetierBotStats(telegramDispatcher):
             },
     fallbacks=[MessageHandler(Filters.all, timeoutRepetierBotStatsContext)],
     allow_reentry=False,
-    conversation_timeout=60,
+    conversation_timeout=180,
     name="Repetier-Server-Stats"
     )
     telegramDispatcher.add_handler(conv_handler)
@@ -3116,7 +3091,7 @@ def addDebugHandler(telegramDispatcher):
             },
     fallbacks=[MessageHandler(Filters.all, exitDebugFileUpload)],
     allow_reentry=False,
-    conversation_timeout=60,
+    conversation_timeout=180,
     name="Repetier-Server-Debug"
     )
     telegramDispatcher.add_handler(conv_handler)
@@ -3793,7 +3768,7 @@ class botThreadHdl(dataHdlThread):
                     },
             fallbacks=[MessageHandler(Filters.all, unknownCommand)],
             allow_reentry=True,
-            conversation_timeout=60,
+            conversation_timeout=180,
             name="Repetier-Server-Bot"
             )
         elif hdlType == "messages":
@@ -3808,7 +3783,7 @@ class botThreadHdl(dataHdlThread):
                     },
             fallbacks=[MessageHandler(Filters.all, unknownCommand)],
             allow_reentry=True,
-            conversation_timeout=60,
+            conversation_timeout=180,
             name="Repetier-Server-Bot-Messages"
             )
         else:
@@ -4511,8 +4486,12 @@ class botThreadHdl(dataHdlThread):
                         statusC, msgC = self.checkChambersStatus(stateLists['heatedChambers'])
                         statusHB, msgHB = self.checkHeatedBedsStatus(stateLists['heatedBeds'])
                         statusE, msgE = self.checkExtrudersStatus(stateLists['extruder'])
+                        if stateLists['layer'] > 1:
+                            layerMin = True
+                        else:
+                            layerMin = False
                         msgLong = msgBasis 
-                        if statusC and statusHB and statusE:
+                        if statusC and statusHB and statusE or layerMin:
                             actTime = arrow.now()
                             restOfPrintTime = int(listPrinters['printTime'])-int(listPrinters['printedTimeComp'])
                             msgLong += "<u><b>" + _("Print file") + ":</b></u>\n"
