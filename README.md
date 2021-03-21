@@ -19,11 +19,19 @@ Please visit the wiki for helpful information related to this program: [Main Wik
 _If you want to support me with a fresh coffee and if you think it´s worthing what i'm doing, donate something, to get a fresh coffee_
 [Push here :love_letter:](https://paypal.me/DanielGlock78)
 
+# Update requirements from 1.0.x to >1.1.0:
+
+Please copy /fonts folder and the /mod folder to your local installation.
+
 # Images/Pictures
 
 ### New in V1.1.0:
 
-Not updated now
+![New Main View](/00_Pictures/main_view_V1_1.JPG)
+![Printer Handling](/00_Pictures/Printer_V1.1_01.JPG)
+![Printer Handling](/00_Pictures/Printer_V1.1_02.JPG)
+![Printer Queue](/00_Pictures/PrinterQueue_V1.1_01.JPG)
+![Print Slection](/00_Pictures/PrinterQueue_V1.1_02.JPG)
 
 New in V1.0.2:
 
