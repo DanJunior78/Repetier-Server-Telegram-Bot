@@ -21,7 +21,11 @@ _If you want to support me with a fresh coffee and if you think it´s worthing w
 
 # Images/Pictures
 
-### New in V1.0.2:
+### New in V1.1.0:
+
+Not updated now
+
+New in V1.0.2:
 
 ![Main View](/00_Pictures/main_view_v1_0.JPG)
 ![Printer Detail](/00_Pictures/main_detail_view_v1_0.JPG)
