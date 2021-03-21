@@ -68,7 +68,7 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.1.1" 
+SW_VERSION = "1.1.2" 
 CFG_VERSION = "V1.1"
 EX_DEBUG = True
 
@@ -2423,7 +2423,6 @@ def timeBasedPrintPicValue(update, context):
     return FIVE
 
 def timeBasedPrintPicCamSelect(update, context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening after print send picture select webcam") + "...</b>", 
@@ -2435,7 +2434,6 @@ def timeBasedPrintPicCamSelect(update, context):
     return SIXTEEN
 
 def timeBasedPrintPicCamSelectItem(update, context):
-    #queryMessage = update.callback_query.message
     queryData = update.callback_query.data
     setTimeBasedPrintPicCam(botGetTracking(context),queryData)
     sendMsgToBot(botGetTracking(context), 
@@ -2523,9 +2521,6 @@ def handlePrintSelection(update,context):
 def startSelectedPrint(update, context):
     queryMessageData = update.callback_query.data
     sendStartPrint(botGetTracking(context), queryMessageData)
-    #sendMsgToBot(botGetTracking(context), 
-    #             "handlePrintQueue", 
-    #             removeMsg=True)
     botRemTracking()
     remAllExtraMsgs(botGetTracking(context))
     logger.info("Bot start print: %s (%s): %s, %s" 
@@ -2533,7 +2528,6 @@ def startSelectedPrint(update, context):
     return ConversationHandler.END
 
 def handlePrintCancel(update,context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening cancel print confirmation") + "...</b>", 
@@ -2556,7 +2550,6 @@ def handlePrintCancelAction(update, context):
     return ONE
 
 def handlePrintFMultiply(update,context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening flow multiplier") + "...</b>", 
@@ -2598,7 +2591,6 @@ def handlePrintFMultiplyActionButton(update, context):
     return TWENTY
 
 def handlePrintSMultiply(update,context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening speed multiplier") + "...</b>", 
@@ -2808,7 +2800,6 @@ def handlePrintCTempActionButton(update, context):
     return TWENTYEIGHT
 
 def handlePrintEStop(update,context):
-    #queryMessageData = update.callback_query.message
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
                  msg="<b>🔜 " + _("Opening emergency stop confirmation") + "...</b>", 
@@ -2990,13 +2981,6 @@ def removePrinter(update, context):
     logger.debug("Bot ends remove printer conversation: %s (%s): %s, %s"
                  % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
     return ConversationHandler.END
-
-    #for file in os.listdir(LOGFILEFOLDER):
-    #    if file.startswith(fileStart):
-    #        sendMsgToBot(botGetTracking(context), file, path=os.path.join(LOGFILEFOLDER, file), caption=file, vidPic="file",)
-    #caption = "<i>" + _("Actual system configuration") + "</i>\n<strong>" + _("Please check the system configuration. Otherwise modify or delete items which you won´t distribute to third persons!") + "</strong>\n\n" + _("Please send files to telegram group for support: ") + "\n\n<a href=\"https://t.me/Repetier_S_Telegram_Bot_Support\">Telegram Bot Support Group</a>"
-    #sendMsgToBot(slug=botGetTracking(context), function=file, path=getSystemDebugConfig(), caption=caption, vidPic="file",)
-    #return ONE
 
 def exitRemPrintFromBotContext(update, context):
     sendMsgToBot(botGetTracking(context), "remPrinterFromBot", removeMsg=True)
