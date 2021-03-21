@@ -70,7 +70,7 @@ from telegram.error import (TelegramError,
 
 SW_VERSION = "1.1.2" 
 CFG_VERSION = "V1.1"
-EX_DEBUG = True
+EX_DEBUG = False
 
 LANGUAGE = "de"
 
