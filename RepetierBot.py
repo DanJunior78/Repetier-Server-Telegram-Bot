@@ -34,6 +34,7 @@ import arrow # Date ISO 8601
 import threading, time, signal # threading libraries
 import pathlib
 import copy
+import shutil
 from urllib.parse import urlparse
 import getpass
 import json
@@ -68,9 +69,11 @@ from telegram.error import (TelegramError,
                             ChatMigrated,
                             NetworkError)
 
-SW_VERSION = "1.1.2" 
+SW_VERSION = "1.1.3" 
 CFG_VERSION = "V1.1"
-EX_DEBUG = False
+BRANCH = "main"
+BRANCHBUGFIX = "bugfix"
+EX_DEBUG = True
 
 LANGUAGE = "de"
 
@@ -113,7 +116,6 @@ checkPlatform = platform.platform()
 # Create Logfile in sub folder of program
 formatter=u'(%(threadName)-10s) - %(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
-locale.setlocale(locale.LC_ALL, '')
 now = datetime.datetime.now()
 Uhrzeit = "{:%y%m%d_%H%M%S}"
 PROGRAM_FILE = main.__file__
@@ -133,12 +135,15 @@ LOGFILECONFIG = os.path.join(LOGFILEFOLDER, 'log.conf')
 FILENAME_FILE_NO_EXT_CFG = FILENAME_NO_EXTENSION
 CFGFILENAME =  os.path.join(os.getcwd(), FILENAME_FILE_NO_EXT_CFG + '.json')
 
-## Video & Gifs & Pictures & Model Pictures & Fonts
+## Video & Gifs & Pictures & Model Pictures & Fonts & Update
 PNGFILEFOLDER = os.path.join(os.getcwd(), 'pic', 'png')
 GIFFILEFOLDER = os.path.join(os.getcwd(), 'pic', 'gif') 
 VIDFILEFOLDER = os.path.join(os.getcwd(), 'vid') 
 MODELFILEFOLDER = os.path.join(os.getcwd(), 'mod')
 FONTSFILEFOLDER = os.path.join(os.getcwd(), 'fonts')
+UPDATEFILEFOLDER = os.path.join(os.getcwd(), 'update')
+UPDFILENAME="rsbversion.json"
+UPDBASEURL="https://raw.githubusercontent.com/DanJunior78/Repetier-Server-Telegram-Bot/"
 
 fontSmall = ImageFont.truetype(os.path.join(FONTSFILEFOLDER, 'NCS Rogueland Slab Bold.ttf'), 16)
 fontMedium = ImageFont.truetype(os.path.join(FONTSFILEFOLDER, 'NCS Rogueland Slab Bold.ttf'), 34)
@@ -629,6 +634,8 @@ def checkStartKeys(slug):# Check start keyboard add ons
     if listPrinters['online'] == 1 and listPrinters['active'] == True:
         key.append(InlineKeyboardButton(_('Printer'), callback_data='HandlePrinter'))
     key.append(InlineKeyboardButton(_('Settings'), callback_data='Settings'))
+    if not botThreads.botData['server']['update']['actual']:
+        key.append(InlineKeyboardButton(_('Update to %s') % botThreads.botData['server']['update']['latest'], callback_data='UpdateBot'))
     return key
 
 def getLogfilesKeyboard():
@@ -2816,6 +2823,26 @@ def handleEmStopAction(update, context):
                  reply_markup=getKeyboard(getHandlePrintButton(botGetTracking(context))))
     return EIGHTTEEN
 
+def updateBotTo(update, context):
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="printer", 
+                 msg="<b>🔜 " + _("Opening update confirmation") + "...</b>", 
+                 reply_markup=None)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="updateBotTo", 
+                 msg="<b>⚠️ " + _("Do you really want to update the bot?") + "\n\nRelease Note: </b>\n<code>%s</code>" % botThreads.botData['server']['update']['rnote'], 
+                 reply_markup=getKeyboard(getOKButton()))
+    return TWENTYNINE
+
+def updateBotToConfirm(update, context):
+    botThreads.updateBot(BRANCH)
+    botRemTracking()
+    remAllExtraMsgs(botGetTracking(context))
+    logger.info("Bot finished conversation: %s (%s): %s, %s" 
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+    
+
 def exitBot(update, context):
     sendMsgToBot(slug=botGetTracking(context), 
                  function="printer", 
@@ -3151,17 +3178,25 @@ def uploadDebugDatabaseUpload(update, context):
 
 def uploadDebugActiveThreads(update, context):
     logger.info("Debug check threads. Active threads: %d / %s" % (threading.active_count(), threading.enumerate()))
-    msg="<b>"+_("Active threads")+": %d</b>\n" % (threading.active_count())
+    msg = "👣 <b>" + _("Bot running since") + ": </b>\n<code>%s</code>\n" % (botThreads.programStart.format('DD.MM.YYYY - HH:mm'))
+    msg+= "🔰 <b>" + _("Bot version") + ": </b>\n<code>%s</code>\n" % (SW_VERSION)
+    msg+="➿ <b>"+_("Active threads")+": %d</b>\n" % (threading.active_count())
     for actThreads in threading.enumerate():
         strThread=str(actThreads)
         msg+="<b>*</b> <code>" + str(strThread[1:-1]) + "</code>\n"
+    for printer in botThreads.botData['printers']:
+        msg+="\n<b>"+_("Active printer threads")+": %s / %d</b>" % (printer,len(botThreads.botData['printers'][printer]['threads']))
+    msg+="\n<b>"+_("Active server threads")+": %d</b>" % (len(botThreads.botData['server']['threads']))
     sendMsgToBot(slug="Bot", 
                 function="activeThreads", 
                 msg=msg, 
                 reply_markup=None,
                 singleMsg=True,
                 delTime=20)
-    return ONE
+    sendMsgToBot(botGetTracking(context), "RemoveAtExit", message_id=update.callback_query.message.message_id)
+    sendMsgToBot(botGetTracking(context), "logfileUpload", removeMsg=True)
+    botRemTracking()
+    return ConversationHandler.END
 
 def exitDebugFileUpload(update, context):
     sendMsgToBot(botGetTracking(context), "RemoveAtExit", message_id=update.callback_query.message.message_id)
@@ -3173,6 +3208,85 @@ def exitDebugFileUpload(update, context):
 
 def timeoutDebugFileUpload(update, context):
     sendMsgToBot(botGetTracking(context), "logfileUpload", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot timeout debug conversation: %s (%s): %s, %s" 
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+# Get Bugfix branch version
+
+def getBotBugfix(telegramDispatcher):
+    conv_handler = ConversationHandler(
+    entry_points=[CommandHandler("bugfix", getBotBugfixContext)
+                    ],
+    states={
+        ONE: [CallbackQueryHandler(exitBotBugfixContext, pattern="^End$"), # Start conversation bugfix
+              CallbackQueryHandler(startBugfixUpdate)
+                ],
+        ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, timeoutBugfix)],       
+            },
+    fallbacks=[MessageHandler(Filters.all, timeoutBugfix)],
+    allow_reentry=False,
+    conversation_timeout=180,
+    name="Repetier-Server-Update-Bugfix"
+    )
+    telegramDispatcher.add_handler(conv_handler)
+    logger.info("addHandler: Added handler bugfix handler")
+
+def getBotBugfixContext(update, context):
+    if not checkUserIDValid(update,chatID=CHATID):
+        logger.critical("Bot answered to an unknown user: %s / %s: %s, %s" % (update.effective_chat.username, 
+                                                                                      update.effective_chat.id, 
+                                                                                      update.effective_chat.last_name, 
+                                                                                      update.effective_chat.first_name)
+                        )
+        msgTelegram = "Unauthorized access (ID: %s) from user %s, %s %s" % (update.effective_chat.id,
+                                                                                 update.effective_chat.username, 
+                                                                                 update.effective_chat.first_name, 
+                                                                                 update.effective_chat.last_name
+                                                                                )
+        telegramSendMsg(msgTelegram,reply_markup=None, chat_id=CHATID, token=MY_TELEGRAM_TOKEN)
+    
+        update.message.reply_text(_('Access denied!'))
+        return ConversationHandler.END
+    botAddTracking(slug=getBotSlug(update.message.text), 
+                   function="debugFileUpload", 
+                   context=context)
+    sendMsgToBot(slug=botGetTracking(context), 
+                 function="RemoveAtEntry", 
+                 message_id=update.message.message_id)
+    logger.debug("Starting bugfix conversation messageID: %s" % (update.message.message_id))
+    sendMsgToBot(slug=getBotSlug(update.message.text), 
+                 function="getBotBugfixContext", 
+                 msg=_("You want really update to the bugfix version?"), 
+                 reply_markup=getStartKeyboard(getOKButton()))
+    return ONE 
+    
+def startBugfixUpdate(update, context):
+    botThreads.updateBot(BRANCHBUGFIX)
+    sendMsgToBot(botGetTracking(context), "RemoveAtExit", message_id=update.callback_query.message.message_id)
+    sendMsgToBot(botGetTracking(context), "getBotBugfixContext", removeMsg=True)
+    botRemTracking()
+    msg="<b>"+_("No bugfix update available!")+"</b>"
+    sendMsgToBot(slug="Bot", 
+                function="activeThreads", 
+                msg=msg, 
+                reply_markup=None,
+                singleMsg=True,
+                delTime=20)
+    logger.debug("Bot ends bugfix conversation. No updates available")
+    return ConversationHandler.END
+
+def exitBotBugfixContext(update, context):
+    sendMsgToBot(botGetTracking(context), "RemoveAtExit", message_id=update.callback_query.message.message_id)
+    sendMsgToBot(botGetTracking(context), "getBotBugfixContext", removeMsg=True)
+    botRemTracking()
+    logger.debug("Bot ends bugfix conversation: %s (%s): %s, %s"
+                 % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
+    return ConversationHandler.END
+
+def timeoutBugfix(update, context):
+    sendMsgToBot(botGetTracking(context), "getBotBugfixContext", removeMsg=True)
     botRemTracking()
     logger.debug("Bot timeout debug conversation: %s (%s): %s, %s" 
                  % (update.effective_chat.username, update.effective_chat.id, update.effective_chat.last_name, update.effective_chat.first_name))
@@ -3376,7 +3490,8 @@ class botThreadHdl(dataHdlThread):
         self.threadLock = threading.Lock()
         self.programStart = arrow.now()
         self.nextMsgRenew = self.programStart.shift(days=1)
-        self.nextRSTimeoutMsg = None
+        self.RSTimeoutMsgDel = None
+        self.RSTimeoutMsgSend = False
         self.nextOrgMsgOrder = self.programStart.shift(seconds=30)
         loggerWS.info("Update all long term messages at: %s" % self.nextMsgRenew.format('DD.MM.YYYY - HH:mm'))
         self.wsThreadSend = dataHdlThread(interval=THRDSEND, execute=self.ThreadSend, name="Repetier-Server-Send")
@@ -3390,6 +3505,7 @@ class botThreadHdl(dataHdlThread):
     def start(self):
         self.initDatastructure()
         self.initPrinterConfigActions()
+        self.checkUpdates(BRANCH)
         self.addMsgToBot(slug="Bot",
                              function="startMessage",
                              msg="<b>"+_("Welcome to Repetier-Server telegram bot!")+"</b>\n<b>"+_("from")+"</b>\nhttps://github.com/DanJunior78/Repetier-Server-Telegram-Bot\n<i>"+_("Version: ") + "%s</i>"% SW_VERSION,
@@ -3468,6 +3584,12 @@ class botThreadHdl(dataHdlThread):
         initServer['statistic'] = {}
         initServer['statistic']['prints'] = []
         initServer['statistic']['summary'] = []
+        initServer['update'] = {}
+        initServer['update']['actual'] = True
+        initServer['update']['latest'] = None
+        initServer['update']['toDownload'] = None
+        initServer['update']['files'] = None
+        initServer['update']['rnote'] = None
         return initServer
 
     def initPrinterRoot(self, configFilePrinters):
@@ -3571,7 +3693,8 @@ class botThreadHdl(dataHdlThread):
                       CallbackQueryHandler(extCommands, pattern="^ExtCommands$"),
                       CallbackQueryHandler(webcams, pattern="Webcam*"),
                       CallbackQueryHandler(quickCommands, pattern="^QuickCommands"),
-                      CallbackQueryHandler(handlePrint, pattern="^HandlePrinter"),
+                      CallbackQueryHandler(handlePrint, pattern="^HandlePrinter"), 
+                      CallbackQueryHandler(updateBotTo, pattern="^UpdateBot"),
                       CallbackQueryHandler(settings, pattern="Settings*")
                       ],
                 TWO: [CallbackQueryHandler(exitBot, pattern="^End$"), # ExtCommand conversation
@@ -3763,6 +3886,10 @@ class botThreadHdl(dataHdlThread):
                       CallbackQueryHandler(handlePrintCTempActionButton, pattern="^90$"), 
                       CallbackQueryHandler(handlePrintCTempActionButton, pattern="^0$"), 
                       MessageHandler(Filters.all, handlePrintCTempActionText)
+                      ],
+                TWENTYNINE: [CallbackQueryHandler(exitBot, pattern="^End$"), # Update bot conversation
+                      CallbackQueryHandler(extCommandsBack, pattern="^Back$"), 
+                      CallbackQueryHandler(updateBotToConfirm)
                       ],
                 ConversationHandler.TIMEOUT:[MessageHandler(Filters.all, botTimeout)],      
                     },
@@ -4047,7 +4174,7 @@ class botThreadHdl(dataHdlThread):
                     elif thread.threadState == "active":
                         thread.modifyInterval(THRDACTIVE)
                     elif thread.threadState == None:
-                        loggerWS.info("activateThreadState - Thread state: Waiting for first initialization %s/%s" % (thread.slug, thread.function))
+                        loggerWS.debug("activateThreadState - Thread state: Waiting for first initialization %s/%s" % (thread.slug, thread.function))
                     else:
                         loggerWS.error("activateThreadState - Thread state: %s unknown for %s/%s" % (thread.threadState, thread.slug, thread.function))
         
@@ -4348,6 +4475,7 @@ class botThreadHdl(dataHdlThread):
             for item in self.botData['bot']['messageID']:
                 with self.threadLock:
                     item['dailyRenew'] = True
+            self.checkUpdates(BRANCH)
 
     def checkPrinterInMessageID(self, slug):
         for printer in self.botData['bot']['messageID']:
@@ -4491,7 +4619,7 @@ class botThreadHdl(dataHdlThread):
                         else:
                             layerMin = False
                         msgLong = msgBasis 
-                        if statusC and statusHB and statusE or layerMin:
+                        if (statusC and statusHB and statusE) or layerMin:
                             actTime = arrow.now()
                             restOfPrintTime = int(listPrinters['printTime'])-int(listPrinters['printedTimeComp'])
                             msgLong += "<u><b>" + _("Print file") + ":</b></u>\n"
@@ -5230,12 +5358,6 @@ class botThreadHdl(dataHdlThread):
                 self.setPrinterData(slug, action, data)
             elif action == "listExternalCommands":
                 self.setServerData(data, action)
-                sendMsgToBot(slug=slug, 
-                                function="listExternalCommands", 
-                                msg="<i>" + _("Checked for external Commands") + "</i>", 
-                                reply_markup=None,
-                                singleMsg=True,
-                                delTime=5)
             elif action == "sendQuickCommand":
                 if data == {}:
                     sendMsgToBot(slug=slug, 
@@ -5280,12 +5402,12 @@ class botThreadHdl(dataHdlThread):
                     self.checkAddThread(threadPlace="server", thread=_("Messages"), function="messages", hdlType="messages", execute=self.servMsgAction)
                 else:
                     self.removeThread(threadPlace="server", thread=_("Messages"), function="messages", hdlType="messages", msgAvail=True)
-                    sendMsgToBot(slug=_("Messages"), 
-                                    function="messages", 
-                                    msg="<i>" + _("Removing server info messages") + "</i>", 
-                                    reply_markup=None,
-                                    singleMsg=True,
-                                    delTime=5)
+                    #sendMsgToBot(slug=_("Messages"), 
+                     #               function="messages", 
+                      #              msg="<i>" + _("Removing server info messages") + "</i>", 
+                       #             reply_markup=None,
+                        #            singleMsg=True,
+                         #           delTime=5)
             elif action == "removeMessage":
                 self.sendRecExtendedData(action="messages", slug="server", messageCntItem="messages")
                 sendMsgToBot(slug=slug, 
@@ -5529,8 +5651,10 @@ class botThreadHdl(dataHdlThread):
                                                                                             data = data))
         loggerWS.info("initPrinterConfigActions - Sending request to Repetier-Server")
 
-    def checkAddThread(self, threadPlace, thread, function, hdlType, execute):
+    def checkAddThread(self, threadPlace, thread, function, hdlType, execute, interval=THRDIDLE, name=None, addData = None):
         threadActive = False
+        if name == None:
+            name = thread
         if threadPlace == "printers":
             threadList = self.botData['printers'][thread]['threads']            
         elif threadPlace == "server":
@@ -5546,24 +5670,24 @@ class botThreadHdl(dataHdlThread):
                             loggerWS.critical("checkAddThread - Restart dead thread %s/%s" % (thread, threadItem))
                             threadList.pop(threadItem)
                             newThread = {}
-                            newThread[function] = self.startActionThread(name=thread, 
+                            newThread[function] = self.startActionThread(name=name, 
                                                                             slug=thread, 
                                                                             execute=execute, 
                                                                             function=function, 
-                                                                            interval=THRDIDLE, 
-                                                                            addData = None) 
+                                                                            interval=interval, 
+                                                                            addData = addData) 
                             threadList.update(newThread)
                         threadActive = True
             except:
                 loggerWS.critical("checkAddThread - Something went wrong during the loop -> thread died, like message thread")
         if not threadActive:
             newThread = {}
-            newThread[function] = self.startActionThread(name=thread, 
+            newThread[function] = self.startActionThread(name=name, 
                                                             slug=thread, 
                                                             execute=execute, 
                                                             function=function, 
-                                                            interval=THRDIDLE, 
-                                                            addData = None)
+                                                            interval=interval, 
+                                                            addData = addData)
             with self.threadLock:
                 loggerWS.info("checkAddThread - Start thread %s/%s and add handler %s" % (thread, function, thread))
                 threadList.update(newThread)
@@ -5572,14 +5696,14 @@ class botThreadHdl(dataHdlThread):
     def removeThread(self, threadPlace, thread, function, hdlType=None, msgAvail=True):
         threadActive = False
         if threadPlace == "printers":
-            threadList = self.botData['printers'][thread]['threads']            
+            threadList = self.botData['printers'][thread]['threads'] 
         elif threadPlace == "server":
             threadList = self.botData['server']['threads']
         with self.threadLock:
             for threadItem in threadList.copy():
                 if threadItem == function:
                     loggerWS.info("removeThread - Remove thread %s/%s" % (thread, threadItem))
-                    toRemove = threadList.pop(threadItem)
+                    toRemove = threadList.pop(threadItem)#threadList.pop(threadItem)
                     self.removeHandler(item=thread, hdlType=hdlType) # item, hdlType=None
                     if msgAvail:
                         self.remMsgFromBuffer(thread, function)
@@ -5635,27 +5759,49 @@ class botThreadHdl(dataHdlThread):
                                          delTime=20
                                          )
                         if printerConfig['extrCoolTempExtComm'] != None:
-                            self.startActionThread(name=printerConfig['name'], 
-                                                    slug=printerConfig['slug'], 
-                                                    execute=self.coolDownAction, 
-                                                    function="coolDownActionExtr", 
-                                                    interval=THRDSLOW)
+                            self.checkAddThread(threadPlace="printers", 
+                                                thread=printerConfig['slug'], 
+                                                function="coolDownActionExtr", 
+                                                hdlType=None, 
+                                                execute=self.coolDownAction, 
+                                                interval=THRDSLOW,
+                                                name=printerConfig['name'])
+                            #self.startActionThread(name=printerConfig['name'], 
+                            #                        slug=printerConfig['slug'], 
+                            #                        execute=self.coolDownAction, 
+                            #                        function="coolDownActionExtr", 
+                            #                        interval=THRDSLOW)
                         if printerConfig['heatbCoolTempExtComm'] != None:
-                            self.startActionThread(name=printerConfig['name'], 
-                                                    slug=printerConfig['slug'], 
-                                                    execute=self.coolDownAction, 
-                                                    function="coolDownActionHeatb", 
-                                                    interval=THRDSLOW)
+                            self.checkAddThread(threadPlace="printers", 
+                                                thread=printerConfig['slug'], 
+                                                function="coolDownActionHeatb", 
+                                                hdlType=None, 
+                                                execute=self.coolDownAction, 
+                                                interval=THRDSLOW,
+                                                name=printerConfig['name'])
+                            #self.startActionThread(name=printerConfig['name'], 
+                            #                        slug=printerConfig['slug'], 
+                            #                        execute=self.coolDownAction, 
+                            #                        function="coolDownActionHeatb", 
+                            #                        interval=THRDSLOW)
                         buffer = {}
                         buffer['printerConfig'] = printerConfig
                         buffer['listPrinters'] = self.getPrinterDataStorage(printerConfig['slug'], "listPrinter")
                         if printerConfig['AfterPrintPicCamSelect'] != None:
-                            self.startActionThread(name=printerConfig['name'], 
-                                                    slug=printerConfig['slug'], 
-                                                    execute=self.sendPicAfterPrint, 
-                                                    function="sendPicAfterPrint", 
-                                                    interval=printerConfig['delayTimeAfterPrintPic'],
-                                                    addData=buffer)
+                            self.checkAddThread(threadPlace="printers", 
+                                                thread=printerConfig['slug'], 
+                                                function="sendPicAfterPrint", 
+                                                hdlType=None, 
+                                                execute=self.sendPicAfterPrint, 
+                                                interval=THRDSLOW,
+                                                name=printerConfig['name'],
+                                                addData=buffer)
+                            #self.startActionThread(name=printerConfig['name'], 
+                            #                        slug=printerConfig['slug'], 
+                            #                        execute=self.sendPicAfterPrint, 
+                            #                        function="sendPicAfterPrint", 
+                            #                        interval=printerConfig['delayTimeAfterPrintPic'],
+                            #                        addData=buffer)
                         date = arrow.now()
                         data = {}
                         data['year'] = date.year
@@ -5716,19 +5862,35 @@ class botThreadHdl(dataHdlThread):
                                                                          
                         loggerWS.info("eventTyp: jobStarted: %s" % messageBuffer)
                         if printerConfig['zHeightPrintPicCamSelect'] != None:
-                            self.startActionThread(name=printerConfig['name'], 
-                                                    slug=printerConfig['slug'], 
-                                                    execute=self.sendPicAfterzHeight, 
-                                                    function="sendPicAfterzHeight", 
-                                                    interval=THRDSLOW,
-                                                    addData=None)
+                            self.checkAddThread(threadPlace="printers", 
+                                                thread=printerConfig['slug'], 
+                                                function="sendPicAfterzHeight", 
+                                                hdlType=None, 
+                                                execute=self.sendPicAfterzHeight, 
+                                                interval=THRDSLOW,
+                                                name=printerConfig['name'],
+                                                addData=None)
+                            #self.startActionThread(name=printerConfig['name'], 
+                            #                        slug=printerConfig['slug'], 
+                            #                        execute=self.sendPicAfterzHeight, 
+                            #                        function="sendPicAfterzHeight", 
+                            #                        interval=THRDSLOW,
+                            #                        addData=None)
                         if printerConfig['timeBasedPrintPicCamSelect'] != None:
-                            self.startActionThread(name=printerConfig['name'], 
-                                                    slug=printerConfig['slug'], 
-                                                    execute=self.sendPicAfterTimeBase, 
-                                                    function="sendPicAfterTimeBase", 
-                                                    interval=THRDSLOW,
-                                                    addData=None)
+                            self.checkAddThread(threadPlace="printers", 
+                                                thread=printerConfig['slug'], 
+                                                function="sendPicAfterTimeBase", 
+                                                hdlType=None, 
+                                                execute=self.sendPicAfterTimeBase, 
+                                                interval=THRDSLOW,
+                                                name=printerConfig['name'],
+                                                addData=None)
+                            #self.startActionThread(name=printerConfig['name'], 
+                            #                        slug=printerConfig['slug'], 
+                            #                        execute=self.sendPicAfterTimeBase, 
+                            #                        function="sendPicAfterTimeBase", 
+                            #                        interval=THRDSLOW,
+                            #                        addData=None)
                         self.addMsgToBot(slug="Bot",
                                          function="jobStarted",
                                          msg="<b>%s</b>" % messageBuffer,
@@ -5833,6 +5995,11 @@ class botThreadHdl(dataHdlThread):
                             singleMsg=True, 
                             delTime=20
                             )
+            self.removeThread(threadPlace="printers", 
+                              thread=slug, 
+                              function=function, 
+                              hdlType=None, 
+                              msgAvail=False)
             loggerWS.info("coolDownAction: abort order to server for %s" % slug)
             return False
         state = self.getPrinterDataStorage(slug, "stateList")
@@ -5876,6 +6043,11 @@ class botThreadHdl(dataHdlThread):
                                          delTime=20
                                          )
                 loggerWS.info("coolDownAction: send order to server for %s" % slug)
+                self.removeThread(threadPlace="printers", 
+                              thread=slug, 
+                              function=function, 
+                              hdlType=None, 
+                              msgAvail=False)
                 return False
         self.threadWishState("off",threadItem)
         return True
@@ -5902,9 +6074,15 @@ class botThreadHdl(dataHdlThread):
     def sendPicAfterzHeight(self):
         threadItem = threading.current_thread()
         slug = threadItem.slug
+        function = threadItem.function
         listPrinter = self.getPrinterDataStorage(slug,"listPrinter")
         if listPrinter['job'] == "none":
             loggerWS.info("Exit pic after z height for %s" % slug)
+            self.removeThread(threadPlace="printers", 
+                              thread=slug, 
+                              function=function, 
+                              hdlType=None, 
+                              msgAvail=False)
             return False
         else:
             state = self.getPrinterDataStorage(slug, "stateList") # layer, z
@@ -5941,14 +6119,21 @@ class botThreadHdl(dataHdlThread):
                     buffer['nextZ'] = state['z'] + buffer['zConfig']
                     threadItem.addData = buffer
                     loggerWS.info("sendPicAfterzHeight - next z height for printer \"%s\" set to: %.1fmm" % (slug, buffer['nextZ']))
+        self.threadWishState("off",threadItem)
         return True
         
     def sendPicAfterTimeBase(self):
         threadItem = threading.current_thread()
         slug = threadItem.slug
+        function = threadItem.function
         listPrinter = self.getPrinterDataStorage(slug,"listPrinter")
         if listPrinter['job'] == "none":
             loggerWS.info("Exit pic after time for %s" % slug)
+            self.removeThread(threadPlace="printers", 
+                              thread=slug, 
+                              function=function, 
+                              hdlType=None, 
+                              msgAvail=False)
             return False
         else:
             printerConfig = self.getPrinterDataConfig(slug)
@@ -5987,6 +6172,7 @@ class botThreadHdl(dataHdlThread):
                     buffer['nextTime'] = now.shift(minutes=buffer['timeDiff'])
                     threadItem.addData = buffer
                     loggerWS.info("sendPicAfterTimeBase - next time pic for printer \"%s\" at: %s" % (slug, buffer['nextTime'].format('DD.MM.YYYY - HH:mm')))
+        self.threadWishState("off",threadItem)
         return True
     
     def servMsgAction(self):
@@ -6036,7 +6222,198 @@ class botThreadHdl(dataHdlThread):
                             delTime=1)
         self.threadWishState("standby",threadItem)
         return True
-                
+
+    def checkUpdates(self,branch):
+        loggerWS.info("Start checking for updates. Actual version: %s" % SW_VERSION)
+        branchUrl=UPDBASEURL+branch+"/"
+        updFileFolderUrl=branchUrl+"mod/"
+        updFileUrl=updFileFolderUrl+UPDFILENAME
+        try:
+            updfile = requests.get(updFileUrl)
+            loggerWS.info("Update file found on GitHub: %s / branch: %s" % (UPDFILENAME,branch))
+        except OSError:  
+            loggerWS.error("Request error in requests of checkUpdates for bot: %s" % (updFileUrl))
+            return False
+        if updfile.status_code == 200:  # we could have retrieved error page
+            with open(os.path.join(MODELFILEFOLDER, UPDFILENAME), "wb") as f:
+                f.write(updfile.content)
+            loggerWS.info("Update file succesfull downloaded from GitHub")
+        else:
+            loggerWS.error("Request error status code of checkUpdates for bot: %s" % (updfile.status_code))
+            return False
+        return self.checkUpdAvail(os.path.join(MODELFILEFOLDER, UPDFILENAME))
+
+    def checkUpdAvail(self, updFile):
+        try:
+            with open(updFile) as json_file:
+                data = json.load(json_file)
+        except:
+            logger.error("Update file broken - checkUpdAvail - : %s" % updFile)
+            return False
+        aversion = SW_VERSION.split(".")
+        bDUpdate = self.botData['server']['update']
+        for version, dataset in data.items():
+            lversion = version.split(".")
+            for i in range(0,len(aversion)):
+                if int(aversion[i]) < int(lversion[i]):
+                    bDUpdate['actual'] = False
+                    bDUpdate['latest'] = version
+                    bDUpdate['rnote'] = dataset['notes']
+                    loggerWS.info("Bot update available to version: %s" % version)
+                    msg = "<i>" + _("Update to version %s available") % version + " </i>"
+                    self.addMsgToBot(slug="Bot",
+                             function="updateInfo",
+                             msg=msg,
+                             reply_markup=None,
+                             vidPic=None,
+                             priority=False,
+                             botMsg=True,
+                             singleMsg=True, 
+                             delTime=5
+                             )
+                    return True
+        loggerWS.info("checkUpdAvail - No bot update available")
+        return False
+
+    def defineUpd(self, updFile):
+        aversion = SW_VERSION.split(".")
+        newFile={}
+        for version, dataset in updFile.items():
+            lversion = version.split(".")
+            for i in range(0,len(aversion)):
+                if int(aversion[i]) < int(lversion[i]):
+                    newFile[version]=dataset
+                    loggerWS.info("defineUpd - Added bot update version: %s with %d files" % (version, len(dataset['files'])))
+        loggerWS.info("defineUpd - Bot update verified and filtered")
+        return newFile    
+
+    def updateBot(self,branch):
+        if self.checkUpdates(branch):
+            bDUpdate = self.botData['server']['update']
+            loggerWS.info("Start update process from version %s to %s from branch: %s" % (SW_VERSION,bDUpdate['latest'],branch))
+            msg = "<i>" + _("Start updating") + " </i>"
+            self.addMsgToBot(slug="Bot",
+                        function="updateBotIntro",
+                        msg=msg,
+                        reply_markup=None,
+                        vidPic=None,
+                        priority=False,
+                        botMsg=True,
+                        singleMsg=True, 
+                        delTime=5
+                        )
+            updFile=os.path.join(MODELFILEFOLDER, UPDFILENAME)
+            try:
+                with open(updFile) as json_file:
+                    rawData = json.load(json_file)
+            except:
+                logger.error("Update file broken - checkUpdAvail - : %s" % updFile)
+                return False
+            data = self.defineUpd(rawData)
+            bDUpdate['toDownload']=[]
+            fdownl=bDUpdate['toDownload']
+            for version, dataset in data.items():
+                for file in dataset['files']:
+                    rf=""
+                    ul=""
+                    for folder in file['folder']:
+                        rf=os.path.join(rf, folder)
+                        ul=ul+folder+"/"
+                    extLink={}
+                    extLink['fLink']=os.path.join(rf, file['file'])
+                    extLink['urlExt']=ul+file['file']
+                    fdownl.insert(0,extLink)
+            filePathUpd = pathlib.Path(UPDATEFILEFOLDER)
+            filePathUpd.mkdir(parents=True, exist_ok=True)
+            branchUrl=UPDBASEURL+branch+"/"
+            bDUpdate['files']=[]
+            ffiles=bDUpdate['files']
+            msg = "<i>" + _("Start downloading") + " </i>"
+            self.addMsgToBot(slug="Bot",
+                        function="updateBotDownload",
+                        msg=msg,
+                        reply_markup=None,
+                        vidPic=None,
+                        priority=False,
+                        botMsg=True,
+                        singleMsg=True, 
+                        delTime=5
+                        )
+            for files in fdownl:
+                updFileUrl=branchUrl+files['urlExt']
+                try:
+                    updfile = requests.get(updFileUrl)
+                    loggerWS.info("Update file for download found on GitHub: %s / branch: %s" % (updFileUrl,branch))
+                except OSError:  
+                    loggerWS.error("Request error in requests of checkUpdates for bot: %s" % (updFileUrl))
+                    return False
+                if updfile.status_code == 200:  # we could have retrieved error page
+                    filePathFile = pathlib.Path(os.path.join(UPDATEFILEFOLDER, files['fLink']))
+                    filePathPath=filePathFile.parent
+                    filePathPath.mkdir(parents=True, exist_ok=True)
+                    with open(filePathFile, "wb") as f:
+                        f.write(updfile.content)
+                    ffiles.append(filePathFile)
+                    loggerWS.info("Update file succesfull downloaded from GitHub: %s" % files['fLink'])
+                else:
+                    loggerWS.error("Request error status code of updateBot for bot: %s" % (updfile.status_code))
+                    return False
+            if ffiles!=[]:
+                try:
+                    shutil.copytree(UPDATEFILEFOLDER, os.getcwd(), dirs_exist_ok=True)
+                    loggerWS.info("Update files succesfully copied")
+                except:
+                    loggerWS.error("Copy update files failed")
+                    return False
+                try:
+                    shutil.rmtree(UPDATEFILEFOLDER)
+                except OSError as e:
+                    loggerWS.error("Error: %s : %s" % (dir_path, e.strerror))
+                msg = "<i>" + _("Restart bot") + " </i>"
+                self.addMsgToBot(slug="Bot",
+                            function="updateBotRestart",
+                            msg=msg,
+                            reply_markup=None,
+                            vidPic=None,
+                            priority=False,
+                            botMsg=True,
+                            singleMsg=True, 
+                            delTime=5
+                            )
+                self.shutdown(restartOption=True)
+        else:
+            loggerWS.error("updateBot - No bot update available")
+            return False
+
+    def shutdown(self,restartOption=True):
+        self.printThreadStatsInLogger()
+        self.stop()
+        numActiveThread = threading.active_count()
+        numActiveThreadbefore = numActiveThread - 1
+        timeDelThread(feedbackMsg=telegramSendMsg(_("Bot is restarting after 30 seconds"),
+                                                    reply_markup=None, 
+                                                    chat_id=CHATID, 
+                                                    token=MY_TELEGRAM_TOKEN
+                                                    ),
+                        delayTimeSelect=5)
+        self.delPrinterMsg()
+        time.sleep(5)
+        wtime = 30
+        while threading.active_count() != 1 and wtime > 0:
+            time.sleep(1)
+            numActiveThread = threading.active_count()
+            if numActiveThread != numActiveThreadbefore:
+                logger.info("Python programm was stopped. Active threads: %d / %s" % (threading.active_count(), threading.enumerate()))
+                numActiveThreadbefore = numActiveThread
+            wtime -= 1
+        if restartOption:
+            fileRootExec=[]
+            fileRootExec.append(sys.executable)
+            fileRootExec=fileRootExec+sys.argv
+            os.execv(sys.executable, fileRootExec)
+        else:
+            sys.exit()
+                        
     def ThreadHdlRestart(self):
         hdlRestartThread = threading.current_thread()
         loggerWS.debug("Threads Alive:\nwsThreadSend: %s, wsThreadRec: %s, wswsThreadOrderData: %s, botCommunicator: %s, threadManager: %s, modelManager: %s,wsThreadRestart: %s" % (
@@ -6113,11 +6490,11 @@ class botThreadHdl(dataHdlThread):
             loggerWS.debug("Thread: %s" % threads)
         if self.botData['server']['websocket']['timeout'] != None:
             actTimeout = self.botData['server']['websocket']['timeout']
-            if self.nextRSTimeoutMsg == None:
-                self.nextRSTimeoutMsg = actTimeout.shift(minutes=15)
+            if self.RSTimeoutMsgDel == None:
+                self.RSTimeoutMsgDel = actTimeout.shift(minutes=1)
                 loggerWS.error("Repetier Server webserver timeout. Started: %s" % self.botData['server']['websocket']['timeout'])
-            elif self.nextRSTimeoutMsg < arrow.now():
-                self.nextRSTimeoutMsg = arrow.now().shift(minutes=15)
+            elif self.RSTimeoutMsgDel < arrow.now() and self.RSTimeoutMsgSend == False:
+                self.RSTimeoutMsgDel = arrow.now().shift(minutes=15)
                 msg = "🛑<b>" + _("Repetier Server connection timeout. Started at: %s") % actTimeout.format('DD.MM.YYYY - HH:mm') + " ‼️</b>"
                 self.addMsgToBot(slug="Bot",
                              function="timeoutRSWS",
@@ -6127,8 +6504,24 @@ class botThreadHdl(dataHdlThread):
                              priority=False,
                              botMsg=True,
                              singleMsg=True, 
-                             delTime=30
+                             delTime=600
                              )
+                self.RSTimeoutMsgSend = True
+        if self.RSTimeoutMsgSend:
+            if self.botData['server']['websocket']['timeout'] == None:
+                msg = "🟢<b>" + _("Repetier Server connection reestablished. Connected at: %s") % arrow.now().format('DD.MM.YYYY - HH:mm') + "</b>"
+                self.addMsgToBot(slug="Bot",
+                             function="timeoutRSWSOk",
+                             msg=msg,
+                             reply_markup=None,
+                             vidPic=None,
+                             priority=False,
+                             botMsg=True,
+                             singleMsg=True, 
+                             delTime=600
+                             )
+                self.RSTimeoutMsgSend = False
+                self.RSTimeoutMsgDel = None
         self.threadWishState("active",hdlRestartThread)
         
     def printThreadStatsInLogger(self):
@@ -6138,7 +6531,6 @@ class botThreadHdl(dataHdlThread):
                                                             self.restartbotCom,
                                                             self.restartThdMan,
                                                             self.restartModelManager))
-
 
 # 🏁 Ziel / 💯 100% #   🇬🇧 🇺🇸 Fahnen  # 📣 Horn # 🔔 🔕 soung/no sound  # 🖕 Stinkefinger # 🔥 Flame  # ♨️ hot # 🔆 sun
 # ❄️ cold 🆒 cool # 🌬 blow  🌪 Tornado # ⛔️ 💤 Stop # 🚽 💩 abort # 🚧 warning # 🅿️ park  # 💡 hint  # ⚙️ gear # 💧 multiplier
@@ -6152,9 +6544,9 @@ if __name__ == "__main__":
     logger = setup_logger("Main Thread",formatter,logging.INFO,LOGFILENAME)
     loggerWS = setup_logger("WS Thread",formatter,logging.INFO,LOGFILENAMEWS)
     
-    changeLang(None)
-    presLan.install()
-    _ = presLan.gettext
+    #changeLang(None)
+    #presLan.install()
+    #_ = presLan.gettext
 
     logger.info("########### Repetier-Server Bot ###########")
     logger.info("Software Version: %s" % SW_VERSION)
@@ -6165,8 +6557,9 @@ if __name__ == "__main__":
     logger.info("OS Version: %s" % platform.platform())
     username = getpass.getuser()
     logger.info("Active User: %s" % username)
+    logger.info("Executable: %s" % sys.executable) # sys.argv
+    logger.info("Arguments: %s" % sys.argv)
     logger.info("####################################")
-
     # Import Konfigurationsdatei
     configFile = impConfig()
     presLan.install()
@@ -6184,6 +6577,7 @@ if __name__ == "__main__":
     addDebugHandler(dp)
     remPrinterFromBot(dp)
     repetierBotStats(dp)
+    getBotBugfix(dp)
     
     dp.add_error_handler(error_callback) 
     
