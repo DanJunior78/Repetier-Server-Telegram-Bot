@@ -1,5 +1,5 @@
 # Repetier-Server-Telegram-Bot - Python
-## Version: 1.1.2 - 21.03.2021
+## Version: 1.1.3 - 27.03.2021
 Telegram Bot connecting your Repetier Server and your Telegram bot account.
 
 It updates frequently your bot and you´ll have latest information about your prints and printer status.
@@ -19,11 +19,15 @@ Please visit the wiki for helpful information related to this program: [Main Wik
 _If you want to support me with a fresh coffee and if you think it´s worthing what i'm doing, donate something, to get a fresh coffee_
 [Push here :love_letter:](https://paypal.me/DanielGlock78)
 
-# Update requirements from 1.0.x to >1.1.0:
+# Update requirements from >1.1.0:
 
-Please copy /fonts folder and the /mod folder to your local installation.
+Please copy /locale and /mod folder to your local installation.
 
 # Images/Pictures
+
+### New in V1.1.3:
+
+After first installation bot is able to update via the bot and manual start. The update button is visible if there is an update. 
 
 ### New in V1.1.0:
 
